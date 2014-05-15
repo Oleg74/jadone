@@ -1,0 +1,15 @@
+#
+# .gitignore
+#
+
+/.cachebust
+/.git.*/
+/.gitignore.*
+/.tmp/
+/app/bower_components/
+/built/
+/app/images/
+/logs/
+/test/
+/node_modules/
+/npm-debug.log

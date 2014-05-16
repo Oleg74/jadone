@@ -774,6 +774,8 @@ angular.module('myApp.controllers', [])
             $scope.comment.substring(0,200);
             $scope.cart.send($rootScope.$stateParams.lang,$scope.comment,$scope.kurs,$rootScope.currency,function(err){
                 $scope.sendDisabled=false;
+                $scope.cart.clearCart();
+                $rootScope.$state.transitionTo('language.customOrder',{'lang':$rootScope.$stateParams.lang});
             });
         }
     }])
@@ -1027,7 +1029,7 @@ angular.module('myApp.controllers', [])
 
             $scope.afterSave = function(){
                 $scope.orders=Orders.list({'user':$rootScope.user._id},function(res){
-                    console.log(res);
+                    //console.log(res);
                 });
             };
 
@@ -1064,4 +1066,107 @@ angular.module('myApp.controllers', [])
 
             $scope.afterSave();
 
-        }]);
+        }])
+
+.controller('profileCtrl',['$scope','$rootScope','$stateParams','$http','$timeout','User',function($scope,$rootScope,$stateParams,$http,$timeout,User){
+   /* if (!$rootScope.Signed) $rootScope.$state.go('language.home');*/
+    //***********************************
+    // редактирование профиля
+    //************************************
+
+    // смена пароля
+    $scope.profile={};
+    //$scope.profile.changePswdNameBtn = 'Сменить пароль';
+    $scope.profile.showChangePswd =  false;
+    $scope.profile.psdw='';
+    $scope.profile.psdw1='';
+    $scope.profile.psdw2='';
+    $scope.profile.changePswdSuccess = false;
+    $scope.profile.changePswdError = false;
+
+    $scope.profile.changePswdF = function(){
+        // console.log('info');
+        if (!$scope.profile.showChangePswd)
+            $scope.profile.showChangePswd = true;
+        $scope.profile.psdw='';
+        $scope.profile.psdw1='';
+        $scope.profile.psdw2='';
+
+        //$scope.profile.changePswdNameBtn = 'Отправить';
+    }
+
+    $scope.profile.changePswdServer = function(){
+        var  pswd = {};
+        pswd.email = $rootScope.uuser;
+        pswd.pswd  =$scope.profile.psdw;
+        pswd.pswd1 =$scope.profile.psdw1;
+        pswd.pswd2 =$scope.profile.psdw2;
+
+        $http.post('/login/changepswd',{data:pswd}).
+            success(function(data, status) {
+                $scope.data = data;
+                //console.log(data);
+                if (!$scope.data.done){
+                    $scope.profile.changePswdError = true
+                    $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
+                }else{
+                    $scope.profile.changePswdSuccess = true;
+                    $timeout(function(){$scope.profile.changePswdSuccess = false; $scope.profile.showChangePswd = false;}, 2000)
+                }
+            }).
+            error(function(data, status) {
+                console.log(status);
+                console.log(data);
+                $scope.profile.changePswdError = true
+                $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
+            });
+    }
+
+
+
+
+
+
+    // update profile
+
+
+    $scope.disableButtonSave = false;
+    $scope.showUpdateError = false;
+    $scope.showUpdateSuccess = false;
+
+    $scope.profileSave= function() {
+        $scope.disableButtonSave = true;
+        $rootScope.user.$update(function(){
+            $scope.showUpdateSuccess = true;
+            $timeout(function(){$scope.showUpdateSuccess=false;$scope.disableButtonSave = false;}, 2000);
+            $rootScope.user=User.get();
+        });
+
+
+       /* if (!$rootScope.Signed) return;
+        $scope.disableButtonSave = true;
+        $scope.profileData.profileStr = JSON.stringify($scope.profileData.profile);
+        //console.log($scope.formReg);
+        $http.post('/login/updateprofile',{data:$scope.profileData}).
+            success(function(data, status) {
+                $scope.data = data;
+                //console.log(data);
+                if (!$scope.data.done){
+                    $scope.showUpdateError =  true;
+                    $timeout(function(){$scope.showUpdateError=true;$scope.disableButtonSave = false;}, 2000);
+                }else{
+                    $scope.showUpdateSuccess = true;
+                    $scope.setUserStatus( $scope.profileData.login, true,$scope.profileData.email,$scope.profileData.profile,$scope.profileData.role, $scope.profileData.userid);
+                    $timeout(function(){$scope.showUpdateSuccess=false;$scope.disableButtonSave = false;}, 2000);
+                }
+            }).
+            error(function(data, status) {
+                console.log(status);
+                console.log(data);
+                $scope.showUpdateError =  true;
+                $timeout(function(){$scope.showUpdateError=true;$scope.disableButtonSave = false;}, 3000);
+            });*/
+    };
+
+    //$scope.status = 'ready';
+}]);

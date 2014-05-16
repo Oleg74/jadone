@@ -13,7 +13,9 @@ angular.module('myApp.services', []).
         }, { //parameters default
             update: {
                 method: 'PUT',
-                params: {}
+                params: {
+                    id:'profile'
+                }
             },
             get: {
                 method: 'GET',

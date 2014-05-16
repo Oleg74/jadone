@@ -18,7 +18,7 @@
     "ejs": "~1.0.0",
     "node-xlsx": "~0.4.0",
     "moment": "~2.5.1",
-    "nodemailer": "~0.6.1",
+    "nodemailer": "~0.6.5",
     "phantom-express": "0.0.1",
     "underscore": "~1.6.0"
   },

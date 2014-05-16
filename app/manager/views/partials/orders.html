@@ -27,6 +27,11 @@
                             <input type="radio" name="optionsRadios" id="optionsRadios4" value="3"ng-model="filterStatus"><span>отправленные</span>
                         </label>
                     </td>
+                    <td>
+                        <label class="radio">
+                            <input type="radio" name="optionsRadios" id="optionsRadios5" value="4"ng-model="filterStatus"><span>доставленные</span>
+                        </label>
+                    </td>
                     <div class="input-append pull-right right-filters mb">
                         <input  class="span2" type="text" ng-model="filterNumber" placeholder="поиск по номеру">
                     </div>
@@ -58,13 +63,13 @@
                     <td class="span2"> <a  ng-click="order.showdetail=!order.showdetail"class="black" ng-bind="dateConvert(order.date3)"></a> </td>
 
                     <td class="span1" ng-bind="order.quantity"> </td>
-                    <td class="span1" ng-bind="order.sum"> </td>
+                    <td class="span1">{{order.sum*order.kurs}}&nbsp{{order.currency}}</td>
                     <td class="span2">
                         <select ng-model="order.status" ng-change="updateOrder(order)">
                             <option value=1>принят</option>
                             <option value=2>оплачен</option>
                             <option value=3>отправлен</option>
-                            <option value=4>принят</option>
+                            <option value=4>доставлен</option>
                             <option value=5>в архив</option>
                         </select>
 
@@ -122,13 +127,13 @@
                                     <a class="black">{{good.sizeName}}</a>
                                 </td>
                                 <td class="col-lg-1">
-                                    {{((price =(cartCount(order.cart)>=5)?good.price:good.retail)).toFixed(2)}}
+                                    {{ ( order.kurs*(price=(order.quantity>=5)?good.price:good.retail) ).toFixed(2) }}&nbsp{{order.currency}}
                                 </td>
                                 <td class="col-lg-2">
                                     {{good.quantity}}
                                 </td>
                                 <td class="col-lg-2">
-                                    {{(price*good.quantity).toFixed(2)}}
+                                    {{ ( order.kurs*price*good.quantity).toFixed(2) }}&nbsp{{order.currency}}
                                 </td>
                             </tr>
                             </tbody>
@@ -138,7 +143,7 @@
                                 <td>Итого</td>
                                 <td></td><td></td><td></td>
                                 <td>{{order.quantity}}</td>
-                                <td>{{ order.sum }}</td>
+                                <td>{{ order.kurs*order.sum }}&nbsp{{order.currency}}</td>
                             </tr>
                             </tbody>
                         </table>

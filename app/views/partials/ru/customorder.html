@@ -59,8 +59,8 @@
                             <td class="col-lg-1"> <a  ng-click="order.showdetail=!order.showdetail"class="black" ng-bind="dateConvert(order.date2)"></a> </td>
                             <td class="col-lg-1"> <a  ng-click="order.showdetail=!order.showdetail"class="black" ng-bind="dateConvert(order.date3)"></a> </td>
 
-                            <td class="col-lg-1" ng-bind="order.quantity"> </td>
-                            <td class="col-lg-1">{{ order.kurs*order.sum}} &nbsp{{order.currency}}</td>
+                            <td class="col-lg-1" ng-bind="order.quantity"></td>
+                            <td class="col-lg-1">{{order.kurs*order.sum}} &nbsp{{order.currency}}</td>
                             <td class="col-lg-2" ng-switch="order.status">
 
                                 <select ng-switch-when="3" ng-model="order.status" ng-change="updateOrder(order)">
@@ -69,7 +69,7 @@
                                 </select>
                                 <span ng-switch-when="1">принят</span>
                                 <span ng-switch-when="2">оплачен</span>
-                                <span ng-switch-when="4">принят</span>
+                                <span ng-switch-when="4">доставлен</span>
 
                             </td>
                             <td class="col-lg-1">
@@ -125,7 +125,7 @@
                                             <a class="black">{{good.sizeName}}</a>
                                         </td>
                                         <td class="col-lg-1">
-                                            {{ ( order.kurs*(price=(cartCount(order.cart)>=5)?good.price:good.retail) ).toFixed(2) }}&nbsp{{order.currency}}
+                                            {{ ( order.kurs*(price=(order.quantity>=5)?good.price:good.retail) ).toFixed(2) }}&nbsp{{order.currency}}
                                         </td>
                                         <td class="col-lg-2">
                                             {{good.quantity}}

@@ -152,7 +152,11 @@ var myApp= angular.module('myApp', [
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/customorder.html' },
             controller:'customOrderCtrl'
         })
-
+        .state("language.profile", {
+            url: "/profile",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/profile.html' },
+            controller:'profileCtrl'
+        })
 
         .state("language.settings", {
             url: "/settings",

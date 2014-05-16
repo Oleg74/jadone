@@ -75,7 +75,7 @@ var myApp= angular.module('myApp', [
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
             $rootScope.user=User.get(function(){
-                console.log($rootScope.user);
+                //console.log($rootScope.user);
             });
 
 

@@ -6,8 +6,8 @@ angular.module('myApp.controllers', [])
 
 
 
-.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters",
-        function ($scope, $location, Auth,$stateParams,$rootScope,$window,$http,$sce,$filter,Category,Filters) {
+.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters","User",
+        function ($scope, $location, Auth,$stateParams,$rootScope,$window,$http,$sce,$filter,Category,Filters,User) {
             $scope.trustHtml = function(text,i){
                 if(i){
                     text= $filter('cut')(text,true,i,"...");
@@ -30,6 +30,7 @@ angular.module('myApp.controllers', [])
         $scope.logout = function() {
             Auth.logout()
                 .then(function() {
+                    $rootScope.user=User.get(function(){});
                     $location.path('/');
                 });
         };
@@ -792,6 +793,7 @@ angular.module('myApp.controllers', [])
                     .then( function(data) {
                         //console.log(data);userid.
                         document.cookie = "userid="+data.userid+";path=/";
+                        //$rootScope.user=User.get(function(){});
                         // Logged in, redirect to home
                         $location.path('/');
                     })
@@ -802,11 +804,12 @@ angular.module('myApp.controllers', [])
             }
         };
     }])
-.controller('signupCtrl',['$scope', 'Auth', '$rootScope', function ($scope, Auth, $rootScope) {
+.controller('signupCtrl',['$scope', 'Auth',"$location", function ($scope, Auth,$location) {
         $scope.user = {};
         $scope.errors = {};
 
         $scope.register = function(form) {
+            console.log('asasd');
             $scope.submitted = true;
 
             if(form.$valid) {
@@ -817,8 +820,9 @@ angular.module('myApp.controllers', [])
                 })
                     .then( function() {
                         // Account created, redirect to home
-                        $rootScope.$state.transitionTo('language.home');
-                        //$location.path('/');
+                        //$rootScope.user=User.get(function(){});
+                        //$rootScope.$state.transitionTo('language.home');
+                        $location.path('/');
                     })
                     .catch( function(err) {
                         err = err.data;

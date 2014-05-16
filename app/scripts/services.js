@@ -50,7 +50,7 @@ angular.module('myApp.services', []).
                     email: user.email,
                     password: user.password
                 }, function(user) {
-                    $rootScope.currentUser = user;
+                    $rootScope.user = User.get();
                     return cb();
                 }, function(err) {
                     return cb(err);
@@ -67,7 +67,7 @@ angular.module('myApp.services', []).
                 var cb = callback || angular.noop;
 
                 return Session.delete(function() {
-                        $rootScope.currentUser = null;
+                        $rootScope.user = null;
                         return cb();
                     },
                     function(err) {
@@ -88,9 +88,9 @@ angular.module('myApp.services', []).
 
                 return User.save(user,
                     function(user) {
-                        $rootScope.currentUser = user;
+                        $rootScope.user = User.get();
                         // авторизация сразу после регистрации
-                        console.log($rootScope.currentUser);
+                        //console.log($rootScope.currentUser);
                         return cb(user);
                     },
                     function(err) {
@@ -134,7 +134,7 @@ angular.module('myApp.services', []).
              * @return {Boolean}
              */
             isLoggedIn: function() {
-                var user = $rootScope.currentUser;
+                var user = $rootScope.user;
                 return !!user;
             },
         };

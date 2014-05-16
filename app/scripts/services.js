@@ -372,10 +372,10 @@ angular.module('myApp.services', []).
         }
 
 
-        function send(lang,comment,callback){
+        function send(lang,comment,kurs,currency,callback){
            /* self.quantity=cartCount();
             self.sum:*/
-            var order={'cart':cartItems,'comment':comment,'lang':lang,'user':$rootScope.user._id,'quantity':cartCount(),'sum':getTotalSum()}
+            var order={'cart':cartItems,'comment':comment,'lang':lang,'user':$rootScope.user._id,'quantity':cartCount(),'sum':getTotalSum(),'kurs':kurs,'currency':currency}
             $http.post('/api/order',order).then(function (resp) {
                     console.log(resp.data);
                     if (resp.data.done){

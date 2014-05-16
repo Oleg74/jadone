@@ -60,7 +60,7 @@
                             <td class="col-lg-1"> <a  ng-click="order.showdetail=!order.showdetail"class="black" ng-bind="dateConvert(order.date3)"></a> </td>
 
                             <td class="col-lg-1" ng-bind="order.quantity"> </td>
-                            <td class="col-lg-1" ng-bind="order.sum"> </td>
+                            <td class="col-lg-1">{{ order.kurs*order.sum}} &nbsp{{order.currency}}</td>
                             <td class="col-lg-2" ng-switch="order.status">
 
                                 <select ng-switch-when="3" ng-model="order.status" ng-change="updateOrder(order)">
@@ -118,20 +118,20 @@
                                             <img style="max-width: 100px" class="span1 pull-left" ng-src="{{good.img}}"/>
                                         </td>
                                         <td class="col-lg-3">
-                                            <a class="black">{{good.name}} {{good.colorName}}</a>
+                                            <a class="black" ng-click="goToStuff(good)">{{good.name}} {{good.colorName}}</a>
                                         </td>
 
                                         <td class="col-lg-1">
                                             <a class="black">{{good.sizeName}}</a>
                                         </td>
                                         <td class="col-lg-1">
-                                            {{((price =(cartCount(order.cart)>=5)?good.price:good.retail)).toFixed(2)}}
+                                            {{ ( order.kurs*(price=(cartCount(order.cart)>=5)?good.price:good.retail) ).toFixed(2) }}&nbsp{{order.currency}}
                                         </td>
                                         <td class="col-lg-2">
                                             {{good.quantity}}
                                         </td>
                                         <td class="col-lg-2">
-                                            {{(price*good.quantity).toFixed(2)}}
+                                            {{(order.kurs*price*good.quantity).toFixed(2)}}&nbsp{{order.currency}}
                                         </td>
                                     </tr>
                                     </tbody>
@@ -141,7 +141,7 @@
                                         <td>Итого</td>
                                         <td></td><td></td><td></td>
                                         <td>{{order.quantity}}</td>
-                                        <td>{{ order.sum }}</td>
+                                        <td>{{ order.kurs*order.sum }}&nbsp{{order.currency}}</td>
                                     </tr>
                                     </tbody>
                                 </table>

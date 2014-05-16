@@ -26,7 +26,7 @@
       <file leaf-file-name="controllers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/manager/scripts/controllers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1935" column="31" selection-start="76127" selection-end="76150" vertical-scroll-proportion="0.0" vertical-offset="1020" max-vertical-offset="6760">
+            <state line="1935" column="31" selection-start="76127" selection-end="76150" vertical-scroll-proportion="0.0" vertical-offset="1200" max-vertical-offset="6760">
               <folding>
                 <element signature="e#490#6209#0" expanded="false" />
                 <element signature="e#6241#10409#0" expanded="false" />
@@ -55,7 +55,7 @@
       <file leaf-file-name="controllers.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/scripts/controllers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1022" column="35" selection-start="41947" selection-end="41947" vertical-scroll-proportion="-5.12" vertical-offset="11878" max-vertical-offset="12798">
+            <state line="1047" column="13" selection-start="42677" selection-end="42677" vertical-scroll-proportion="-11.6" vertical-offset="8296" max-vertical-offset="9054">
               <folding>
                 <element signature="e#7923#12839#0" expanded="false" />
                 <element signature="e#13230#13909#0" expanded="false" />
@@ -71,6 +71,13 @@
                 <element signature="e#26379#26980#0" expanded="false" />
                 <element signature="e#27025#27443#0" expanded="false" />
                 <element signature="e#27507#27830#0" expanded="false" />
+                <element signature="e#32935#33869#0" expanded="false" />
+                <element signature="e#33896#35222#0" expanded="false" />
+                <element signature="e#35253#35914#0" expanded="false" />
+                <element signature="e#35948#38335#0" expanded="false" />
+                <element signature="e#38372#38860#0" expanded="false" />
+                <element signature="e#38892#39799#0" expanded="false" />
+                <element signature="e#39832#41478#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -88,7 +95,7 @@
       <file leaf-file-name="order.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/controllers/order.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="57" selection-start="925" selection-end="925" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2295">
+            <state line="70" column="9" selection-start="1665" selection-end="1665" vertical-scroll-proportion="0.0" vertical-offset="765" max-vertical-offset="2295">
               <folding />
             </state>
           </provider>
@@ -97,7 +104,7 @@
       <file leaf-file-name="order.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/models/order.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="20" selection-start="519" selection-end="519" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2397">
+            <state line="40" column="24" selection-start="1134" selection-end="1134" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="2628">
               <folding />
             </state>
           </provider>
@@ -124,7 +131,7 @@
       <file leaf-file-name="customorder.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/views/partials/ru/customorder.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="53" column="57" selection-start="2873" selection-end="2873" vertical-scroll-proportion="0.7899604" vertical-offset="356" max-vertical-offset="2970">
+            <state line="62" column="98" selection-start="3879" selection-end="3879" vertical-scroll-proportion="0.4206989" vertical-offset="989" max-vertical-offset="3465">
               <folding>
                 <element signature="n#style#0;n#a#0;n#th#1;n#tr#0;n#thead#0;n#tbody#0;n#table#1;n#article#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#a#0;n#th#2;n#tr#0;n#thead#0;n#tbody#0;n#table#1;n#article#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -153,8 +160,10 @@
       <file leaf-file-name="services.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/scripts/services.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="133" column="32" selection-start="4094" selection-end="4094" vertical-scroll-proportion="-21.73585" vertical-offset="1242" max-vertical-offset="7992">
-              <folding />
+            <state line="377" column="163" selection-start="13031" selection-end="13031" vertical-scroll-proportion="-6.811321" vertical-offset="4427" max-vertical-offset="5994">
+              <folding>
+                <element signature="e#700#4255#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -171,18 +180,18 @@
       <list>
         <option value="$PROJECT_DIR$/lib/models/stuff.js" />
         <option value="$PROJECT_DIR$/lib/routes.js" />
-        <option value="$PROJECT_DIR$/lib/models/order.js" />
         <option value="$PROJECT_DIR$/app/views/partials/ru/cart.html" />
         <option value="$PROJECT_DIR$/app/views/partials/ru/mainFrame.html" />
         <option value="$PROJECT_DIR$/app/manager/views/partials/orders.html" />
         <option value="$PROJECT_DIR$/app/manager/views/partials/editstuff.html" />
         <option value="$PROJECT_DIR$/lib/controllers/session.js" />
         <option value="$PROJECT_DIR$/app/views/partials/ru/signup.html" />
-        <option value="$PROJECT_DIR$/app/scripts/services.js" />
-        <option value="$PROJECT_DIR$/lib/controllers/order.js" />
         <option value="$PROJECT_DIR$/app/scripts/app.js" />
         <option value="$PROJECT_DIR$/app/manager/scripts/controllers.js" />
         <option value="$PROJECT_DIR$/app/views/index.jade" />
+        <option value="$PROJECT_DIR$/lib/models/order.js" />
+        <option value="$PROJECT_DIR$/lib/controllers/order.js" />
+        <option value="$PROJECT_DIR$/app/scripts/services.js" />
         <option value="$PROJECT_DIR$/app/scripts/controllers.js" />
         <option value="$PROJECT_DIR$/app/views/partials/ru/customorder.html" />
       </list>
@@ -693,13 +702,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/scripts/services.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="32" selection-start="4094" selection-end="4094" vertical-scroll-proportion="-21.73585" vertical-offset="1242" max-vertical-offset="7992">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/manager/views/partials/home.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="783">
@@ -721,20 +723,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/controllers/order.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="57" selection-start="925" selection-end="925" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2295">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/models/order.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="20" selection-start="519" selection-end="519" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2820">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/manager/views/partials/orders.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="76" column="50" selection-start="4083" selection-end="4083" vertical-scroll-proportion="-26.153847" vertical-offset="0" max-vertical-offset="1768">
@@ -742,6 +730,29 @@
             <element signature="tag#thead#0;tag#tbody#0;tag#table#1;tag#article#0;tag#div#0;tag#div#0;tag#div#0" expanded="false" />
             <element signature="tag#tr#0;tag#tbody#1;tag#table#1;tag#article#0;tag#div#0;tag#div#0;tag#div#0" expanded="false" />
             <element signature="tag#tr#0;tag#tbody#0;tag#table#0;tag#td#0;tag#tr#1;tag#tbody#1;tag#table#1;tag#article#0;tag#div#0;tag#div#0;tag#div#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/models/order.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="24" selection-start="1134" selection-end="1134" vertical-scroll-proportion="0.0" vertical-offset="54" max-vertical-offset="2628">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/controllers/order.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="70" column="9" selection-start="1665" selection-end="1665" vertical-scroll-proportion="0.0" vertical-offset="765" max-vertical-offset="2295">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/scripts/services.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="377" column="163" selection-start="13031" selection-end="13031" vertical-scroll-proportion="-6.811321" vertical-offset="4427" max-vertical-offset="5994">
+          <folding>
+            <element signature="e#700#4255#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -775,7 +786,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/scripts/controllers.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1022" column="35" selection-start="41947" selection-end="41947" vertical-scroll-proportion="-5.12" vertical-offset="11878" max-vertical-offset="12798">
+        <state line="1047" column="13" selection-start="42677" selection-end="42677" vertical-scroll-proportion="-11.6" vertical-offset="8296" max-vertical-offset="9054">
           <folding>
             <element signature="e#7923#12839#0" expanded="false" />
             <element signature="e#13230#13909#0" expanded="false" />
@@ -791,13 +802,20 @@
             <element signature="e#26379#26980#0" expanded="false" />
             <element signature="e#27025#27443#0" expanded="false" />
             <element signature="e#27507#27830#0" expanded="false" />
+            <element signature="e#32935#33869#0" expanded="false" />
+            <element signature="e#33896#35222#0" expanded="false" />
+            <element signature="e#35253#35914#0" expanded="false" />
+            <element signature="e#35948#38335#0" expanded="false" />
+            <element signature="e#38372#38860#0" expanded="false" />
+            <element signature="e#38892#39799#0" expanded="false" />
+            <element signature="e#39832#41478#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/views/partials/ru/customorder.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="57" selection-start="2873" selection-end="2873" vertical-scroll-proportion="0.7899604" vertical-offset="356" max-vertical-offset="2970">
+        <state line="62" column="98" selection-start="3879" selection-end="3879" vertical-scroll-proportion="0.4206989" vertical-offset="989" max-vertical-offset="3465">
           <folding>
             <element signature="n#style#0;n#a#0;n#th#1;n#tr#0;n#thead#0;n#tbody#0;n#table#1;n#article#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#a#0;n#th#2;n#tr#0;n#thead#0;n#tbody#0;n#table#1;n#article#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />

@@ -772,7 +772,7 @@ angular.module('myApp.controllers', [])
         $scope.sendOrder=function(){
             $scope.sendDisabled=true;
             $scope.comment.substring(0,200);
-            $scope.cart.send($rootScope.$stateParams.lang,$scope.comment,function(err){
+            $scope.cart.send($rootScope.$stateParams.lang,$scope.comment,$scope.kurs,$rootScope.currency,function(err){
                 $scope.sendDisabled=false;
             });
         }
@@ -1055,6 +1055,13 @@ angular.module('myApp.controllers', [])
                 }
 
             }
+            $scope.goToStuff=function(stuff){
+                console.log(stuff);
+                $rootScope.$state.transitionTo('language.stuff.detail',
+                    {'lang':$rootScope.$stateParams.lang,'section':stuff.section,'category':stuff.category,
+                        'id':stuff.stuff,'color':stuff.color,'size':stuff.size});
+            }
+
             $scope.afterSave();
 
         }]);

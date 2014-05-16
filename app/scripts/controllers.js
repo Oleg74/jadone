@@ -1005,3 +1005,56 @@ angular.module('myApp.controllers', [])
 
 
     }])
+
+
+    .controller('customOrderCtrl',['$scope','$rootScope','$stateParams','$http','$timeout','$sce','Orders',
+        function($scope,$rootScope,$stateParams,$http,$timeout,$sce,Orders){
+
+            //***********************************
+            // управление ордерами
+            //************************************
+
+
+
+            /*$scope.orders=Orders.list({'user':$rootScope.user._id},function(res){
+                console.log(res);
+            });*/
+
+            $scope.filterStatus='';
+            $scope.filterNumber='';
+
+
+
+            $scope.afterSave = function(){
+                $scope.orders=Orders.list({'user':$rootScope.user._id},function(res){
+                    console.log(res);
+                });
+            };
+
+            $scope.updateOrder =  function(order){
+
+                order.$update(function(err){
+                    if (err) console.log(err);
+                    $scope.afterSave();
+                });
+            }
+
+            $scope.deleteOrder= function(order){
+                if (confirm("Удалить?")){
+                    order.$delete(function(){
+                        $scope.afterSave();
+                    });
+                }
+            }
+
+            $scope.dateConvert = function(date){
+                if (date) {
+                    return moment(date).format('lll');
+                } else {
+                    return '';
+                }
+
+            }
+            $scope.afterSave();
+
+        }]);

@@ -1931,8 +1931,8 @@ angular.module('myApp.controllers', [])
 
 .controller('ordersCtrl', ['$scope','$rootScope','Orders',
     function ($scope,$rootScope,Orders) {
-        var start = Date.now();
-        console.log(start)
+        //var start = Date.now();
+        //console.log(start)
         $scope.filterStatus='';
         $scope.orders=Orders.list();
 

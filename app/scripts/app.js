@@ -147,6 +147,13 @@ var myApp= angular.module('myApp', [
             controller: 'signupCtrl'
         })
 
+        .state("language.customOrder", {
+            url: "/customorder",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/customorder.html' },
+            controller:'customOrderCtrl'
+        })
+
+
         .state("language.settings", {
             url: "/settings",
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/settings.html' },

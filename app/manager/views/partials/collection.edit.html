@@ -3,8 +3,8 @@
 
         <div class="row">
             <div class="col-lg-12 back">
-                <a href="" class="btn btn-primary btn-info"ng-click="$state.transitionTo('mainFrame.collection')">
-                    <span class="glyphicon glyphicon-arrow-left"></span> в список</a>
+                <a href="" class="btn btn-default"ng-click="$state.transitionTo('mainFrame.collection')">
+                    <span class="glyphicon glyphicon-arrow-left" style="font-size: 12px;"></span> в список</a>
                 <!--<a href="" class="btn btn-info pull-left" ng-click="$state.transitionTo('mainFrame.stuff')">в список</a>-->
             </div>
             <ng-form name="myForm" class="form form-horizontal" role="form">
@@ -80,17 +80,11 @@
                 </div>
 
             </article>
-            <article class="col-lg-12 col-md-12 col-sm-12" style="max-height: 10px">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="form-group text-center" >
-                            <button class="btn btn-block btn-primary " type="submit" ng-click="updateCollection()">
+
+                            <button class="btn btn-block btn-primary  col-lg-12 col-md-12 col-sm-12 save" type="submit" ng-click="updateCollection()">
                                 <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp &nbsp сохранить
                             </button>
-                        </div>
-                    </div>
-                </div>
-            </article>
+
             </ng-form>
 
         </div>

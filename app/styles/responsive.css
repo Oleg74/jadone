@@ -19,7 +19,7 @@
 .clearfix:after {
   clear: both;
 }
-.hide-text {
+/*.hide-text {
   font: 0/0 a;
   color: transparent;
   text-shadow: none;
@@ -713,8 +713,8 @@
     width: 28px;
   }
  
-}
-@media (max-width: 767px) {
+}*/
+/*@media (max-width: 767px) {
   body {
     padding-left: 20px;
     padding-right: 20px;
@@ -845,15 +845,12 @@
   .carousel-caption {
     position: static;
   }
-}
+}*/
 @media (max-width: 979px) {
-  body {
+  /*body {
     padding-top: 0;
   }
-  /*.navbar-fixed-top,
-  .navbar-fixed-bottom {
-    position: static;
-  }*/
+
   .navbar-fixed-top {
     margin-bottom: 20px;
   }
@@ -918,7 +915,7 @@
   }
   .navbar-inverse .nav-collapse .nav > li > a:hover,
   .navbar-inverse .nav-collapse .dropdown-menu a:hover {
-    /*background-color: #111111;*/
+
       background-color: #666666;
   }
   .nav-collapse.in .btn-group {
@@ -991,5 +988,5 @@
   .nav-collapse.collapse {
     height: auto !important;
     overflow: visible !important;
-  }
+  }*/
 }

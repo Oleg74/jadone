@@ -20,7 +20,9 @@ angular.module('myApp.services', []).
                 params: {
                     id:'me'
                 }
-            }
+            },
+            list: {method:'GET', isArray: true, params:{id:''}},
+            delete: {method:'DELETE',params: {id: '@_id'}}
         });
     })
     .factory('Session',['$resource', function ($resource) {
@@ -96,9 +98,32 @@ angular.module('myApp.services', []).
             updateGallery: {method:'PUT',params: {category:'category',brand:'brand',page:'gallery',id:''}},
             delete: {method:'DELETE',params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
             get:{method:'GET', params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
-            full:{method:'GET', params: {category:'category',brand:'brand',page:'full',id:'@_id'}},
+            full:{method:'GET', params: {category:'category',brand:'brand',page:'full',id:'@_id'}}
         });
     }])
+
+    .factory('News',['$resource', function($resource){
+        return $resource('/api/news/:page/:id', {}, {
+            list: {method:'GET', isArray: true, params:{page:'@page',id:''}},
+            add: {method:'POST',params:{page:'page',id:''}},
+            update: {method:'PUT',params: {page:'page',id:''}},
+            updateGallery: {method:'PUT',params: {page:'gallery',id:''}},
+            delete: {method:'DELETE',params: {page:'page',id:'@_id'}},
+            get:{method:'GET', params: {page:'page',id:'@_id'}},
+            full:{method:'GET', params: {page:'full',id:'@_id'}}
+        });
+    }])
+
+    .factory('Stat',['$resource', function($resource){
+        return $resource('/api/stat/:id', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id:''}},
+            delete: {method:'DELETE',params: {id:'@_id'}},
+            get:{method:'GET', params: {id:'@_id'}},
+        });
+    }])
+
 
     .factory('Country',['$resource', function($resource){
         return $resource('/api/country/:id', {}, {
@@ -208,7 +233,6 @@ angular.module('myApp.services', []).
 
 }])*/
 
-
 .service('$fileUpload', ['$http', function ($http) {
     this.uploadFileToUrl = function(file, uploadUrl,id,params){
 
@@ -222,7 +246,7 @@ angular.module('myApp.services', []).
             }
         }
 
-       /* if (gallery)
+        /*if (gallery)
             fd.append('gallery', angular.toJson(gallery));
         if (oldFile)
             fd.append('oldFile', oldFile);*/
@@ -244,4 +268,35 @@ angular.module('myApp.services', []).
         return promise;
     }
 }]);
+/*
+.service('$fileUpload', ['$http', function ($http) {
+    this.uploadFileToUrl = function(file, uploadUrl,id,params){
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('id', id);
+        if (params && (typeof params == "object")){
+            for (var key in params) {
+                fd.append(key, params[key]);
+            }
+        }
+        var promise = $http.post(uploadUrl, fd, {
+            withCredentials: true,
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+        }).then(function (res) {
+                console.log(res);
+                return{
+                    status: function () {
+                        return res.status;
+                    },
+                    data: function () {
+                        return res.data;
+                    }
+                };
+            });
+        return promise;
+    }
+}]);
+*/
+
 

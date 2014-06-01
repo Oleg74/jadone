@@ -1,4 +1,4 @@
-<script type="text/ng-template" id="paginationControl.html">
+<script type="text/ng-template" id="paginationControl.html" xmlns="http://www.w3.org/1999/html">
     <div class="text-center" ng-show="paginator.pageCount() > 1">
         <ul class="pagination">
             <li ng-click="paginator.firstPage()" ng-class="paginator.isFirstPage() && 'disabled'">
@@ -35,16 +35,22 @@
         <!--<div class="ic"></div>-->
         <div class="container">
 
-            <div class="row" style="margin-top: 30px; color: #7f7f7f">
+            <div class="row row-list">
                 <ul class="thumbnails thumbnails-1 list-services">
-                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-12" ng-show="!show_all_filters">
+                    <li class="col-lg-4 col-md-4 col-sm-4 col-xs-12" ng-show="!show_all_filters">
                         <div class="thumbnail thumbnail-1">
-                            <div class="pull-left left-filters"><p>Категории</p></div>
-                            <div class="pull-right right-filters"><a class="btn" ng-click="displayCategoty=!displayCategoty" style="height: 30px;">
-                                <span style="font-size: 14px; margin-right: 0" class="glyphicon glyphicon-remove" ng-class="{'glyphicon-minus':displayCategoty,'glyphicon-plus':!displayCategoty}"></span></a></div>
-                            <div class="clear"></div>
+                            <div class="pull-left left-filters">
+                                <p>Категории</p>
+                            </div>
+                            <div class="pull-right right-filters">
+                                <a class="btn" ng-click="displayCategoty=!displayCategoty" style="height: 30px;">
+                                    <span class="glyphicon" ng-class="{'glyphicon-plus':displayCategoty,'glyphicon-off':!displayCategoty}"></span>
+                                </a>
+                            </div>
+
+                            <div class="clearfix"></div>
                             <div ng-hide="displayCategoty">
-                                <label class="checkbox" style="font-weight: 400;">
+                                <label class="checkbox">
                                     <input  ng-model="selectedCategory"
                                             name="categoryRadio"
                                             value=""
@@ -53,7 +59,7 @@
 
                                     Все
                                 </label>
-                                <label class="checkbox" ng-repeat="sec in categories|orderBy:'index'" style="font-weight: 400;">
+                                <label class="checkbox" ng-repeat="sec in categories|orderBy:'index'">
                                     <input
                                             name="categoryRadio"
                                             type="radio"
@@ -63,18 +69,21 @@
                                 {{sec.name[lang]}}
                                 </label>
                             </div>
-                            <hr style="border-top-color: #7f7f7f">
+                            <hr >
                             <div class="pull-left left-filters"><p>Фильтры</p></div>
-                            <div class="pull-right right-filters"><a class="btn" ng-click="displayFilters=!displayFilters" style="height: 30px;">
-                                    <span style="font-size: 14px; margin-right: 0" class="glyphicon" ng-class="{'glyphicon-off':displayFilters,'glyphicon-plus':!displayFilters}"></span></a></div>
-                            <div class="clear"></div>
-                            <div ng-show="displayFilters">
+                            <div class="pull-right right-filters">
+                                <a class="btn" ng-click="displayFilters=!displayFilters" style="height: 30px;">
+                                    <span class="glyphicon" ng-class="{'glyphicon-off':displayFilters,'glyphicon-plus':!displayFilters}"></span>
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div ng-show="displayFilters" style="margin-left: 30px;">
                                 <div ng-repeat="filterItem in filters" ng-show="displayFilter[$index]">
                                     <div class="border-horiz"></div>
                                     <div class="pull-left left-filters"><p ng-bind="filterItem.name[lang]"></p></div>
-                                    <div class="clear"></div>
+                                    <div class="clearfix"></div>
                                     <div>
-                                        <label class="checkbox" style="font-weight: 400;">
+                                        <label class="checkbox">
                                             <input
                                                     type="radio"
                                                     value=""
@@ -96,25 +105,30 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr style="border-top-color: #7f7f7f">
+                            <hr>
 
                         </div>
                     </li>
 
-                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-12"
+                    <li class="col-lg-4 col-md-4 col-sm-4 col-xs-12 list-models"
                         ng-repeat="item in stuffList|filter:filterLists()| paginate:rowsPerPage">
-                        <div class="thumbnail thumbnail-1" id="good{{item.itemToCartFromList.url}}" style="position: relative">
+                        <div class="thumbnail thumbnail-1" id="good{{item.itemToCartFromList.url}}">
                             <a ui-sref="language.stuff.detail({id:item.id,color:item.colorId})" >
-                                <img ng-show="item.status==1" src="img/bag/51.png" style="z-index:1001; position:absolute; width: 150px; top:-6px; left:-6px;">
-                                <img ng-show="item.status==2" src="img/bag/53.png" style="z-index:1001; position:absolute; width: 150px; top:-6px; left:-6px;">
-                                <img ng-show="item.status==3" src="img/bag/54.png" style="z-index:1001; position:absolute; width: 150px; top:-6px; left:-6px;">
+                                <img class="sale" ng-show="item.status==1" src="img/bag/51.png">
+                                <img class="sale" ng-show="item.status==2" src="img/bag/53.png">
+                                <img class="sale" ng-show="item.status==3" src="img/bag/54.png">
                                 <img  ng-src="{{item.img}}" alt="купить  оптом от производителя">
                             </a>
+                            <section>
                             <a class="link-1" ui-sref="language.stuff.detail({id:item.id,color:item.colorId})">{{item.name}}&nbsp{{item.color}}</a>
                             <div class="clearfix"></div>
-                            <p class="pull-left"><span>&nbsp опт {{item.price}}</span><span>&nbsp розница {{item.retail}}</span></p>
+                            <p class="pull-left">
+                                <span> опт</span><span class="price"> {{item.price}}</span><br>
+                                <span> розница</span><span class="price""> {{item.retail}}</span>
+                            </p>
                             <a class="pull-right btn btn-1"  ui-sref="language.stuff.detail({id:item.id,color:item.colorId})">Подробнее</a>
                             <div class="clearfix"></div>
+                            </section>
                         </div>
                     </li>
                 </ul>
@@ -130,7 +144,7 @@
 
 
                 <article class="col-lg-12">
-                    <h1 ng-bind="headerList"></h1>
+                    <h1 ng-bind="headerList" class="nazv1 center"></h1>
                     <div class="slogan_brand span8">
                         <p ng-bind-html="trustHtml(textList)"></p>
                         <p>В нашем интернет-магазине Вы можете купить оптом платья, туники, костюмы  от ведущего украинского производителя модной женской одежды</p>

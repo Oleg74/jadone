@@ -6,28 +6,60 @@ angular.module('myApp.controllers', [])
 
 
 
-.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters","User",
-        function ($scope, $location, Auth,$stateParams,$rootScope,$window,$http,$sce,$filter,Category,Filters,User) {
+.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters","User",'News','$timeout','socket','BrandTags',
+        function ($scope, $location, Auth,$stateParams,$rootScope,$window,$http,$sce,$filter,Category,Filters,User,News,$timeout,socket,BrandTags) {
+
+
+
+            // при инициализации
+            socket.on('what user', function (data) {
+                if ($rootScope.user &&$rootScope.user._id){
+                    socket.emit('new user',$rootScope.user._id,function(data){
+                        console.log(data+'new user is here');
+                    });
+                }
+            });
+
+
+            $rootScope.$watch('user',function(newVal,oldVal){
+                $timeout(function(){
+                    if ($rootScope.user._id){
+                        socket.emit('new user',$rootScope.user._id,function(data){
+                        });
+                    } else {
+                        socket.emit('delete user');
+                    }
+                },400);
+            })
+
             $scope.trustHtml = function(text,i){
                 if(i){
                     text= $filter('cut')(text,true,i,"...");
                 }
                 return $sce.trustAsHtml(text)
             };
+            //$scope.collections=BrandTags.list({brand:'brand',limit:2});
 
-            /*$scope.commonFilter=$rootScope.commonFilter;
-            console.log($scope.commonFilter);*/
-            /*Filters.get({id:$scope.activeFilter},function(filter){
-                $scope.tags=filter.tags;
-            });*/
-           // $scope.slideImages=[];
 
-        if ($rootScope.lang!=$rootScope.$stateParams.lang) {
-            $rootScope.lang=$rootScope.$stateParams.lang;
-            document.cookie = "lan="+$rootScope.lang+";path=/";
-        }
+            $scope.displayDate= function(dateStr,time){
+                var q='ll';
+                if (time){
+                    q='lll';
+                }
+                dateStr = moment(dateStr).format(q)
+                return dateStr;
+            }
+
+
+
+
+            if ($rootScope.lang!=$rootScope.$stateParams.lang) {
+                $rootScope.lang=$rootScope.$stateParams.lang;
+                document.cookie = "lan="+$rootScope.lang+";path=/";
+            }
         $scope.lang=$rootScope.lang;
         $scope.logout = function() {
+            //$rootScope.socket=nill; stuff for deleting user from socket list
             Auth.logout()
                 .then(function() {
                     $rootScope.user=User.get(function(){});
@@ -69,19 +101,25 @@ angular.module('myApp.controllers', [])
             $rootScope.$state.transitionTo('language.search',{'searchStr':searchStr,'lang':$rootScope.lang});
         }
 
-            /*$http.get('/api/mainmenuitems/'+$rootScope.$stateParams.lang).success(function(res){
-                $scope.mainMenu=res;
-            });
-*/
-            $scope.categories =Category.list();
-
-
-        //$scope.currency=$roo
-
-
 }])
 
-    .controller('homeCtrl', ['$scope',function ($scope) {
+    .controller('homeCtrl', ['$scope','News','$rootScope',function ($scope,News,$rootScope) {
+        //$scope.categories=$rootScope.categories;
+        $scope.category=[];
+        $rootScope.$watch('mainSection',function(n,o){
+            if ($rootScope.mainSection){
+
+                var ii=0;
+                for(var i=0;i<$rootScope.categories.length;i++){
+                    //console.log(i);
+                    if ($rootScope.categories[i].section==$rootScope.mainSection){
+                        $scope.category.push($rootScope.categories[i]);
+                    }
+                    if(ii==2) break;
+                }
+                //console.log($scope.category);
+            }
+        });
         $scope.slides = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
             {img:'img/slide/5.jpg'},{img:'img/slide/6.jpg'},{img:'img/slide/7.jpg'},{img:'img/slide/8.jpg'},
             {img:'img/slide/9.jpg'}];
@@ -89,28 +127,27 @@ angular.module('myApp.controllers', [])
             {img:'img/slide/5.jpg'},{img:'img/slide/6.jpg'},{img:'img/slide/7.jpg'},{img:'img/slide/8.jpg'},
             {img:'img/slide/9.jpg'}];
 
+        $scope.lastNews=[];
+        News.list({page:1,main:'main'},function(tempArr){
+            for (var i=0 ; i<=tempArr.length - 1; i++) {
+                // tempArr[i].filters=JSON.parse(tempArr[i].filters);
+
+                tempArr[i].desc=(tempArr[i].desc0[$scope.lang]=='')?tempArr[i].desc1:tempArr[i].desc0;
+                tempArr[i].desc[$scope.lang]= tempArr[i].desc[$scope.lang].substring(0,150);
+                //console.log(tempArr[i].desc);
+                /*if (!tempArr.desc0){
+
+                 }*/
+                $scope.lastNews.push(tempArr[i]);
+            }
+        });
+
     }])
 
     .controller('stuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags','$location','$anchorScroll',
         function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags,$location,$anchorScroll) {
 
             $scope.commonFilter=$rootScope.commonFilter;
-
-            /*$scope.sections=[];
-            $scope.activeCategory='';
-            $scope.activeBrand='';c
-            $scope.categoryList=[];
-            $scope.brandList=[];
-            $scope.filtersList=[];
-            $scope.collectionList=[];
-            $scope.collectionTag={};
-            var defer = $q.defer();
-            var promises = [];
-            $scope.isopenCategory=true;
-            $scope.isopenBrand=true;
-            $scope.isopenFilter=false;
-            $scope.isopenCollection=false;*/
-
 
             $scope.stuffList=[];
             //paginator
@@ -340,224 +377,6 @@ angular.module('myApp.controllers', [])
                 $anchorScroll();
             }
 
-
-            /*$scope.getFt=function (filterArr,arr){
-
-                filterArr.forEach(function(item){
-                    for (var i=0 ; i<=$scope.filters.length - 1; i++) {
-                        if ($scope.filters[i]._id==item){
-                            var temp={};temp=$scope.filters[i];
-                            temp.value='';
-                            $scope.filters[i].value='';
-                            //arr.push(temp);
-                            arr.push($scope.filters[i]);
-                            break;
-                        }
-                    }
-                })
-                $scope.isopenFilter=(arr.length>0)?true:false;
-            }
-            $scope.clearFilter = function(){
-                if ($scope.filtersList.length>0){
-                    for (var i=0 ; i<=$scope.filtersList.length - 1; i++) {
-                        $scope.filtersList[i].value='';
-                    }
-                }
-                //console.log($scope.filtersList);
-            }
-
-            $scope.choiceCategory = function(category){
-                *//*console.log($scope.activeBrand);
-                 console.log(category);*//*
-                $scope.totalItems=0;
-                if (!category) {
-                    // console.log('sss');
-                    if (!$scope.activeBrand){
-                        $scope.changeSection();
-                    } else {
-                        //console.log('dddddd');
-                        $scope.activeCategory='0';
-                        //$scope.filtersList=[];
-                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand)
-                        $scope.activeCategory='';
-                    }
-                    return;
-                }
-                $scope.activeCategory=category._id;
-                $scope.brandList=[];
-                if (category.brands && category.brands.length>0){
-                    getBr(category.brands,$scope.brandList);
-                }
-                $scope.filtersList=[];
-                //console.log(category);
-                if (category.filters && category.filters.length>0){
-                    $scope.getFt(category.filters,$scope.filtersList);
-                }
-                $scope.getStuffList($scope.activeCategory,$scope.activeBrand)
-
-            }
-
-
-            function getCr(categoryIdArr,arr){
-                categoryIdArr.forEach(function(item){
-                    for (var i=0 ; i<=$scope.categories.length - 1; i++) {
-                        if ($scope.categories[i]._id==item && $scope.categories[i].section==$scope.section.id){
-                            arr.push($scope.categories[i]);
-                            break;
-                        }
-                    }
-                })
-            };
-
-
-            $scope.$watch('activeBrand',function(){
-                //console.log($scope.activeBrand);
-                $scope.collectionList=[];
-
-                if ($scope.activeBrand && $scope.activeBrand!='section'){
-                    //console.log($scope.activeBrand);
-                    $scope.collectionList= BrandTags.list({brand:$scope.activeBrand});
-                    $scope.collectionTag.val=''
-
-                }
-            })
-            $scope.clearBrandTag = function(tag){
-                console.log(tag);
-                tag.val='';
-            }
-
-            $scope.choiceBrand = function(brand){
-                *//*console.log(brand);
-                 console.log($scope.activeCategory);*//*
-                $scope.totalItems=0;
-                if (!brand) {
-                    if (!$scope.activeCategory){
-                        $scope.changeSection();
-                    } else {
-                        $scope.activeBrand='0';
-                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand)
-                        $scope.activeBrand='';
-                    }
-                    return;
-                }
-                $scope.activeBrand=brand._id;
-                $scope.categoryList=[];
-                if (brand.categories && brand.categories.length>0){
-                    getCr(brand.categories,$scope.categoryList);
-                }
-                $scope.getStuffList($scope.activeCategory,$scope.activeBrand);
-            }
-*/
-
-            /*$scope.getStuffList = function(categoryId,brandId,page){
-                if (!page){
-                    $scope.page=1;
-                    $scope.stuffList=[];
-                }
-                if (!categoryId) categoryId=0;
-                if (!brandId) brandId=0;
-                if (categoryId==0 && brandId==0){
-                    categoryId=$scope.section.id;
-                    brandId='section';
-                }
-
-                Stuff.list({category:categoryId,brand:brandId,page:$scope.page},function(tempArr){
-                    *//* if ($scope.stuffList.length<=0 && tempArr.length>0){
-                     $scope.totalItems=tempArr[0].index;
-                     }*//*
-                    if ($scope.page==1 && tempArr.length>0){
-                        $scope.totalItems=tempArr[0].index;
-                    }
-                    //console.log($scope.totalItems);
-                    for (var i=0 ; i<=tempArr.length - 1; i++) {
-                        // tempArr[i].filters=JSON.parse(tempArr[i].filters);
-                        var tempGallery=[];
-                        for (var j=0;j<tempArr[i].gallery.length;j++){
-                            //console.log();
-                            tempGallery.push({img:tempArr[i].gallery[j].thumb})
-                        }
-                        for (var j=0;j<tempGallery.length;j++){
-                            console.log(tempGallery[j]);
-                            $scope.stuffList.push(tempGallery[j]);
-                        }
-
-                    }
-                });
-            }*/
-            //Angularjs promise chain when working with a paginated collection
-            //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
-            /*$scope.loadData = function(numPage) {
-                //console.log(numPage);
-                if (!numPage) numPage=1;
-                var deferred = $q.defer();
-                var i=1;
-
-                if (!$scope.activeBrand && !$scope.activeCategory){
-                    var brandId='section';
-                } else {
-                    //console.log();
-                    var brandId=($scope.activeBrand)?$scope.activeBrand:0;
-                }
-                $scope.totalItems=0;
-                var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
-                if ($scope.activeBrand && !$scope.activeCategory){
-                    categoryId=0;
-                }
-
-                //console.log($scope.activeCategory);
-                $scope.stuffList=[];
-                function loadAll() {
-                    Stuff.list({category:categoryId,brand:brandId,page:i},function(stuffs){
-                        //console.log(stuffs);
-                        if ($scope.stuffList.length<=0 && stuffs.length>0){
-                            $scope.totalItems=stuffs[0].index;
-                        }
-                        for(var ii=0; ii<=stuffs.length-1;ii++){
-                            $scope.stuffList.push(stuffs[ii]);
-                        }
-                        if(i<numPage) {
-                            i++;
-                            loadAll();
-                        }
-                        else {
-                            deferred.resolve();
-                        }
-                    })
-                }
-                loadAll();
-                return deferred.promise;
-            };
-*/
-
-
-
-
-
-
-
-            /*$scope.$watch('changeStuff',function(){
-                if ($rootScope.changeStuff){
-                    //console.log('dd');
-                    //$scope.getStuffList($scope.activeCategory,$scope.activeBrand);
-                    $scope.loadData($scope.page);
-                    *//*for (var i=1;i<=$scope.page;i++){
-                     promises.push($scope.getStuffList($scope.activeCategory,$scope.activeBrand,i));
-                     }*//*
-                    //$q.all(promises);
-
-                }
-                $rootScope.changeStuff=false;
-            })
-
-            $scope.editStuffGallery = function(stuff){
-                //$scope.stuffForGallery=stuff;
-                $rootScope.$state.transitionTo('mainFrame.stuff.editStuffGallery',{id:stuff._id})
-            }
-            $scope.commentStuff = function(stuff){
-                //$scope.stuffForGallery=stuff;
-                $rootScope.$state.transitionTo('mainFrame.stuff.commentStuff',{id:stuff._id})
-            }*/
-
         }])
     .controller('stuffDetailCtrl',['$scope','Stuff','$rootScope','$timeout','CartLocal',function($scope,Stuff,$rootScope,$timeout,CartLocal){
         $scope.lang=$rootScope.$stateParams.lang;
@@ -701,12 +520,12 @@ angular.module('myApp.controllers', [])
         }
 //***************************************** end size ******************************************
         $scope.disabledToCart=function(){
-            console.log(new Date().getTime());
+            //console.log(new Date().getTime());
 
             if ($scope.stuff.stock){
-                console.log($scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]);
+                /*console.log($scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]);
                 console.log($scope.stuff.stock[$scope.itemToCart.color]);
-                console.log($scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]);
+                console.log($scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]);*/
                 if ($scope.stuff.stock[$scope.itemToCart.color] && $scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]
                     && $scope.stuff.stock[$scope.itemToCart.color][$scope.itemToCart.size]==1){
                     return true;
@@ -780,9 +599,27 @@ angular.module('myApp.controllers', [])
         }
     }])
 
-.controller('loginCtrl',['$scope', '$location','Auth', function ($scope, $location, Auth) {
+    .controller('loginCtrl',['$scope', '$location','Auth','$rootScope','User', function ($scope, $location, Auth,$rootScope,User) {
         $scope.user = {};
         $scope.errors = {};
+
+        $scope.resetPswd = function(form) {
+            if(form.$valid) {
+                Auth.resetPswd({
+                    email: $scope.reseteEmail
+
+                })
+                    .then( function(data) {
+                        console.log(data);
+                        $scope.reseteEmail='на почту отправлено письмо';
+                    })
+                    .catch( function(err) {
+                        console.log(err);
+                        err = err.data;
+                        $scope.errors.other = err.message;
+                    });
+            }
+        }
 
         $scope.login = function(form) {
             $scope.submitted = true;
@@ -793,11 +630,18 @@ angular.module('myApp.controllers', [])
                     password: $scope.user.password
                 })
                     .then( function(data) {
+
                         //console.log(data);userid.
                         document.cookie = "userid="+data.userid+";path=/";
-                        //$rootScope.user=User.get(function(){});
+                        $rootScope.user=User.get(function(){});
                         // Logged in, redirect to home
-                        $location.path('/');
+                        if ($rootScope.fromCart){
+                            $rootScope.$state.transitionTo('language.cart',{lang:$scope.lang});
+                            $rootScope.fromCart=false;
+                        } else {
+                            $location.path('/');
+                        }
+
                     })
                     .catch( function(err) {
                         err = err.data;
@@ -805,8 +649,11 @@ angular.module('myApp.controllers', [])
                     });
             }
         };
+
+
+
     }])
-.controller('signupCtrl',['$scope', 'Auth',"$location", function ($scope, Auth,$location) {
+    .controller('signupCtrl',['$scope', 'Auth',"$location",'$rootScope', function ($scope, Auth,$location,$rootScope) {
         $scope.user = {};
         $scope.errors = {};
 
@@ -818,13 +665,20 @@ angular.module('myApp.controllers', [])
                 Auth.createUser({
                     name: $scope.user.name,
                     email: $scope.user.email,
-                    password: $scope.user.password
+                    password: $scope.user.password,
+                    profile: $scope.user.profile
                 })
                     .then( function() {
                         // Account created, redirect to home
-                        //$rootScope.user=User.get(function(){});
+                        $rootScope.user=User.get(function(){});
                         //$rootScope.$state.transitionTo('language.home');
-                        $location.path('/');
+                        if ($rootScope.fromCart){
+                            $rootScope.$state.transitionTo('language.cart',{lang:$scope.lang});
+                            $rootScope.fromCart=false;
+                        } else {
+                            $location.path('/');
+                        }
+                        //$location.path('/');
                     })
                     .catch( function(err) {
                         err = err.data;
@@ -839,7 +693,7 @@ angular.module('myApp.controllers', [])
             }
         };
     }])
-.controller('settingsCtrl',  ['$scope', 'User', 'Auth',function ($scope, User, Auth) {
+    .controller('settingsCtrl',  ['$scope', 'User', 'Auth',function ($scope, User, Auth) {
         $scope.errors = {};
 
         $scope.changePassword = function(form) {
@@ -856,9 +710,19 @@ angular.module('myApp.controllers', [])
                     });
             }
         };
-}])
+    }])
 
-    .controller('contactsCtrl',['$scope','$rootScope','$location','$http','$timeout',	function($scope,$rootScope,$location,$http,$timeout){
+    .controller('contactsCtrl',['$scope','$rootScope','$location','$http','$timeout','Stat',	function($scope,$rootScope,$location,$http,$timeout,Stat){
+
+        $rootScope.titles.pageTitle='';
+        $rootScope.titles.pageKeyWords='';
+        $rootScope.titles.pageDescription='';
+
+        var page =$rootScope.$state.current.url;
+
+        //console.log(page.substring(1));
+        $scope.stuff=Stat.get({name:page.substring(1),id:'qqq'});
+
 
         $scope.feedbackError=false;
         $scope.feedbackSent = false;
@@ -867,18 +731,31 @@ angular.module('myApp.controllers', [])
         $scope.SuccessFeedBack=false;
         $scope.feedbackDisabled=false;
 
+
         $scope.feedback={};
 
         $scope.feedback.email ='';
         $scope.feedback.name = '';
         $scope.feedback.text = '';
 
-        if ($rootScope.currentUser){
-            if ($rootScope.currentUser.email)
-                $scope.feedback.email=$rootScope.currentUser.email;
-            if ($rootScope.currentUser.name)
-                $scope.feedback.name=$rootScope.currentUser.name;
+        if ($rootScope.user){
+            if ($rootScope.user.email){
+                // console.log($rootScope.user.email);
+                $scope.feedback.email=$rootScope.user.email;
+            }
+            if ($rootScope.user.name)
+                $scope.feedback.name=$rootScope.user.name;
         }
+        $rootScope.watch('user',function(){
+            if ($rootScope.user){
+                if ($rootScope.user.email){
+                    console.log($rootScope.user.email);
+                    $scope.feedback.email=$rootScope.user.email;
+                }
+                if ($rootScope.user.name)
+                    $scope.feedback.name=$rootScope.user.name;
+            }
+        });
 
 
         $scope.feedbackMassage = function(){
@@ -886,7 +763,8 @@ angular.module('myApp.controllers', [])
         }
 
 
-        $scope.feedback.send = function(){
+        $scope.send = function(form){
+            console.log($scope.feedback);
             if ($scope.feedback.text.length<10){
                 $scope.errorText = true;
                 $timeout(function(){$scope.errorText = false}, 3000);
@@ -924,52 +802,7 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('goodDetailCtrl', ['$scope','$stateParams','$http','$rootScope','$sce',function ($scope,$stateParams,$http,$rootScope,$sce) {
-        //console.log('ssss');
-        $scope.trustHtml = function(text){
-            return $sce.trustAsHtml(text)
-        };
-        $http.get('/api/goods/type/page/'+$stateParams.id).success(function (data, status, headers, config) {
-            $scope.good=data;
-            $scope.category=data.category;
-        }).error(function (data, status, headers, config) { })
 
-    }])
-
-
-    .controller('listCtrl', ['$scope','$stateParams','$http','$sce','$filter','$rootScope',function ($scope,$stateParams,$http,$sce,$filter,$rootScope) {
-        $scope.trustHtml = function(text){
-            text= $filter('cut')(text,false,200,"...");
-            return $sce.trustAsHtml(text)
-        };
-        $scope.type = $stateParams.type;
-        $scope.category = ($stateParams.id)?$stateParams.id:0;
-
-
-        if ($rootScope.config.perPage){
-            $scope.perPage = $rootScope.config.perPage;
-        } else {
-            $scope.perPage=5;
-        }
-
-        $scope.page =1;
-
-
-
-        $scope.activeCategory=function(id){
-            //console.log(id);
-            return $scope.category==id
-        }
-
-        $http.get('/api/goods/'+$scope.type+'/'+$scope.page).success(function (data, status, headers, config) {
-            $scope.goods=data;
-        }).error(function (data, status, headers, config) { })
-
-
-
-
-
-    }])
 
     .controller('searchCtrl', ['$scope','$http','$stateParams','$filter','$sce',function ($scope,$http,$stateParams,$filter,$sce) {
         // write Ctrl here
@@ -981,7 +814,7 @@ angular.module('myApp.controllers', [])
                 $scope.results=data;
                 $scope.quantity=$scope.results.quantity;
                 //$scope.quantity=$scope.results.
-                /*$scope.results.desc=data.desc.map(function(doc){
+                $scope.results.desc=data.desc.map(function(doc){
                     var text = doc.desc[$stateParams.lang];
                     var lb='<span style="color: #ff2a27">';
                     var le ='</span>';
@@ -995,7 +828,7 @@ angular.module('myApp.controllers', [])
                                 .insert(pos+lb.length+$scope.searchStr.length,le)
                                 .slice(begin,end+lb.length+$scope.searchStr.length+le.length);
                     return doc;
-                })*/
+                })
             }).error(function (data, status, headers, config) { })
         }
 
@@ -1068,105 +901,277 @@ angular.module('myApp.controllers', [])
 
         }])
 
-.controller('profileCtrl',['$scope','$rootScope','$stateParams','$http','$timeout','User',function($scope,$rootScope,$stateParams,$http,$timeout,User){
-   /* if (!$rootScope.Signed) $rootScope.$state.go('language.home');*/
-    //***********************************
-    // редактирование профиля
-    //************************************
+    .controller('profileCtrl',['$scope','$rootScope','$stateParams','$http','$timeout','User','Auth',function($scope,$rootScope,$stateParams,$http,$timeout,User,Auth){
+        /* if (!$rootScope.Signed) $rootScope.$state.go('language.home');*/
+        //***********************************
+        // редактирование профиля
+        //************************************
 
-    // смена пароля
-    $scope.profile={};
-    //$scope.profile.changePswdNameBtn = 'Сменить пароль';
-    $scope.profile.showChangePswd =  false;
-    $scope.profile.psdw='';
-    $scope.profile.psdw1='';
-    $scope.profile.psdw2='';
-    $scope.profile.changePswdSuccess = false;
-    $scope.profile.changePswdError = false;
+        // смена пароля
+        $scope.profile={};
+        //$scope.profile.changePswdNameBtn = 'Сменить пароль';
+        $scope.profile.showChangePswd =  false;
+        $scope.oldPassword='';
+        $scope.newPassword='';
+        $scope.newPassword1='';
+        $scope.changePswdSuccess = false;
+        $scope.changePswdError = false;
+        $scope.changePswdMatch = false;
+        //$scope.changePswdMatch
 
-    $scope.profile.changePswdF = function(){
-        // console.log('info');
-        if (!$scope.profile.showChangePswd)
-            $scope.profile.showChangePswd = true;
-        $scope.profile.psdw='';
-        $scope.profile.psdw1='';
-        $scope.profile.psdw2='';
+        $scope.profile.changePswdF = function(){
+            // console.log('info');
+            if (!$scope.profile.showChangePswd)
+                $scope.profile.showChangePswd = true;
+            $scope.oldPassword='';
+            $scope.newPassword='';
+            $scope.newPassword1='';
 
-        //$scope.profile.changePswdNameBtn = 'Отправить';
-    }
+            //$scope.profile.changePswdNameBtn = 'Отправить';
+        }
 
-    $scope.profile.changePswdServer = function(){
-        var  pswd = {};
-        pswd.email = $rootScope.uuser;
-        pswd.pswd  =$scope.profile.psdw;
-        pswd.pswd1 =$scope.profile.psdw1;
-        pswd.pswd2 =$scope.profile.psdw2;
+        $scope.errors = {};
 
-        $http.post('/login/changepswd',{data:pswd}).
-            success(function(data, status) {
-                $scope.data = data;
-                //console.log(data);
-                if (!$scope.data.done){
-                    $scope.profile.changePswdError = true
-                    $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
-                }else{
-                    $scope.profile.changePswdSuccess = true;
-                    $timeout(function(){$scope.profile.changePswdSuccess = false; $scope.profile.showChangePswd = false;}, 2000)
-                }
-            }).
-            error(function(data, status) {
-                console.log(status);
-                console.log(data);
-                $scope.profile.changePswdError = true
-                $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
+        $scope.changePassword = function(form) {
+
+            if ($scope.newPassword != $scope.newPassword1){
+                $scope.changePswdMatch=true;
+                $timeout(function(){$scope.changePswdMatch=false},3000);
+                return;
+            }
+
+            $scope.submitted = true;
+
+            //if(form.$valid) {
+            //$http.get('/api/change');//,{oldPassword:$scope.oldPassword,newPassword: $scope.newPassword });
+            //$rootScope.user.$updatePswd();
+            Auth.changePassword( $scope.oldPassword, $scope.newPassword )
+                .then( function() {
+                    console.log('ssss');
+                    $scope.profile.showChangePswd = false;
+                    $scope.oldPassword='';
+                    $scope.newPassword='';
+                    $scope.newPassword1='';
+                    $scope.changePswdSuccess=true;
+                    $timeout(function(){$scope.changePswdSuccess=false},3000);
+
+                })
+                .catch( function(err) {
+                    err = err.data;
+                    //s$scope.errors.other = err.message;
+                    $scope.changePswdError=true;
+                    $timeout(function(){$scope.changePswdError=false},3000);
+                    $scope.errors.other = 'Incorrect password';
+                });
+            //}
+        };
+
+        /*$scope.profile.changePswdServer = function(){
+         var  pswd = {};
+         pswd.email = $rootScope.uuser;
+         pswd.pswd  =$scope.profile.psdw;
+         pswd.pswd1 =$scope.profile.psdw1;
+         pswd.pswd2 =$scope.profile.psdw2;
+
+         $http.post('/login/changepswd',{data:pswd}).
+         success(function(data, status) {
+         $scope.data = data;
+         //console.log(data);
+         if (!$scope.data.done){
+         $scope.profile.changePswdError = true
+         $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
+         }else{
+         $scope.profile.changePswdSuccess = true;
+         $timeout(function(){$scope.profile.changePswdSuccess = false; $scope.profile.showChangePswd = false;}, 2000)
+         }
+         }).
+         error(function(data, status) {
+         console.log(status);
+         console.log(data);
+         $scope.profile.changePswdError = true
+         $timeout(function(){$scope.profile.changePswdError = false;}, 3000);
+         });
+         }*/
+        // update profile
+
+
+        $scope.disableButtonSave = false;
+        $scope.showUpdateError = false;
+        $scope.showUpdateSuccess = false;
+
+        $scope.profileSave= function() {
+            $scope.disableButtonSave = true;
+            $rootScope.user.$update(function(){
+                $scope.showUpdateSuccess = true;
+                $timeout(function(){$scope.showUpdateSuccess=false;$scope.disableButtonSave = false;}, 2000);
+                $rootScope.user=User.get();
             });
-    }
+
+        };
+
+    }])
+
+
+
+    .controller('newsCtrl', ['$scope','$rootScope','News','$q','$timeout','$location','$anchorScroll',
+        function ($scope,$rootScope,News,$q,$timeout,$location,$anchorScroll) {
+            $scope.newsList=[];
+            //paginator
+            $scope.page=1;
+            //$scope.numPages=2;
+            $scope.totalItems=0;
+            //$scope.maxSize = 5;
+            //$scope.perPage =3;
+            var defer = $q.defer();
+            var promises = [];
+            $scope.getNewsList = function(page){
+                if (!page){
+                    $scope.page=1;
+                    $scope.newsList=[];
+                }
+
+                News.list({page:$scope.page},function(tempArr){
+                    if ($scope.page==1 && tempArr.length>0){
+                        $scope.totalItems=tempArr[0].index;
+                    }
+                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                        // tempArr[i].filters=JSON.parse(tempArr[i].filters);
+
+                        tempArr[i].desc=(tempArr[i].desc0[$scope.lang]=='')?tempArr[i].desc1:tempArr[i].desc0;
+                        tempArr[i].desc[$scope.lang]= tempArr[i].desc[$scope.lang].substring(0,300);
+                        //console.log(tempArr[i].desc);
+                        /*if (!tempArr.desc0){
+
+                         }*/
+                        $scope.newsList.push(tempArr[i]);
+                    }
+                });
+            }
+            //Angularjs promise chain when working with a paginated collection
+            //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
+            $scope.loadData = function(numPage) {
+                //console.log(numPage);
+                if (!numPage) numPage=1;
+                var deferred = $q.defer();
+                var i=1;
+                $scope.newsList=[];
+                function loadAll() {
+                    News.list({page:i},function(news){
+                        //console.log(stuffs);
+                        if ($scope.newsList.length<=0 && news.length>0){
+                            $scope.totalItems=news[0].index;
+                        }
+                        for(var ii=0; ii<=news.length-1;ii++){
+                            news[ii].desc=(news[ii].desc0[$scope.lang]=='')?news[ii].desc1:news[ii].desc0;
+                            news[ii].desc[$scope.lang]= news[ii].desc[$scope.lang].substring(0,300);
+                            $scope.newsList.push(news[ii]);
+                        }
+                        if(i<numPage) {
+                            i++;
+                            loadAll();
+                        }
+                        else {
+                            deferred.resolve();
+                        }
+                    })
+                }
+                loadAll();
+                return deferred.promise;
+            };
 
 
 
 
+            $scope.goToNews = function(news){
+                //console.log('dd');
+                var id =(news)?news._id:'';
+                $rootScope.$state.transitionTo('mainFrame.news.detail',{'id':id});
+
+            }
 
 
-    // update profile
+
+            $scope.setPage = function () {
+                $scope.page++;
+                $scope.getNewsList($scope.page);
+                //console.log($scope.page);
+
+            };
+
+            //прокрутка вверх екрана
+            $scope.scrollTo = function(id) {
+                //console.log(id);
+                $location.hash(id);
+                $anchorScroll();
+            }
+
+            $scope.getNewsList();
+
+        }])
+    .controller('newsDetailCtrl',['$scope','News','$rootScope','$timeout',function($scope,News,$rootScope,$timeout){
+        $scope.lang=$rootScope.$stateParams.lang;
+
+        $scope.news=News.get({id:$rootScope.$stateParams.id},function(res,err){
+            // console.log('gfdfdfd');
 
 
-    $scope.disableButtonSave = false;
-    $scope.showUpdateError = false;
-    $scope.showUpdateSuccess = false;
-
-    $scope.profileSave= function() {
-        $scope.disableButtonSave = true;
-        $rootScope.user.$update(function(){
-            $scope.showUpdateSuccess = true;
-            $timeout(function(){$scope.showUpdateSuccess=false;$scope.disableButtonSave = false;}, 2000);
-            $rootScope.user=User.get();
         });
 
+    }])
 
-       /* if (!$rootScope.Signed) return;
-        $scope.disableButtonSave = true;
-        $scope.profileData.profileStr = JSON.stringify($scope.profileData.profile);
-        //console.log($scope.formReg);
-        $http.post('/login/updateprofile',{data:$scope.profileData}).
-            success(function(data, status) {
-                $scope.data = data;
-                //console.log(data);
-                if (!$scope.data.done){
-                    $scope.showUpdateError =  true;
-                    $timeout(function(){$scope.showUpdateError=true;$scope.disableButtonSave = false;}, 2000);
-                }else{
-                    $scope.showUpdateSuccess = true;
-                    $scope.setUserStatus( $scope.profileData.login, true,$scope.profileData.email,$scope.profileData.profile,$scope.profileData.role, $scope.profileData.userid);
-                    $timeout(function(){$scope.showUpdateSuccess=false;$scope.disableButtonSave = false;}, 2000);
-                }
-            }).
-            error(function(data, status) {
-                console.log(status);
-                console.log(data);
-                $scope.showUpdateError =  true;
-                $timeout(function(){$scope.showUpdateError=true;$scope.disableButtonSave = false;}, 3000);
-            });*/
-    };
+    .controller('chatCtrl', ['$scope','socket','$rootScope','$timeout','Chat',function ($scope,socket,$rootScope,$timeout,Chat) {
+        if (!$rootScope.user._id) return;
 
-    //$scope.status = 'ready';
-}]);
+        $scope.users=Chat.list({from:$rootScope.user._id});
+        $scope.listUsers=Chat.list();
+
+        $scope.usersOnLine=[];
+        socket.on('username',function(data){
+            //console.log(data);
+            $scope.usersOnLine=data;
+
+        })
+        $timeout(function(){
+            socket.emit('whatusers',$rootScope.user._id);
+        },500);
+        socket.on('new:msg',function(data){
+            var chat= data.from;
+            if ($scope.msgs[chat]){
+                $scope.msgs[chat].push({name:$scope.activeChat.name,msg:data.msg,date:data.date});
+            }
+        })
+
+
+        $scope.msgs={};
+        $scope.sendMsgBtn=false;
+
+        $scope.changeChat = function(chat){
+            $scope.msgs[chat._id]=[];
+            $scope.activeChat=chat;
+            $scope.msgs[chat._id]=Chat.list({from:$rootScope.user._id,to:$scope.activeChat._id},function(res){
+
+                $scope.sendMsgBtn=true;
+                $scope.msgs[chat._id].forEach(function(el){
+                    if (el.user==$scope.activeChat._id){
+                        el.name=$scope.activeChat.name;
+                    }else{
+                        el.name=$rootScope.user.name;
+                    }
+                    el.date=el.created;
+                })
+                console.log($scope.msgs);
+                $scope.massages=$scope.msgs[chat._id];
+            });
+
+        }
+
+        $scope.sendMsg=function(msg){
+            socket.emit('new:msg',{from:$rootScope.user._id,to:$scope.activeChat._id,msg:msg},function(data){
+                console.log(data)
+                data.name=$rootScope.user.name;
+                $scope.msgs[$scope.activeChat._id].push(data);
+                $scope.msg='';
+            })
+        }
+
+    }])

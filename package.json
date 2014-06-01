@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "express": "~3.2.6",
+    "socket.io": "0.9.17",
+    "express": "4.3.1",
+    "mongoose": "~3.8.11",
     "jade": "~0.31.2",
     "lodash": "~2.4.1",
-    "mongoose": "~3.8.7",
     "mongoose-unique-validator": "~0.3.0",
     "connect-mongo": "~0.4.0",
     "passport": "~0.2.0",
@@ -20,7 +21,18 @@
     "moment": "~2.5.1",
     "nodemailer": "~0.6.5",
     "phantom-express": "0.0.1",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "body-parser": "~1.2.2",
+    "method-override": "~1.0.2",
+    "cookie-parser": "~1.1.0",
+    "session": "~0.1.0",
+    "logger": "0.0.1",
+    "cookie-session": "~1.0.2",
+    "errorhandler": "~1.0.1",
+    "express-session": "~1.2.1",
+    "serve-favicon": "~2.0.0",
+    "serve-static": "~1.1.0",
+    "multer": "~0.1.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

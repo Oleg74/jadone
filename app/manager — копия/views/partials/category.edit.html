@@ -1,0 +1,153 @@
+<div class="container">
+    <div class="main">
+        <div class="row">
+
+            <div class="col-lg-12 back">
+                <a href="" class="btn btn-primary btn-info"ng-click="changeCategory=true;$state.transitionTo('mainFrame.category')">
+                    <span class="glyphicon glyphicon-arrow-left"></span> в список</a>
+                <!--<a href="" class="btn btn-info pull-left" ng-click="$state.transitionTo('mainFrame.stuff')">в список</a>-->
+            </div>
+
+            <article class="col-lg-12 col-md-12">
+                <article class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="pull-left" style="margin-right: 30px;">
+                        <h3>Категория</h3>
+                        <div class="thumbnail back pull-left">
+                            <img ng-src="{{myFileSrc}}"alt="выберете фото" />
+                            <div>
+                                <input type="file" file-read="myFile" name="image" id="imagefile" style='visibility: hidden;'/>
+                                <input type = "button" class="btn btn-success" value="выбор фото" ng-disabled="noChange" onclick ="javascript:document.getElementById('imagefile').click();">
+                                <button  class="btn btn-info pull-right" ng-click="uploadImg()" ng-disabled="noLoad">загрузити</button>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4>Pаздел</h4>
+                        <span ng-bind="section"></span>
+                    </div>
+
+                    <select
+                            ng-disabled="editDisabled"
+                            ng-options="opt.id as opt.label for opt in categoryTags|orderBy:'index'"
+                            ng-model="category.section"
+                            >
+                        <option value="" disabled>выберите раздел</option>
+
+                    </select>
+
+                    <div ng-show="category.section">
+                        <h4>Бренды</h4>
+                        <a  class="btn btn-default btn-xs" data-ng-repeat="el in brandList" ng-disabled="disabledButton"
+                                data-ng-click="disabledButton=true;removeBrand(brandList[$index])">
+                            <span class="glyphicon glyphicon-remove"></span>{{el.label}}
+                        </a>
+<pre>{{selectBrand}}</pre>
+                        <select ng-disabled="editDisabled"
+                                ng-model="selectBrand"
+                                ng-options="brand as brand.label for brand in brandTags|orderBy:'index' ">
+                            <option value="">выберите бренд</option>
+                        </select>
+
+                       <h4>фильтры</h4>
+                        <a type="button" class="btn btn-default btn-xs" data-ng-repeat="el in filterList"
+                           data-ng-click="disabledButton=true;removeFilter(filterList[$index])" >
+                            <span class="glyphicon glyphicon-remove"></span>{{el.label}}
+                        </a>
+                        <select ng-disabled="editDisabled"
+                                ng-model="selectFilter"
+                                ng-options="opt as opt.label for opt in filterTags|orderBy:'index' ">
+                            <option value="">выберите фильтр</option>
+                        </select>
+
+                        <h4>фильтр для спиcка</h4>
+
+                        <select ng-disabled="category.mainFilter"
+                                ng-model="selectMainFilter"
+                                ng-options="opt.id as opt.label for opt in filterList|orderBy:'index' ">
+                            <option value="" disabled>выберите фильтр</option>
+                        </select>
+                    </div>
+
+                </article>
+
+
+                <form name="myForm" class="form form-horizontal" ng-submit="updateCategory()">
+
+                    <article class="col-lg-6 col-md-6 col-sm-12">
+
+                        <h3>Опис категории</h3>
+                        <p>Найменування</p>
+                        <div class="col-lg-6 col-md-6 col-sm-6 row" data-ng-repeat="lang in config.langArr">
+                            <span ng-bind="lang"></span>&nbsp
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="inputText3"
+                                    placeholder="введіть найменування"
+                                    ng-model="category.name[lang]"
+                                    ng-disabled="editDisabled"
+                                    required
+                                    focus-me="focusInput[$index]"/>
+                        </div>
+                        <br />
+                        <p>Короткий опис</p>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 back row" data-ng-repeat="lang in config.langArr">
+                            <span ng-bind="lang"></span>&nbsp
+                            <textarea placeholder="короткий опис" ng-model="category.desc[lang]" ng-disabled="editDisabled">
+                            </textarea>
+                        </div>
+                        <div class="back col-lg-4 col-md-4 col-sm-4 col-xs-4 row">
+                            <p>Індекс</p>
+                            <input type="text" class="pfoto"  placeholder="введіть індекс"  ng-model="category.index" required ng-disabled="editDisabled"/>
+                            </br>
+                        </div>
+
+                        <div class="pull-right back ">
+                            <button class="btn btn-large btn-info save mt40" type="submit" ng-disabled="editDisabled">зберегти</button>
+                        </div>
+
+                </article>
+                </form>
+
+
+
+            </article>
+        </div>
+
+    </div>
+</div>
+
+<!--<article class="col-lg-4 col-md-4" >
+   <p class="back">категория  <span ng-bind="activeCategoryName"></span></p>
+   <div class="pull-left col-lg-12 col-md-12 col-xs-12 row back">
+       <label class="btn-group-md">
+           <input type="text" placeholder="пошук" ng-model="searchCategory" /></br>
+           <button class="btn btn-info" ng-click="focusInput[0]=true;editCategory(null)">створити</button>
+       </label>
+   </div>
+   <ul class="list">
+       <li class="pull-left col-lg-12 col-md-10 col-xs-10 back" ng-repeat="category in categories|filter:{name:searchCategory}|orderBy:'index'">
+           <div class="form-group">
+               <label class="control-label col-lg-6 col-md-6 col-xs-6">
+                   <a ng-click="focusInput[0]=true;editCategory(category)">
+                       <span ng-bind="category.name[config.DL]"></span>
+                   </a>
+               </label>
+               <div class="col-lg-6 btn-group">
+
+                   <button class="btn btn-info" ng-click="focusInput[0]=true;editCategory(category)">
+                       <img src="img/icons/edit.png" title="редактировать">
+                   </button>
+                   <button class="btn btn-danger" ng-click="deleteCategory(category)">
+                       <img src="img/icons/delete.png" title="удалить">
+                   </button>
+               </div>
+           </div>
+       </li>
+       <div class="clearfix"></div>
+
+   </ul>
+</article>-->
+<div ui-view></div>

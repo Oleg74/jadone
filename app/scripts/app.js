@@ -53,15 +53,21 @@ function getCookie(name) {
 }
 
 var myApp= angular.module('myApp', [
-        'ngRoute','ui.router','ngResource','ngCookies','ui.bootstrap','caco.ClientPaginate','ngAnimate',
+        'ngRoute','ui.router','ngResource','ngCookies','ui.bootstrap','caco.ClientPaginate','ngAnimate','btford.socket-io',
         //'ui.bootstrap.collapse', 'ui.bootstrap.dropdownToggle',
   'myApp.controllers',
   'myApp.filters',
   'myApp.services',
   'myApp.directives'
 ])
-.run(['$rootScope', '$state', '$stateParams','Config','$cookieStore','$resource','User',
-        function ($rootScope,   $state,   $stateParams,Config,$cookieStore,$resource,User){
+
+
+
+.run(['$rootScope', '$state', '$stateParams','Config','$cookieStore','$resource','User','$window',"socket",'Category',
+        function ($rootScope,   $state,   $stateParams,Config,$cookieStore,$resource,User,$window,socket,Category){
+            socket.on('send:time', function (data) {
+                $rootScope.time = data.time;
+            });
 
        /* var myip;
         function ip_callback(o) {
@@ -74,7 +80,20 @@ var myApp= angular.module('myApp', [
             $rootScope.lang=getCookie('lan');
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
-            $rootScope.user=User.get(function(){
+            $rootScope.socket = socket;
+            $rootScope.user=User.get(function(user){
+
+                /*$rootScope.socket = socket;
+                console.log(user);
+                socket.emit('new user',user._id,function(data){
+                    console.log(data+'new user is here');
+                   *//* if(data){
+                        $('#nickWrap').hide();
+                        $('#contentWrap').show();
+                    } else {
+                        $nickError.html('that username is already taken! Try again.');
+                    }*//*
+                });*/
                 //console.log($rootScope.user);
             });
 
@@ -91,6 +110,11 @@ var myApp= angular.module('myApp', [
                     //console.log($rootScope.commonFilter);
 
             });
+            $rootScope.categories =Category.list(function(){
+                if($rootScope.categories[0]){
+                    $rootScope.mainSection=$rootScope.categories[0]._id;
+                }
+            });
 
 
         //console.log( $rootScope.config);
@@ -104,7 +128,16 @@ var myApp= angular.module('myApp', [
     $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
             event.preventDefault();
     })*/
+            $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
+                if ($window.ga)
+                    $window.ga('send', 'pageview', { page: $location.path() });
+                $('.zoomContainer').remove();
 
+                if(from.name=='language.cart' && to.name=='language.login'){
+                    $rootScope.fromCart=true;
+                }
+
+            });
 }])
 
 .config(['$stateProvider', '$urlRouterProvider','$locationProvider',function ($stateProvider,$urlRouterProvider,$locationProvider){
@@ -125,9 +158,26 @@ var myApp= angular.module('myApp', [
 
 
     $stateProvider
+        /*.state("qqq", {
+            url: "/asd",
+
+            template:"<h1 style='color: #000000'>{{time}}</h1>",
+            *//*controller:function($scope,socket){
+                socket.on('send:time', function (data) {
+                    $scope.time = data.time;
+                });
+            }*//*
+
+        })*/
         .state("language", {
             url: "/:lang",
             abstract:true,
+            /*template:"<h1 style='color: #000000'>{{time}}</h1>",
+            controller:function($scope,socket){
+                socket.on('send:time', function (data) {
+                    $scope.time = data.time;
+                });
+            }*/
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/mainFrame.html' },
             controller: 'mainFrameCtrl'
         })
@@ -210,7 +260,22 @@ var myApp= angular.module('myApp', [
             controller: 'cartCtrl'
         })
 
+        .state("language.news.detail", {
+            url: "/newsdetail/:id",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/news.detail.html' },
+            controller: 'newsDetailCtrl'
+        })
 
+        .state("language.news", {
+            url: "/news",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/news.html' },
+            controller: 'newsCtrl'
+        })
+        .state("language.chat", {
+            url: "/chat",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/chat.html' },
+            controller: 'chatCtrl'
+        })
 
 }])
 
@@ -307,5 +372,74 @@ angular.module('caco.ClientPaginate', [])
                 $scope.paginator = Paginator;
             },
             templateUrl: 'paginationControl.html'
+        };
+    });
+
+
+angular.module('btford.socket-io', []).
+    provider('socketFactory', function () {
+
+        // when forwarding events, prefix the event name
+        var defaultPrefix = 'socket:',
+            ioSocket;
+
+        // expose to provider
+        this.$get = function ($rootScope, $timeout) {
+
+            var asyncAngularify = function (socket, callback) {
+                return callback ? function () {
+                    var args = arguments;
+                    $timeout(function () {
+                        callback.apply(socket, args);
+                    }, 0);
+                } : angular.noop;
+            };
+
+            return function socketFactory (options) {
+                options = options || {};
+                var socket = options.ioSocket || io.connect();
+                var prefix = options.prefix || defaultPrefix;
+                var defaultScope = options.scope || $rootScope;
+
+                var addListener = function (eventName, callback) {
+                    socket.on(eventName, asyncAngularify(socket, callback));
+                };
+
+                var wrappedSocket = {
+                    on: addListener,
+                    addListener: addListener,
+
+                    emit: function (eventName, data, callback) {
+                        return socket.emit(eventName, data, asyncAngularify(socket, callback));
+                    },
+
+                    removeListener: function () {
+                        return socket.removeListener.apply(socket, arguments);
+                    },
+
+                    // when socket.on('someEvent', fn (data) { ... }),
+                    // call scope.$broadcast('someEvent', data)
+                    forward: function (events, scope) {
+                        if (events instanceof Array === false) {
+                            events = [events];
+                        }
+                        if (!scope) {
+                            scope = defaultScope;
+                        }
+                        events.forEach(function (eventName) {
+                            var prefixedEvent = prefix + eventName;
+                            var forwardBroadcast = asyncAngularify(socket, function (data) {
+                                scope.$broadcast(prefixedEvent, data);
+                            });
+                            scope.$on('$destroy', function () {
+                                socket.removeListener(eventName, forwardBroadcast);
+                            });
+                            socket.on(eventName, forwardBroadcast);
+                        });
+                    }
+                };
+
+                return wrappedSocket;
+            };
         };
     });

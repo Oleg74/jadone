@@ -7,26 +7,53 @@
 // In this case it is a simple value service.
 angular.module('myApp.services', []).
      value('version', '0.1')
-.factory('User', function ($resource) {
-        return $resource('/api/users/:id', {
+    .factory('User', function ($resource) {
+        return $resource('/api/users/:id/:email', {
             id: '@id'
         }, { //parameters default
             update: {
                 method: 'PUT',
                 params: {
-                    id:'profile'
+                    id:'profile',
+                    email:''
+                }
+            },
+            updatePswd: {
+                method: 'PUT',
+                params: {
+                    // id:'profile'
+                    id:'changepswd',
+                    email:''
+                }
+            },
+            resetPswd: {
+                method: 'POST',
+                params: {
+                    id:'resetpswd',
+                    email:'@email'
                 }
             },
             get: {
                 method: 'GET',
                 params: {
-                    id:'me'
+                    id:'me',
+                    email:''
                 }
             }
         });
     })
 .factory('Session',['$resource', function ($resource) {
         return $resource('/api/session/');
+    }])
+
+    .factory('Chat',['$resource', function($resource){
+        return $resource('/api/chat/:from/:to', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            /*add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id: ''}},
+            delete: {method:'DELETE',params: {id: '@_id'}},
+            get:{method:'GET', params: {id: '@id'}}*/
+        });
     }])
 
 .factory('Auth',['$location', '$rootScope', 'Session', 'User', '$cookieStore', function Auth($location, $rootScope, Session, User, $cookieStore) {
@@ -111,10 +138,18 @@ angular.module('myApp.services', []).
             changePassword: function(oldPassword, newPassword, callback) {
                 var cb = callback || angular.noop;
 
-                return User.update({
+                return User.updatePswd({
                     oldPassword: oldPassword,
                     newPassword: newPassword
                 }, function(user) {
+                    return cb(user);
+                }, function(err) {
+                    return cb(err);
+                }).$promise;
+            },
+            resetPswd: function( email,callback) {
+                var cb = callback || angular.noop;
+                return User.resetPswd(email, function(user) {
                     return cb(user);
                 }, function(err) {
                     return cb(err);
@@ -138,7 +173,7 @@ angular.module('myApp.services', []).
             isLoggedIn: function() {
                 var user = $rootScope.user;
                 return !!user;
-            },
+            }
         };
     }])
 
@@ -182,6 +217,16 @@ angular.module('myApp.services', []).
             update: {method:'PUT',params: {_id: ''}},
             delete: {method:'DELETE',params: {_id: '@_id'}},
             get:{method:'GET', params: {_id: '@_id'}}
+        });
+    }])
+
+    .factory('BrandTags',['$resource', function($resource){
+        return $resource('/api/brandtags/:brand/:id', {}, {
+            list: {method:'GET', isArray: true, params:{brand:'@brand',id:''}},
+            add: {method:'POST',params:{brand:'',id:''}},
+            update: {method:'PUT',params: {brand:'',id: ''}},
+            delete: {method:'DELETE',params: {brand:'@brand',id: '@_id'}},
+            get:{method:'GET', params: {brand:'brand',id: '@_id'}}
         });
     }])
     .factory('Category',['$resource', function($resource){
@@ -251,6 +296,30 @@ angular.module('myApp.services', []).
             update: {method:'PUT',params: {id: ''}},
             delete: {method:'DELETE',params: {id: '@_id'}},
             get:{method:'GET', params: {id: '@_id'}}
+        });
+    }])
+
+    .factory('News',['$resource', function($resource){
+        return $resource('/api/news/:page/:id', {}, {
+            list: {method:'GET', isArray: true, params:{page:'@page',id:''}},
+            add: {method:'POST',params:{page:'page',id:''}},
+            update: {method:'PUT',params: {page:'page',id:''}},
+            updateGallery: {method:'PUT',params: {page:'gallery',id:''}},
+            delete: {method:'DELETE',params: {page:'page',id:'@_id'}},
+            get:{method:'GET', params: {page:'page',id:'@_id'}},
+            full:{method:'GET', params: {page:'full',id:'@_id'}},
+        });
+    }])
+
+
+
+    .factory('Stat',['$resource', function($resource){
+        return $resource('/api/stat/:id', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id:''}},
+            delete: {method:'DELETE',params: {id:'@_id'}},
+            get:{method:'GET', params: {id:'@_id'}},
         });
     }])
 
@@ -438,4 +507,39 @@ angular.module('myApp.services', []).
 
         };
 
-    });
+    })
+
+
+    .factory('socket', function (socketFactory) {
+        return socketFactory();
+    })
+
+
+
+/*
+.factory('socket', function ($rootScope) {
+    //console.log('aaaasssccc');
+    var socket = io.connect();
+
+
+    return {
+        on: function (eventName, callback) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+        emit: function (eventName, data, callback) {
+            socket.emit(eventName, data, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    if (callback) {
+                        callback.apply(socket, args);
+                    }
+                });
+            })
+        }
+    };
+});*/

@@ -31,8 +31,10 @@ var myApp= angular.module('myApp', [
         $rootScope.config=Config.get();
         $rootScope.changeStuff=false;
         $rootScope.changeCategory=false;
-        $rootScope.changeBrand=false;
         $rootScope.changeCollection=false;
+        $rootScope.changeNews=false;
+        $rootScope.changeStat=false;
+
 
 
         //http://pastebin.com/czJk3pmk
@@ -60,6 +62,12 @@ var myApp= angular.module('myApp', [
             }
             if(to.name=='mainFrame.collection'){
                 $rootScope.changeCollection=true;
+            }
+            if(to.name=='mainFrame.news'){
+                $rootScope.changeNews=true;
+            }
+            if(to.name=='mainFrame.stat'){
+                $rootScope.changeStat=true;
             }
         })
     }])
@@ -149,6 +157,23 @@ var myApp= angular.module('myApp', [
             templateUrl: function(){ return 'manager/views/partials/stuff.gallery.html' },
             controller: 'editStuffGalleryCtrl'
         })
+
+        .state("mainFrame.news", {
+            url: "/news",
+            templateUrl: function(){ return 'manager/views/partials/news.html' },
+            controller: 'newsCtrl'
+        })
+        .state("mainFrame.news.edit", {
+            url: "/edit/:id",
+            templateUrl: function(){ return 'manager/views/partials/news.edit.html' },
+            controller: 'editNewsCtrl'
+        })
+        .state("mainFrame.news.editNewsGallery", {
+            url: "/gallery/:id",
+            templateUrl: function(){ return 'manager/views/partials/news.gallery.html' },
+            controller: 'editNewsGalleryCtrl'
+        })
+
         .state("mainFrame.places", {
             url: "/places",
             templateUrl: function(){ return 'manager/views/partials/place.html' },
@@ -177,6 +202,31 @@ var myApp= angular.module('myApp', [
             templateUrl: function(){ return 'manager/views/partials/orders.html' },
             controller: 'ordersCtrl'
         })
+
+
+        .state("mainFrame.stat", {
+            url: "/stat",
+            templateUrl: function(){ return 'manager/views/partials/stat.html' },
+            controller: 'statCtrl'
+        })
+
+        .state("mainFrame.stat.edit", {
+            url: "/edit/:id",
+            templateUrl: function(){ return 'manager/views/partials/stat.edit.html' },
+            controller: 'editStatCtrl'
+        })
+        .state("mainFrame.stat.editStatGallery", {
+            url: "/gallery/:id",
+            templateUrl: function(){ return 'manager/views/partials/stat.gallery.html' },
+            controller: 'editStatGalleryCtrl'
+        })
+
+        .state("mainFrame.users", {
+            url: "/users",
+            templateUrl: function(){ return 'manager/views/partials/users.html' },
+            controller: 'usersCtrl'
+        })
+
 
 
         .state("mainFrame.editCake", {

@@ -1,0 +1,49 @@
+<style>
+    .overflowable {
+        height: 240px;
+        overflow-y: auto;
+        border: 1px solid #000;
+    }
+
+</style>
+
+<div class="container" >
+    <div class="row" style="background-color: #000000;color: white"> <!--col-lg-offset-12 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-6 col-xs-offset-3-->
+        <div class="col-lg-12">
+            <h1>Chat</h1>
+            <div class="row">
+
+                <div class="col-lg-4">
+                    <h3> Messages</h3>
+                    <div class="overflowable">
+                    <p style="color: white" ng-repeat='message in msgs[activeChat._id]'> {{message.name}}: {{message.msg}}</p>
+                    </div>
+                    <form  data-ng-submit="sendMsg(msg)">
+                        <input size="35"  ng-model="msg">
+                        <input type="submit" value='Send' ng-disabled="!sendMsgBtn">
+                    </form>
+                </div>
+                <div class="overflowable col-lg-4">
+                    <h3> Users</h3>
+                    <p ng-repeat='user in users'><a data-ng-click="changeChat(user)"><span ng-bind="user.name" ng-hide="user._id==$parent.user._id"></span></a></p>
+                </div>
+                <div class="col-lg-4">
+                    <h3>Change chat</h3>
+                    <!--<p ng-repeat='message in messages'> {{message.user}}: {{message.text}}</p>-->
+                    <form  data-ng-submit="changeName()">
+                        <input   ng-model="newName">
+                        <input type="submit" value='Send'>
+                    </form>
+                </div>
+
+
+            </div>
+
+
+        </div>
+        <div class="col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-6 col-xs-offset-3">
+
+        </div>
+    </div>
+
+</div>

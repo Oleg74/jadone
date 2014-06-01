@@ -56,9 +56,9 @@ span.icon-bar {
 article.col-lg-7 {
 	border-left: 2px solid #ADADAD;
 }
-.back {}
-	/*margin-bottom: 20px;
-	margin-right: 20px;}*/
+.back {
+	margin-bottom: 20px;
+	margin-right: 20px;}
 p {
 	margin-bottom: 5px; 
 	margin-top: 10px; 
@@ -447,3 +447,18 @@ hr {
 
 
 }
+.nav, .pagination, .carousel, .panel-title a, a { cursor: pointer; }
+button.save {
+    width: 100%;
+    font-size:18px;
+    text-transform: uppercase;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+select.bot {
+    margin-bottom: 10px;
+    width: 170px;
+}
+div.form-group {padding-left: 10px;}

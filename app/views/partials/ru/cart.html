@@ -186,7 +186,7 @@
                 <p>Извините, Ваш заказ не отправлен. <br> Повторите попытку через 5 сек.</p>
             </li>
             <li class="pull-right">
-                <button class="btn btn-danger btn-large mb pull-right"  ng-click="sendOrder()" ng-disabled="sendDisabled">Отправить заказ</button>
+                <button class="btn btn-danger btn-large mb pull-right"  ng-click="sendOrder()" ng-disabled="!user._id || cart.quantity<1">Отправить заказ</button>
             </li>
         </ul>
     </div><!--row-->

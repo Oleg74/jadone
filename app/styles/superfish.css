@@ -21,7 +21,6 @@
 .sf-menu li.sfHover > ul {
 	display: block;
 }
-
 .sf-menu a {
 	display: block;
 	position: relative;
@@ -30,8 +29,6 @@
 	top: 0;
 	left: 100%;
 }
-
-
 /*** DEMO SKIN ***/
 .sf-menu {
 	float: left;
@@ -43,9 +40,9 @@
 	*width: 12em; /* no auto sub width for IE7, see white-space comment below */
 }
 .sf-menu a {
-	border-left: 1px solid #fff;
-	border-top: 1px solid #dFeEFF; /* fallback colour must use full shorthand */
-	border-top: 1px solid rgba(255,255,255,.5);
+	/*border-left: 1px solid #fff;
+	border-top: 1px solid #dFeEFF;*/ /* fallback colour must use full shorthand */
+	/*border-top: 1px solid rgba(255,255,255,.5);*/
 	padding: .75em 1em;
 	text-decoration: none;
 	zoom: 1; /* IE7 */
@@ -73,7 +70,6 @@
 	-webkit-transition: none;
 	transition: none;
 }
-
 /*** arrows (for all except IE7) **/
 .sf-arrows .sf-with-ul {
 	padding-right: 2.5em;

@@ -24,7 +24,6 @@ angular.module('myApp.controllers', [])
 
 
     .controller('filtersCtrl', ['$scope','$http','Filters','$rootScope','Tags',function ($scope,$http,Filters,$rootScope,Tags) {
-        //$scope.lanArr=$rootScope.lanArr;
         $scope.editDisabledF=true;
         $scope.editDisabledT=true;
 
@@ -40,14 +39,7 @@ angular.module('myApp.controllers', [])
 
         function getFilters(){
             $scope.filters=Filters.list(function(){
-                /*if ($scope.activeFilter== null && $scope.filters.length>0 ){
-                    $scope.activeFilter=$scope.filters[0]._id;
-                    $scope.activeFilterName=$scope.filters[0].name[$rootScope.config.DL];
-                    Filters.get({id:$scope.activeFilter},function(filter){
-                        $scope.tags=filter.tags;
-                    });
-                    //$scope.tags=Tags.list({'filter':$scope.activeFilter});
-                }*/
+
             });
         }
         getFilters();
@@ -83,26 +75,12 @@ angular.module('myApp.controllers', [])
         }
 
         $scope.saveFilter = function(){
-           //console.log($scope.filter);
-
-            function afterSave(){
+             function afterSave(){
                 $scope.filter.name={"ru":'',"ua":'',"en":''};
                 $scope.filter.index=1;
-
-                $scope.filters=Filters.list(function(){
-                    /*if(!$scope.activeFilter)
-                        $scope.activeFilter=  $scope.filters[0]._id;
-                    $scope.filters.forEach(function(el){
-                        if (el._id==$scope.activeFilter)
-                            $scope.activeFilterName=el.name[$rootScope.config.DL];
-                    });
-                    $scope.filter= Filters.get({'id':$scope.activeFilter},function(){
-                        $scope.tags=$scope.filter.tags;
-                    });*/
-                });
+                $scope.filters=Filters.list(function(){ });
                 $scope.editDisabledF=true;
                 $scope.filter.type=0;
-
             }
             if (!$scope.filter._id){
                 Filters.add($scope.filter,function(){
@@ -729,6 +707,7 @@ angular.module('myApp.controllers', [])
                                 if ($scope.category.brands.indexOf($scope.brandTags[i].id)>-1){
                                     $scope.brandList.push($scope.brandTags[i]);
                                     $scope.brandTags.splice(i, 1);
+                                    i--;
                                 }
                             }
                         },500);
@@ -737,6 +716,7 @@ angular.module('myApp.controllers', [])
                                 if ($scope.category.filters.indexOf($scope.filterTags[i].id)>-1){
                                     $scope.filterList.push($scope.filterTags[i]);
                                     $scope.filterTags.splice(i, 1);
+                                    i--;
                                 }
                             }
                         },500);
@@ -1191,7 +1171,7 @@ angular.module('myApp.controllers', [])
             }*/
 
             $scope.$watch('changeStuff',function(){
-                if ($rootScope.changeStuff){
+                if ($rootScope.changeStuff && $rootScope.$state.current.name=='mainFrame.stuff'){
                     //console.log('dd');
                     //$scope.getStuffList($scope.activeCategory,$scope.activeBrand);
                     $scope.loadData($scope.page);
@@ -1240,7 +1220,7 @@ angular.module('myApp.controllers', [])
                         if (res.stock){
                             res.stock=JSON.parse(res.stock);
                         }
-                        console.log(res.stock);
+                        //console.log(res.stock);
                     });
                 },400);
             } else {
@@ -1375,10 +1355,10 @@ angular.module('myApp.controllers', [])
                 setFiltersTags($scope.filtersValue);
                 var i;
                 for(i=0; i<=$rootScope.config.langArr.length-1;i++){
-                    $scope.stuff.name[$rootScope.config.langArr[i]]=$scope.stuff.name[$rootScope.config.langArr[i]].substring(0,25);
+                    $scope.stuff.name[$rootScope.config.langArr[i]]=$scope.stuff.name[$rootScope.config.langArr[i]].substring(0,35);
                 }
                 for(i=0;i<=$rootScope.config.langArr.length-1;i++){
-                    $scope.stuff.desc[$rootScope.config.langArr[i]]=$scope.stuff.desc[$rootScope.config.langArr[i]].substring(0,1000);
+                    $scope.stuff.desc[$rootScope.config.langArr[i]]=$scope.stuff.desc[$rootScope.config.langArr[i]].substring(0,3000);
                 }
                 if (!$scope.stuff._id){
                     Stuff.add($scope.stuff,function(){
@@ -1498,15 +1478,18 @@ angular.module('myApp.controllers', [])
             });
 
             $scope.refreshStuff= function(){
+                var current = $rootScope.$state.current;
+                var params = angular.copy($rootScope.$stateParams);
+                $rootScope.$state.transitionTo(current, params, { reload: true, inherit: true, notify: true });
 
-                $scope.stuff= Stuff.full({id:$rootScope.$stateParams.id},function(){
+                /*$scope.stuff= Stuff.full({id:$rootScope.$stateParams.id},function(){
                     $scope.gallery=$scope.stuff.gallery;
                     $scope.myFileSrc='/' + '?' + new Date().getTime();
                     $scope.noChange=false;
                     $scope.photoIndex=1;
                     $scope.mainFilterTag='';
                     $scope.saveDisabled=false;
-                });
+                });*/
             }
             //console.log($scope.stuffForGallery);
             $scope.myFile={};
@@ -1514,6 +1497,7 @@ angular.module('myApp.controllers', [])
             $scope.noChange=false;
             $scope.myFileSrc='/' + '?' + new Date().getTime();;
             $scope.uploadFile = function(){
+                if ($scope.gallery.length>=12) return;
                 var file = $scope.myFile;
                 $scope.noLoad=true;
                 $scope.noChange=true;
@@ -1527,7 +1511,7 @@ angular.module('myApp.controllers', [])
                 //var par = {'id':params.id,'photo':index};
                 //console.log(index);
                 if (confirm("Удалить?")){
-                    $http.get("/api/stufffile/fileGalleryDelete/"+$scope.stuffForGallery._id+'/'+index).then(function (response) {
+                    $http.get("/api/stufffile/fileGalleryDelete/"+$scope.stuff._id+'/'+index).then(function (response) {
                         $scope.refreshStuff();
                     });
                 }
@@ -1554,6 +1538,249 @@ angular.module('myApp.controllers', [])
 
 
         }])
+
+    .controller('newsCtrl', ['$scope','$rootScope','News','$q','$timeout',
+        function ($scope,$rootScope,News,$q,$timeout) {
+
+
+            $scope.stuffList=[];
+            //paginator
+            $scope.page=1;
+            //$scope.numPages=2;
+            $scope.totalItems=0;
+            //$scope.maxSize = 5;
+            //$scope.perPage =3;
+            var defer = $q.defer();
+            var promises = [];
+
+
+
+
+            $scope.getNewsList = function(page){
+                if (!page){
+                    $scope.page=1;
+                    $scope.newsList=[];
+                }
+
+                News.list({page:$scope.page},function(tempArr){
+                    if ($scope.page==1 && tempArr.length>0){
+                        $scope.totalItems=tempArr[0].index;
+                    }
+                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                        // tempArr[i].filters=JSON.parse(tempArr[i].filters);
+                        $scope.newsList.push(tempArr[i]);
+                    }
+                });
+            }
+            //Angularjs promise chain when working with a paginated collection
+            //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
+            $scope.loadData = function(numPage) {
+                //console.log(numPage);
+                if (!numPage) numPage=1;
+                var deferred = $q.defer();
+                var i=1;
+                $scope.newsList=[];
+                function loadAll() {
+                    News.list({page:i},function(news){
+                        //console.log(stuffs);
+                        if ($scope.newsList.length<=0 && news.length>0){
+                            $scope.totalItems=news[0].index;
+                        }
+                        for(var ii=0; ii<=news.length-1;ii++){
+                            $scope.newsList.push(news[ii]);
+                        }
+                        if(i<numPage) {
+                            i++;
+                            loadAll();
+                        }
+                        else {
+                            deferred.resolve();
+                        }
+                    })
+                }
+                loadAll();
+                return deferred.promise;
+            };
+
+
+
+
+            $scope.editNews = function(news){
+                //console.log('dd');
+                var id =(news)?news._id:'';
+                $rootScope.$state.transitionTo('mainFrame.news.edit',{'id':id});
+
+            }
+
+            $scope.deleteNews = function(news){
+                if (confirm("Удалить?")){
+                    news.$delete(function(err){
+                        if (err) console.log(err);
+                        $rootScope.changeNews=true;
+                        //$scope.getStuffList($scope.ActiveCategory,$scope.activeBrand);
+                    });
+                }
+            }
+
+            $scope.setPage = function () {
+                $scope.page++;
+                $scope.getNewsList($scope.page);
+                //console.log($scope.page);
+
+            };
+
+
+
+            $scope.$watch('changeNews',function(){
+                if ($rootScope.changeNews){
+                    $scope.loadData($scope.page);
+                }
+                $rootScope.changeNews=false;
+            })
+
+            $scope.editNewsGallery = function(news){
+                //$scope.stuffForGallery=stuff;
+                $rootScope.$state.transitionTo('mainFrame.news.editNewsGallery',{id:news._id})
+            }
+
+            $scope.getNewsList();
+        }])
+
+
+
+
+    .controller('editNewsCtrl', ['$scope','$rootScope','News','$timeout','$fileUpload',
+        function ($scope,$rootScope,News,$timeout,$fileUpload) {
+            $scope.focusInput=[];
+            $scope.focusInput[0]=true;
+            $scope.stuff={};
+            $scope.stuff.name={"ru":'',"ua":'',"en":''};
+            $scope.stuff.desc={"ru":'',"ua":'',"en":''};
+
+
+            if ($rootScope.$stateParams.id){
+                $scope.stuff=News.get($rootScope.$stateParams,function(res){
+                    $scope.noChange=false;
+                    $scope.myFileSrc=res.img;
+                });
+
+            } else {
+                $scope.stuff={};
+                $scope.stuff.name={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc0={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc1={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc2={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc3={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc4={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc5={"ru":'',"ua":'',"en":''};
+                $scope.stuff.index=1;
+                $scope.stuff.author=$rootScope.user._id;
+            }
+
+
+            $scope.afterSaveStuff = function(){
+                $rootScope.$state.transitionTo('mainFrame.news');
+                $rootScope.changeNews=true;
+
+            }
+
+            $scope.updateNews= function(stuff){
+                if (!$scope.stuff._id){
+                    News.add($scope.stuff,function(){
+                        $scope.afterSaveStuff();
+                    })
+                } else{
+                    $scope.stuff.$update(function(err){
+                        $scope.afterSaveStuff();
+                    });
+                }
+            }
+
+            $scope.myFile={};
+            $scope.noLoad=true;
+            $scope.noChange=true;
+            $scope.myFileSrc=null;
+            $scope.uploadImg = function(){
+                var file = $scope.myFile;
+                $scope.noLoad=true;
+                $scope.noChange=true;
+                var uploadUrl = "/api/newsfile/fileUpload";
+                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.stuff._id).then(function(promise){
+                    console.log(promise);
+                    $scope.noChange=false;
+                    //$scope.categories= Category.list();
+                });
+            };
+        }])
+
+
+    .controller('editNewsGalleryCtrl', ['$scope','$rootScope','$fileUpload','$http','News',"$timeout",
+        function ($scope,$rootScope,$fileUpload,$http,News,$timeout) {
+
+
+            $scope.Gallery = [];
+            $scope.news= News.get({id:$rootScope.$stateParams.id},function(res){
+                //console.log($scope.stuff);
+                $scope.Gallery=res.gallery;
+
+            });
+
+            $scope.refreshNews= function(){
+                var current = $rootScope.$state.current;
+                var params = angular.copy($rootScope.$stateParams);
+                $rootScope.$state.transitionTo(current, params, { reload: true, inherit: true, notify: true });
+            }
+
+            //console.log($scope.stuffForGallery);
+            $scope.myFile={};
+            $scope.noLoad=true;
+            $scope.noChange=false;
+            $scope.myFileSrc='/' + '?' + new Date().getTime();;
+            $scope.uploadFile = function(){
+                //console.log();
+                if ($scope.Gallery.length>10) return;
+                var file = $scope.myFile;
+                $scope.noLoad=true;
+                $scope.noChange=true;
+                var uploadUrl = "api/newsfile/fileUploadGallery";
+                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.news._id).then(function(promise){
+                    $scope.refreshNews();
+                });
+            };
+
+            $scope.deletePhoto = function(index){
+                //var par = {'id':params.id,'photo':index};
+                //console.log(index);
+                if (confirm("Удалить?")){
+                    $http.get("/api/newsfile/fileGalleryDelete/"+$scope.news._id+'/'+index).then(function (response) {
+                        $scope.refreshNews();
+                    });
+                }
+            }
+
+            /*$scope.updateNewsGallery = function(){
+             $scope.saveDisabled=true;
+             $scope.gallery=[];
+             $timeout(function(){
+             $scope.news.$updateGallery(function(news){
+             // stuff;
+             $scope.refreshNews();
+             });
+             },200);
+
+             }*/
+
+
+            $scope.backToList=function(){
+                $rootScope.$state.transitionTo('mainFrame.news');
+                $rootScope.changeNews=true;
+            }
+
+
+
+        }])
+
+
 
 
     .controller('collectionCtrl', ['$scope','Brands','$rootScope','BrandTags',
@@ -1998,205 +2225,251 @@ angular.module('myApp.controllers', [])
     }])
 
 
+    .controller('usersCtrl', ['$scope','$rootScope','User',
+        function ($scope,$rootScope,User) {
 
-/*
-    .controller('cakesCtrl', ['$scope','Groups','Cakes','$rootScope',function ($scope,Groups,Cakes,$rootScope) {
-        // write Ctrl here
-        $scope.activeGroup=$rootScope.activeG;
-        $scope.groups=Groups.list(function(){
-            if ($scope.activeGroup== null && $scope.groups.length>0 ){
-                $scope.activeGroup=$scope.groups[0]._id;
-                $scope.activeGroupName=$scope.groups[0].name;
-            } else {
-                $scope.groups.forEach(function(e){
-                    if(e._id==$scope.activeGroup){
-                        $scope.activeGroupName= e.name;
-                    }
-                })
-            }
-        });
-        $scope.$watch('activeGroup',function(){
-            if ($scope.activeGroup!=null){
-                $scope.cakes=Cakes.list({section:$scope.activeGroup});
-            }
-        })
-        $scope.changeGroup = function(group){
-            $rootScope.activeG=$scope.activeGroup=group._id;
-            $scope.activeGroupName=group.name;
-        }
-
-        $scope.allCakes=function(){
-            $scope.changeGroup({'_id':'allcakes','name':'все'});
-        }
-
-        $scope.editCake = function(id){
-            $rootScope.$state.transitionTo('mainFrame.editCake',{id:id});
-        }
-        $scope.editCakeGallery = function(id){
-            $rootScope.$state.transitionTo('mainFrame.editCakeGallery',{id:id});
-        }
-        $scope.deleteCake = function(cake){
-            if (confirm("Удалить?")){
-                cake.$delete(function(err){
+            $scope.users=User.list();
+            $scope.afterSave = function(){
+                $scope.users=User.list();
+            };
+            $scope.updateUser =  function(user){
+                user.$update(function(err){
                     if (err) console.log(err);
-                    $scope.cakes=Cakes.list({section:$scope.activeGroup});
+                    $scope.afterSave();
                 });
             }
-        }
-        $scope.editGroup = function(id){
-            $rootScope.$state.transitionTo('mainFrame.editGroup',{id:id});
-        }
-
-        $scope.deleteGroup = function(group){
-            //console.log(group);
-            if (confirm("Удалить?")){
-                //$scope.changeGroup(groupe._id);
-
-                if (group._id == $scope.activeGroup)
-                    $scope.activeGroup= null;
-                group.$delete(function(err,res){
-                    //if (err)
-                    //console.log(err);
-                    //console.log(res);
-
-                    $scope.groups=Groups.list(function(){
-                        if ($scope.activeGroup== null && $scope.groups.length>0 ){
-                            $scope.activeGroup=$scope.groups[0]._id;
-                            $scope.activeGroupName=$scope.groups[0].name;
-                        } else {
-                            $scope.groups.forEach(function(e){
-                                if(e._id==$scope.activeGroup){
-                                    $scope.activeGroupName= e.name;
-                                }
-                            })
-                        }
+            $scope.deleteUser = function(order){
+                if (confirm("Удалить?")){
+                    user.$delete(function(err){
+                        if (err) console.log(err);
+                        $scope.afterSave();
                     });
+                }
+            }
+        }])
+
+
+    .controller('statCtrl', ['$scope','$rootScope','Stat','$q','$timeout',
+        function ($scope,$rootScope,Stat,$q,$timeout) {
+
+
+            $scope.statList=[];
+            //paginator
+            $scope.page=1;
+            //$scope.numPages=2;
+            $scope.totalItems=0;
+            //$scope.maxSize = 5;
+            //$scope.perPage =3;
+            var defer = $q.defer();
+            var promises = [];
+
+
+
+
+            $scope.getStatList = function(page){
+                if (!page){
+                    $scope.page=1;
+                    $scope.statList=[];
+                }
+
+                Stat.list({page:$scope.page},function(tempArr){
+                    if ($scope.page==1 && tempArr.length>0){
+                        $scope.totalItems=tempArr[0].index;
+                    }
+                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                        // tempArr[i].filters=JSON.parse(tempArr[i].filters);
+                        $scope.statList.push(tempArr[i]);
+                    }
                 });
             }
-        }
+            //Angularjs promise chain when working with a paginated collection
+            //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
+            $scope.loadData = function(numPage) {
+                //console.log(numPage);
+                if (!numPage) numPage=1;
+                var deferred = $q.defer();
+                var i=1;
+                $scope.statList=[];
+                function loadAll() {
+                    Stat.list({page:i},function(stat){
+                        //console.log(stuffs);
+                        if ($scope.statList.length<=0 && stat.length>0){
+                            $scope.totalItems=stat[0].index;
+                        }
+                        for(var ii=0; ii<=stat.length-1;ii++){
+                            $scope.statList.push(stat[ii]);
+                        }
+                        if(i<numPage) {
+                            i++;
+                            loadAll();
+                        }
+                        else {
+                            deferred.resolve();
+                        }
+                    })
+                }
+                loadAll();
+                return deferred.promise;
+            };
 
 
-    }])
-    .controller('editCakeCtrl', ['$scope','Groups','$stateParams','Cakes','$rootScope','$fileUpload',
-        function ($scope,Groups,$stateParams,Cakes,$rootScope,$fileUpload) {
-            // write Ctrl here
-            $scope.groups=null;
-            $scope.groups=Groups.list(function(){
-                */
-/*$scope.groups.forEach(function(item){
-                 item.selected=false;
-                 })*//*
+
+
+            $scope.editStat = function(stat){
+                //console.log('dd');
+                var id =(stat)?stat._id:'';
+                $rootScope.$state.transitionTo('mainFrame.stat.edit',{'id':id});
+
+            }
+
+            $scope.deleteStat = function(stat){
+                if (confirm("Удалить?")){
+                    stat.$delete(function(err){
+                        if (err) console.log(err);
+                        $rootScope.changeStat=true;
+                        //$scope.getStuffList($scope.ActiveCategory,$scope.activeBrand);
+                    });
+                }
+            }
+
+            $scope.setPage = function () {
+                $scope.page++;
+                $scope.getStatList($scope.page);
+                //console.log($scope.page);
+
+            };
+
+
+
+            $scope.$watch('changeStat',function(){
+                if ($rootScope.changeStat){
+                    $scope.loadData($scope.page);
+                }
+                $rootScope.changeStat=false;
+            })
+
+            $scope.editStatGallery = function(stat){
+                //$scope.stuffForGallery=stuff;
+                $rootScope.$state.transitionTo('mainFrame.stat.editStatGallery',{id:stat._id})
+            }
+
+            $scope.getStatList();
+        }])
+
+
+
+
+    .controller('editStatCtrl', ['$scope','$rootScope','Stat','$timeout','$fileUpload',
+        function ($scope,$rootScope,Stat,$timeout,$fileUpload) {
+            $scope.focusInput=true;
+            /*$scope.stuff={};
+             $scope.stuff.name={"ru":'',"ua":'',"en":''};
+             $scope.stuff.desc={"ru":'',"ua":'',"en":''};*/
+
+
+            if ($rootScope.$stateParams.id){
+                $scope.stuff=Stat.get($rootScope.$stateParams,function(res){
+                    $scope.noChange=false;
+                    $scope.myFileSrc=res.img;
+                });
+
+            } else {
+                $scope.stuff={};
+                $scope.stuff.name='';
+                $scope.stuff.desc0={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc1={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc2={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc3={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc4={"ru":'',"ua":'',"en":''};
+                $scope.stuff.desc5={"ru":'',"ua":'',"en":''};
+            }
+
+
+            $scope.afterSaveStuff = function(){
+                $rootScope.$state.transitionTo('mainFrame.stat');
+                $rootScope.changeStat=true;
+
+            }
+
+            $scope.updateStat= function(stuff){
+                if (!$scope.stuff._id){
+                    Stat.add($scope.stuff,function(){
+                        $scope.afterSaveStuff();
+                    })
+                } else{
+                    $scope.stuff.$update(function(err){
+                        $scope.afterSaveStuff();
+                    });
+                }
+            }
+
+            $scope.myFile={};
+            $scope.noLoad=true;
+            $scope.noChange=true;
+            $scope.myFileSrc=null;
+            $scope.uploadImg = function(){
+                var file = $scope.myFile;
+                $scope.noLoad=true;
+                $scope.noChange=true;
+                var uploadUrl = "/api/statfile/fileUpload";
+                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.stuff._id).then(function(promise){
+                    console.log(promise);
+                    $scope.noChange=false;
+                    //$scope.categories= Category.list();
+                });
+            };
+        }])
+
+
+    .controller('editStatGalleryCtrl', ['$scope','$rootScope','$fileUpload','$http','Stat',
+        function ($scope,$rootScope,$fileUpload,$http,Stat) {
+
+
+            $scope.Gallery = [];
+            $scope.stat= Stat.get({id:$rootScope.$stateParams.id},function(res){
+                //console.log($scope.stuff);
+                $scope.Gallery=res.gallery;
 
             });
 
-            if (!$stateParams.id){
-                $scope.cake={group:[]};
-            } else {
-                $scope.cake=Cakes.get({id:$stateParams.id},function(){
-                    $scope.noChange=false;
-                    $scope.myFileSrc = $scope.cake.img;
-                    $scope.$watch('groups',function(){
-                        if ($scope.groups!=null){
-                            $scope.groups.forEach(function(item){
-                                if($scope.cake.group.in_array(item._id))
-                                    item.selected=true;
-                            })
-                        }
-                    })
-                });
+            $scope.refreshStat= function(){
+                var current = $rootScope.$state.current;
+                var params = angular.copy($rootScope.$stateParams);
+                $rootScope.$state.transitionTo(current, params, { reload: true, inherit: true, notify: true });
             }
 
-            $scope.backToList=function(){
-                $rootScope.$state.transitionTo('mainFrame.cakes');
-            }
-
-            $scope.updateCake = function(){
-                //console.log('dddd');
-                $scope.cake.group=[];
-                $scope.groups.forEach(function(item){
-                    if (item.selected)
-                        $scope.cake.group.push(item._id);
-                })
-
-                if (!$stateParams.id){
-                    Cakes.add($scope.cake);
-                    $rootScope.$state.transitionTo('mainFrame.cakes');
-                } else{
-                    $scope.cake.$update(function(err){
-                        if (err) console.log(err);
-                        $rootScope.$state.transitionTo('mainFrame.cakes');
-                    });
-
-                }
-            }
-
-
+            //console.log($scope.stuffForGallery);
             $scope.myFile={};
             $scope.noLoad=true;
-            $scope.noChange=true;
-            $scope.myFileSrc=null;
-            $scope.uploadImg = function(){
+            $scope.noChange=false;
+            $scope.myFileSrc='/' + '?' + new Date().getTime();;
+            $scope.uploadFile = function(){
+                //console.log();
+                if ($scope.Gallery.length>5) return;
                 var file = $scope.myFile;
                 $scope.noLoad=true;
                 $scope.noChange=true;
-                var uploadUrl = "api/cakesfile/fileUpload";
-                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.cake._id).then(function(promise){
-                    $scope.code = promise.code();
-                    $scope.fileName = promise.fileName();
-                    $scope.noChange=false;
+                var uploadUrl = "api/statfile/fileUploadGallery";
+                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.stat._id).then(function(promise){
+                    $scope.refreshStat();
                 });
             };
 
-        }])
-
-
-
-    .controller('editGroupCtrl', ['$scope','Groups','$stateParams','$rootScope','$fileUpload',
-        function ($scope,Groups,$stateParams,$rootScope,$fileUpload) {
-            // write Ctrl here
-            $scope.backToList=function(){
-                $rootScope.$state.transitionTo('mainFrame.cakes');
-            }
-
-            if (!$stateParams.id){
-                $scope.group={};
-            } else {
-                $scope.group=Groups.get({id:$stateParams.id},function(){
-                    $scope.noChange=false;
-                    $scope.myFileSrc = $scope.group.img;
-                });
-            }
-
-            $scope.updateGroup = function(){
-                //console.log('dddd');
-                if (!$stateParams.id){
-                    Groups.add($scope.group);
-                    $rootScope.$state.transitionTo('mainFrame.cakes');
-                } else{
-                    $scope.group.$update(function(err){
-                        if (err) console.log(err);
-                        $rootScope.$state.transitionTo('mainFrame.cakes');
+            $scope.deletePhoto = function(index){
+                //var par = {'id':params.id,'photo':index};
+                //console.log(index);
+                if (confirm("Удалить?")){
+                    $http.get("/api/statfile/fileGalleryDelete/"+$scope.stat._id+'/'+index).then(function (response) {
+                        $scope.refreshStat();
                     });
-
                 }
             }
+            $scope.backToList=function(){
+                $rootScope.$state.transitionTo('mainFrame.stat');
+                $rootScope.changeStat=true;
+            }
 
-            $scope.myFile={};
-            $scope.noLoad=true;
-            $scope.noChange=true;
-            $scope.myFileSrc=null;
-            $scope.uploadImg = function(){
-                var file = $scope.myFile;
-                $scope.noLoad=true;
-                $scope.noChange=true;
-                var uploadUrl = "api/groupsfile/fileUpload";
-                $fileUpload.uploadFileToUrl(file, uploadUrl,$scope.group._id).then(function(promise){
-                    $scope.code = promise.code();
-                    $scope.fileName = promise.fileName();
-                    $scope.noChange=false;
-                });
-            };
 
 
         }])
-*/
+

@@ -2,8 +2,8 @@
 <div class="main">
     <div class="row">
         <div class="col-lg-12 back">
-            <a href="" class="btn btn-primary btn-info"ng-click="$state.transitionTo('mainFrame.stuff')">
-                <span class="glyphicon glyphicon-arrow-left"></span> в список</a>
+            <a href="" class="btn btn-default"ng-click="$state.transitionTo('mainFrame.stuff')">
+                <span class="glyphicon glyphicon-arrow-left" style="font-size: 12px;"></span> в список</a>
         </div>
         <form name="myForm" class="form form-horizontal" ng-submit="updateStuff()">
             <article class="col-lg-5 col-md-5 col-sm-12">
@@ -77,13 +77,7 @@
                                 <label  class="col-md-3 col-md-offset-1 control-label"ng-bind="filter.name[config.DL]"></label>
                                 <div class="col-md-8" >
 
-                                    <div class="form-group"><!-- checkbox" data-ng-repeat="tag in filter.tags|orderBy:'index'">
-                                        <label for="checkbox{{tag._id}}">
-                                        <input type="checkbox" id="checkbox{{tag._id}}"
-                                               ng-model="filtersValue[filter._id][tag._id]"
-                                               ng-true-value="YES" ng-false-value="NO"/>
-                                            {{tag.name[config.DL]}}
-                                        </label>-->
+                                    <div class="form-group">
                                         <select  id="filterM{{filter._id}}" class="form-control" multiple ng-change="changeFitlerVal()"
                                                  ng-model="filtersValue[filter._id]"
                                                  ng-options="opt._id as opt.name[config.DL] for opt in filter.tags|orderBy:'index' ">
@@ -126,9 +120,9 @@
                     <div class="panel-body">
                         <h4>Наименование</h4>
                         <div class="form-group"data-ng-repeat="lang in config.langArr" >
-                            <label ng-bind="lang" for="{{$index}}{{country_.id}}" class="col-md-1 control-label"></label>
+                            <label ng-bind="lang" for="{{$index}}name" class="col-md-1 control-label"></label>
                             <div class="col-md-11">
-                                <input type="text" placeholder="" id="{{$index}}{{country_.id}}" class="form-control"
+                                <input type="text" placeholder="" id="{{$index}}name" class="form-control"
                                        ng-model="stuff.name[lang]"
                                        ng-disabled="editDisabledC"
                                        required
@@ -141,6 +135,12 @@
                             <div class="col-md-11">
                                 <textarea placeholder="короткий опис" ng-model="stuff.desc[lang]"id="{{$index}}desc"rows="1" style="height: 100px">
                                 </textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  for="rur" class="col-md-6 control-label">Артикул</label>
+                            <div class="col-md-6">
+                                <input name="rur" type="text" class="form-control" id="rur5" placeholder="введите цену опт" ng-model="stuff.artikul" pattern="[0-9A-Za-zА-Яа-я.\s-]{5,100}" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -179,16 +179,10 @@
                     </div>
                 </div>
             </article>
-            <article class="col-lg-12 col-md-12 col-sm-12" style="max-height: 10px">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <div class="form-group text-center" >
+
                             <!--<a href="" type="submit" class="btn btn-lg btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> coхранить</a>-->
-                            <button class="btn btn-block btn-primary " type="submit"><span class="glyphicon glyphicon-floppy-disk"></span>&nbsp &nbsp сохранить</button>
-                        </div>
-                    </div>
-                </div>
-            </article>
+                            <button class="btn btn-block btn-primary  col-lg-12 col-md-12 col-sm-12 save" type="submit"><span class="glyphicon glyphicon-floppy-disk"></span>&nbsp &nbsp сохранить</button>
+
         </form>
     </div>
 </div>

@@ -103,12 +103,12 @@ angular.module('myApp.controllers', [])
 
 }])
 
-    .controller('homeCtrl', ['$scope','News','$rootScope',function ($scope,News,$rootScope) {
+    .controller('homeCtrl', ['$scope','News','$rootScope','Stuff',function ($scope,News,$rootScope,Stuff) {
         //$scope.categories=$rootScope.categories;
         $scope.category=[];
+        $scope.popStuff=[];
         $rootScope.$watch('mainSection',function(n,o){
             if ($rootScope.mainSection){
-
                 var ii=0;
                 for(var i=0;i<$rootScope.categories.length;i++){
                     //console.log(i);
@@ -117,7 +117,41 @@ angular.module('myApp.controllers', [])
                     }
                     if(ii==2) break;
                 }
-                //console.log($scope.category);
+                Stuff.list({category:$rootScope.mainSection,brand:'section',page:1,main:'main'},function(res){
+                    var tepmArr=[];
+                    var col=0;
+                    for (var i=0;i<res.length;i++){
+                        var temp=null;
+                        for(var j=0;j<res[i].gallery.length;j++){
+                            if (!temp){
+                                temp={
+                                    img:res[i].gallery[j].thumb,'name':res[i].name[$rootScope.lang],
+                                    'color':res[i].gallery[j].tag.name[$rootScope.lang],
+                                    'id':res[i]._id,'colorId':res[i].gallery[j].tag._id,section:$rootScope.mainSection,
+                                    category:res[i].category,index:res[i].gallery[j].index
+                                }
+                            } else {
+                                if (res[i].gallery[j].index<temp.index){
+                                    temp={
+                                        img:res[i].gallery[j].thumb,'name':res[i].name[$rootScope.lang],
+                                        'color':res[i].gallery[j].tag.name[$rootScope.lang],
+                                        'id':res[i]._id,'colorId':res[i].gallery[j].tag._id,section:$rootScope.mainSection,
+                                        category:res[i].category,index:res[i].gallery[j].index
+                                    }
+
+                                }
+                            }
+                        }
+                        if (temp){
+                            col++;
+                            tepmArr.push(temp);
+                        }
+                        if (col>=12) break;
+
+                    }
+                    $scope.popStuff=tepmArr;
+                });
+
             }
         });
         $scope.slides = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
@@ -141,6 +175,7 @@ angular.module('myApp.controllers', [])
                 $scope.lastNews.push(tempArr[i]);
             }
         });
+
 
     }])
 

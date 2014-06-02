@@ -58,7 +58,7 @@ Jadone, в которой ты - Fashion !
         <div class="row-1">
             <div class="container content-extra">
                 <div class="row">
-                    <ul class="thumbnails thumbnails-1">
+                    <ul class="thumbnails thumbnails-1" style="padding-left: 0px;">
                         <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12" data-ng-repeat="item in category">
                             <div class="thumbnail thumbnail-1">
                                 <a ui-sref="language.stuff({category:item._id,section:mainSection})">
@@ -67,10 +67,10 @@ Jadone, в которой ты - Fashion !
                                     </h1>
                                     <img ng-src="{{item.img}}" alt="">
                                 </a>
-                                    <section>
-                                        <a ui-sref="language.stuff({category:item._id,section:mainSection})" style="text-decoration: none;">
+                                    <section style="margin-top: 25px;">
+                                        <a ui-sref="language.stuff({category:item._id,section:mainSection})" style="text-decoration: none; text-transform: uppercase">
                                             <strong ng-bind="item.name[lang]"></strong></a>
-                                        <p ng-bind="item.desc[lang].substring(0,50)"><span>...</span></p>
+                                        <p ng-bind="item.desc[lang].substring(0,50)" style="margin-bottom: 20px;"><span>...</span></p>
                                             <a class="btn btn-1" ui-sref="language.stuff({category:item._id,section:mainSection})">Смотреть далее</a>
                                     </section>
                             </div>
@@ -79,13 +79,13 @@ Jadone, в которой ты - Fashion !
                             <div class="thumbnail thumbnail-1">
                                 <a href="#">
                                     <h1 class="nazv" style="margin-left: 10px; font-size: 36px; text-align: center">
-                                        распродажа
+                                        sale
                                     </h1>
                                     <img src="../../../img/home/1.jpg" alt=""></a>
-                                <section>
-                                    <a style="text-decoration: none;">
-                                        <strong>распродажа</strong></a>
-                                        <p>Представляеи модели 2013 - 2014 годов по сниженным ценам...</p>
+                                <section style="margin-top: 25px;">
+                                    <a style="text-decoration: none; text-transform: uppercase">
+                                        <strong>sale</strong></a>
+                                        <p style="margin-bottom: 20px;">Представляеи модели 2013 - 2014 годов по сниженным ценам...</p>
                                         <a class="btn btn-1">Смотреть далее</a>
                                 </section>
                             </div>
@@ -97,10 +97,10 @@ Jadone, в которой ты - Fashion !
                                         новинки
                                     </h1>
                                     <img src="../../../img/home/2.jpg" alt=""></a>
-                                <section>
-                                    <a style="text-decoration: none;">
+                                <section style="margin-top: 25px;">
+                                    <a style="text-decoration: none; text-transform: uppercase">
                                         <strong>новинки</strong></a>
-                                    <p>Новинки сезона лето 2014 для отдыха и ...</p>
+                                    <p style="margin-bottom: 20px;">Новинки сезона лето 2014 для отдыха и ...</p>
                                     <a class="btn btn-1">Смотреть далее</a>
                                 </section>
                             </div>
@@ -134,13 +134,17 @@ Jadone, в которой ты - Fashion !
                 </article>
 
                 <article class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <h3 style="margin-left: -10px">Популярные модели</h3>
-                    <ul class="list-photo">
-                        <li class="span2" style="margin-left: 20px;" ng-repeat="good in menuItems.goods"><a ui-sref="language.tovaryi.detail({brandUrl:good.gg,urlGood:good.id,color:good.imgUrl})"
-                                ><img ng-src="{{good.img}}" alt="{{good.name}}" /></a></li>
+                    <h3 >Популярные модели</h3>
 
+                    <ul style="padding-left: 0px;">
+                        <li  class="col-lg-4 col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px;" ng-repeat="good in popStuff">
+                            <a ui-sref="language.stuff.detail({section:good.section,category:good.category,id:good.id,color:good.colorId})">
+                                <img style="width: 100%" ng-src="{{good.img}}" alt="{{good.name}}" />
+                                <!--<span ng-bind="good.name"></span><span>&nbsp</span><span ng-bind="good.color">--></span>
+                            </a>
+                        </li>
                     </ul>
-
+                    <div class="clearfix"></div>
                 </article>
             </div><!--row-->
         </div><!--container-->

@@ -123,8 +123,13 @@
                             <a class="link-1" ui-sref="language.stuff.detail({id:item.id,color:item.colorId})">{{item.name}}&nbsp{{item.color}}</a>
                             <div class="clearfix"></div>
                             <p class="pull-left">
-                                <span> опт</span><span class="price"> {{item.price}}</span><br>
-                                <span> розница</span><span class="price""> {{item.retail}}</span>
+                                <span class="pull-left"> опт</span>&nbsp
+                                <span class="price" ng-bind="(item.price*config.currency[currency][0]).toFixed(2)"></span>
+                                &nbsp<span  ng-bind="config.currency[currency][1]"></span><br>
+
+
+                                <span> розница</span>&nbsp <span class="price"ng-bind="(item.retail*config.currency[currency][0]).toFixed(2)"></span>
+                                &nbsp<span  ng-bind="config.currency[currency][1]"></span>
                             </p>
                             <a class="pull-right btn btn-1"  ui-sref="language.stuff.detail({id:item.id,color:item.colorId})">Подробнее</a>
                             <div class="clearfix"></div>

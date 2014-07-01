@@ -6,37 +6,59 @@ angular.module('myApp.controllers', [])
 
 
 
-.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters","User",'News','$timeout','socket','BrandTags',
-        function ($scope, $location, Auth,$stateParams,$rootScope,$window,$http,$sce,$filter,Category,Filters,User,News,$timeout,socket,BrandTags) {
+.controller('mainFrameCtrl',['$scope', '$location','Auth',"$stateParams" ,"$rootScope","$window","$http",'$sce','$filter','Category',"Filters","User",'News','$timeout','chats','socket','$interval','CartLocal',
+        function              ($scope, $location, Auth,    $stateParams,    $rootScope,  $window,  $http,  $sce,  $filter,Category,Filters,User,News,$timeout,chats,socket,$interval,CartLocal) {
 
-
+            moment.lang("ru");
 
             // при инициализации
-            socket.on('what user', function (data) {
-                if ($rootScope.user &&$rootScope.user._id){
-                    socket.emit('new user',$rootScope.user._id,function(data){
-                        console.log(data+'new user is here');
-                    });
-                }
-            });
+            $scope.localCart=CartLocal;
 
 
-            $rootScope.$watch('user',function(newVal,oldVal){
-                $timeout(function(){
-                    if ($rootScope.user._id){
-                        socket.emit('new user',$rootScope.user._id,function(data){
-                        });
-                    } else {
-                        socket.emit('delete user');
+
+            $scope.countNewMsgs=0;
+
+
+
+            $scope.displayNewMsg=function(){
+                var newMsg=0;
+                var list = chats.chatList;
+                for (var i=0;i<list.length;i++){
+                    if (list[i].newMsg){
+                        newMsg+=list[i].newMsg;
                     }
-                },400);
+                }
+                return $scope.countNewMsgs=newMsg;
+            }
+
+            $scope.stopTime=null;
+            $scope.$watch('countNewMsgs',function(){
+                if ($scope.countNewMsgs && !$scope.stopTime){
+                    $scope.stopTime = $interval(function(){
+                        if ($rootScope.titles.pageTitle=='************'){
+                            $rootScope.titles.pageTitle=$scope.title;
+                        } else {
+                            $scope.title=$rootScope.titles.pageTitle;
+                            $rootScope.titles.pageTitle='************';
+                        }
+
+                    }, 800);
+
+                }else if (!$scope.countNewMsgs && $scope.stopTime) {
+                    $interval.cancel($scope.stopTime);
+                    $scope.stopTime=null;
+                    $rootScope.titles.pageTitle=$scope.title;
+                }
             })
 
+
             $scope.trustHtml = function(text,i){
+
                 if(i){
                     text= $filter('cut')(text,true,i,"...");
                 }
-                return $sce.trustAsHtml(text)
+                var trustedHtml = $sce.trustAsHtml(text);
+                return trustedHtml;
             };
             //$scope.collections=BrandTags.list({brand:'brand',limit:2});
 
@@ -57,12 +79,16 @@ angular.module('myApp.controllers', [])
                 $rootScope.lang=$rootScope.$stateParams.lang;
                 document.cookie = "lan="+$rootScope.lang+";path=/";
             }
+
         $scope.lang=$rootScope.lang;
         $scope.logout = function() {
             //$rootScope.socket=nill; stuff for deleting user from socket list
             Auth.logout()
                 .then(function() {
-                    $rootScope.user=User.get(function(){});
+                    $rootScope.user=User.get(function(){
+                        $rootScope.socket.emit('delete user from chat');
+                        $rootScope.chats.refreshLists(false);
+                    });
                     $location.path('/');
                 });
         };
@@ -76,7 +102,8 @@ angular.module('myApp.controllers', [])
         else
             $scope.langName='eng';
 
-        $rootScope.currency='UAH';
+
+
            $scope.changeCurrency= function(lan){
                $rootScope.currency=lan;
                //$scope.$apply();
@@ -94,11 +121,20 @@ angular.module('myApp.controllers', [])
               window.location.href=arr_path;
 
         }
+            $scope.toCategory = function(obj){
+               // console.log(obj);
+                $rootScope.$state.transitionTo('language.stuff',obj,{ reload: true,
+                    inherit: false,
+                    notify: true  })
+            }
 
-
+        $scope.searchStr=''
         $scope.goToSearch=function(searchStr){
-            console.log(searchStr);
-            $rootScope.$state.transitionTo('language.search',{'searchStr':searchStr,'lang':$rootScope.lang});
+            $scope.searchStr=''
+            if (!searchStr || !searchStr.trim()) return;
+            $rootScope.$state.transitionTo('language.searchStuff',{'searchStr':searchStr,'lang':$rootScope.lang},{ reload: true,
+                inherit: false,
+                notify: true })
         }
 
 }])
@@ -117,9 +153,10 @@ angular.module('myApp.controllers', [])
                     }
                     if(ii==2) break;
                 }
-                Stuff.list({category:$rootScope.mainSection,brand:'section',page:1,main:'main'},function(res){
+                Stuff.list({category:$rootScope.mainSection,brand:'section',page:0,main:'main'},function(res){
                     var tepmArr=[];
                     var col=0;
+                    res.shift();
                     for (var i=0;i<res.length;i++){
                         var temp=null;
                         for(var j=0;j<res[i].gallery.length;j++){
@@ -154,13 +191,14 @@ angular.module('myApp.controllers', [])
 
             }
         });
-        $scope.slides = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
+        $scope.slidesS = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
             {img:'img/slide/5.jpg'},{img:'img/slide/6.jpg'},{img:'img/slide/7.jpg'},{img:'img/slide/8.jpg'},
             {img:'img/slide/9.jpg'}];
-        $scope.images = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
+        $scope.imagesS = [{img:'img/slide/1.jpg'},{img:'img/slide/2.jpg'},{img:'img/slide/3.jpg'},{img:'img/slide/4.jpg'},
             {img:'img/slide/5.jpg'},{img:'img/slide/6.jpg'},{img:'img/slide/7.jpg'},{img:'img/slide/8.jpg'},
             {img:'img/slide/9.jpg'}];
 
+        $scope.images=$rootScope.slides;
         $scope.lastNews=[];
         News.list({page:1,main:'main'},function(tempArr){
             for (var i=0 ; i<=tempArr.length - 1; i++) {
@@ -179,14 +217,72 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('stuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags','$location','$anchorScroll',
-        function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags,$location,$anchorScroll) {
+    .controller('stuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags','$location','$anchorScroll','mongoPaginator',
+        function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags,$location,$anchorScroll,mongoPaginator) {
+
+
+
+            $scope.mongoPaginator=mongoPaginator;
+
+            $scope.row= $scope.mongoPaginator.rowsPerPage;
+            $scope.page=$scope.mongoPaginator.page;
+
+            /*$scope.$watch('mongoPaginator.rowsPerPage',function(){
+                if ($scope.page==0){
+                    if ($scope.section) {
+                        if (!$scope.activeBrand && !$scope.activeCategory){
+                            var brandId='section';
+                        } else {
+                            //console.log();
+                            var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+                        }
+
+                        var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                        if ($scope.activeBrand && !$scope.activeCategory){
+                            categoryId=0;
+                        }
+                        $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                    }
+                } else {
+                    $scope.page=0
+                }
+
+            })*/
+
+
+
+            var updatePage = function(){
+                $scope.page=$scope.mongoPaginator.page;
+            };
+
+            mongoPaginator.registerObserverCallback(updatePage);
+
+            $scope.$watch('page',function(n,o){
+                if (n!=o){
+
+                    var categoryId=($scope.selectedCategory)?$scope.selectedCategory:$scope.section.id;
+                    $scope.getStuffList(categoryId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                }
+            })
+
+
+
+
+
+
+            if ($rootScope.$stateParams.scrollTo){
+
+                $timeout(function(){
+                    $scope.scrollTo($rootScope.$stateParams.scrollTo);
+                },1000)
+
+            }
 
             $scope.commonFilter=$rootScope.commonFilter;
 
             $scope.stuffList=[];
             //paginator
-            $scope.page=1;
+            $scope.page=0;
             $scope.totalItems=0;
             $scope.textList=''
             $scope.headerList='';
@@ -195,15 +291,26 @@ angular.module('myApp.controllers', [])
             //$scope.filters=Filters.list();
 
             // инициализация********************************
-            $scope.rowsPerPage=($rootScope.config.perPage)?$rootScope.config.perPage:53;
+            //$scope.rowsPerPage=($rootScope.config.perPage)?$rootScope.config.perPage:53;
+            //$scope.rowsPerPage=6;
             $scope.lang=$rootScope.$stateParams.lang;
-            $scope.section=$rootScope.$stateParams.section;
+            //$scope.section=$rootScope.$stateParams.section;
+
             $scope.categories=[];
             $scope.filterDisplay=[];
             $scope.checkfilterList=[];
+
+
+
+
+
+
             Category.list(function(res){
+               //console.log($rootScope.$stateParams);
+                $scope.section =_.findWhere(res,{_id:$rootScope.$stateParams.category}).section;
+
                 for (var i =0;i<res.length;i++){
-                    if (res[i].section==$rootScope.$stateParams.section){
+                    if (res[i].section==$scope.section){//$rootScope.$stateParams.section){
                         $scope.categories.push(res[i]);
                     }
                 }
@@ -215,9 +322,17 @@ angular.module('myApp.controllers', [])
             $scope.$watch('selectedCategory',function(newValue, oldValue){
                 if (typeof newValue == 'undefined' || newValue == oldValue) return;
                 $scope.filters=[];
-                $scope.getStuffList($scope.selectedCategory);
+
+                if ($scope.page){
+                    $scope.page=$scope.mongoPaginator.page=0;
+                } else {
+                    $scope.getStuffList($scope.selectedCategory);
+                }
+
                 var query;
                 if ($scope.selectedCategory){
+
+
                     for(var i=0;i<$scope.categories.length;i++){
                         if ($scope.categories[i]._id==$scope.selectedCategory){
                             query={'filters':JSON.stringify($scope.categories[i].filters)};
@@ -228,6 +343,14 @@ angular.module('myApp.controllers', [])
                             break;
                         }
                     }
+                    if ($rootScope.lang=="ru"){
+                        $rootScope.titles.pageTitle= 'Модная женская одежда на Jadone fashion.Платья. туники. кардиганы. Скидки.'+$scope.headerList;
+                        $rootScope.titles.pageKeyWords='купить '+$scope.headerList+' оптом, в розницу,купить '+$scope.headerList+' от производителя,стильная одежда, женская одежда оптом, красивая стильная одежда';
+                        //(вставить наименование бренда, к которой относится данная модель),
+                        $rootScope.titles.pageDescription="В нашем интернет-магазине Вы можете купить оптом  и в розницу платья, туники, костюмы  от ведущего " +
+                            "украинского производителя модной женской одежды "+$scope.headerList;
+                    }
+
 
                 } else {
                     $scope.textList='';
@@ -255,14 +378,18 @@ angular.module('myApp.controllers', [])
                     for(var i=0;i<res.length;i++){
                         res[i].value='';
                         $scope.filters.push(res[i]);
+
                     }
+                    //console.log($scope.filters);
                 });
             });
 
             $scope.getStuffList = function(categoryId,page){
+                //console.log(page);
+                $scope.stuffList=[];
                 if (!page){
-                    $scope.page=1;
-                    $scope.stuffList=[];
+                    $scope.page=0;
+
                 }
                 var  brandId;
                 if (categoryId){
@@ -271,23 +398,55 @@ angular.module('myApp.controllers', [])
                     categoryId=$scope.section;
                     brandId='section';
                 }
+                //console.log($scope.page  );
+                //console.log($rootScope.$stateParams);
+                //var searchStr=($rootScope.$stateParams.searchStr)?$rootScope.$stateParams.searchStr:'';
+                function noStock(tag,stock){
+                   // console.log(stock);
+                    if(stock && stock[tag]) {
+                        var is = true;
+                        for (var key in stock[tag]){
+                            if (!stock[tag][key]){
+                                is = false;
+                            }
+                        }
+                        return is;
+                    } else{
+                        return false;
+                    }
+                }
 
                 Stuff.list({category:categoryId,brand:brandId,page:$scope.page},function(tempArr){
                     //var time1 = new Date().getTime();
                    /* for (var ii=1; ii<10000000;ii++){
                         var jj= ii/13*0.546;
                     }*/
-                    if ($scope.page==1 && tempArr.length>0){
-                        $scope.totalItems=tempArr[0].index;
+                    if ($scope.page==0 && tempArr.length>0){
+                        $scope.totalItems=$scope.mongoPaginator.itemCount=tempArr.shift().index;
                     }
+
                     $scope.checkfilterList=[];
-                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                    for (var i= 0,ll=tempArr.length; i<ll; i++) {
+                        /*if(tempArr[i]._id=="5368bee7d00a0d940e2d1147"){
+                            console.log(tempArr[i].gallery);
+                        }*/
+                        var stock;
+                        if (tempArr[i].stock){
+                            stock=JSON.parse(tempArr[i].stock);
+                        }
+
                         var filtersForStatus=JSON.parse(JSON.stringify(tempArr[i].tags));
                         var tempGallery=[];
-                        for (var j=0;j<tempArr[i].gallery.length;j++){
+                        tempArr[i].gallery=_(tempArr[i].gallery).sortBy(function(obj) { return +obj.index });
+
+                        /*for (var l=0 ; l<=tempArr[i].gallery.length - 1; l++) {
+                            console.log(tempArr[i].gallery[l].index);
+                        }*/
+
+                        for (var j= 0,len=tempArr[i].gallery.length;j<len;j++){
                             //console.log(tempArr[i].gallery[j]);
-                            if (tempGallery.length<1){
-                                tempGallery.push(tempArr[i].gallery[j]);
+                            if (tempGallery.length<1 && tempArr[i].gallery[j].tag && tempArr[i].gallery[j].tag._id){
+                                tempGallery[tempGallery.length]=tempArr[i].gallery[j];
                                 var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
                                 //console.log(l);
                                 if (l>-1){
@@ -297,11 +456,11 @@ angular.module('myApp.controllers', [])
                                 var is=false;
                                 for (var k=0;k<tempGallery.length;k++){
                                     //if (is) break;
-                                    if (tempGallery[k].tag._id==tempArr[i].gallery[j].tag._id){
+                                    if (tempArr[i].gallery[j].tag && tempGallery[k].tag._id==tempArr[i].gallery[j].tag._id){
                                         is=true;
                                         if(tempArr[i].gallery[j].index<tempGallery[k].index){
                                             tempGallery.splice(k,1);
-                                            tempGallery.push(tempArr[i].gallery[j]);
+                                            tempGallery[tempGallery.length]=tempArr[i].gallery[j];
                                            // is=true;
                                         }
                                     }/* else {
@@ -309,8 +468,8 @@ angular.module('myApp.controllers', [])
                                         tempGallery.push(tempArr[i].gallery[j]);
                                     }*/
                                 }
-                                if (!is) {
-                                    tempGallery.push(tempArr[i].gallery[j]);
+                                if (!is && tempArr[i].gallery[j].tag) {
+                                    tempGallery[tempGallery.length]=tempArr[i].gallery[j];
                                     var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
                                     //console.log(l);
                                     if (l>-1){
@@ -324,30 +483,27 @@ angular.module('myApp.controllers', [])
 
                         for (var j=0;j<tempArr[i].tags.length;j++){
                             if ($scope.checkfilterList.indexOf(tempArr[i].tags[j])<0){
-                                $scope.checkfilterList.push(tempArr[i].tags[j]);
+                                $scope.checkfilterList[$scope.checkfilterList.length]=tempArr[i].tags[j];
                             }
                         }
-
-
-                        for (var j=0;j<tempGallery.length;j++){
+                        for (var j= 0,len=tempGallery.length;j<len;j++){
                             var status=0;
                             // 1 - распродажа
                             // 2- новинка
                             // 3- нет в наличии
-                            if (filtersForStatus.indexOf(tempGallery[j].tag._id)<0 || filtersForStatus.indexOf($scope.commonFilter.tags[2])>-1){
+                            if (filtersForStatus.indexOf(tempGallery[j].tag._id)<0 || filtersForStatus.indexOf($scope.commonFilter.tags[2])>-1
+                                || noStock(tempGallery[j].tag._id,stock)){
+                                //tempGallery[j].tag._id tag of color
+
                                 status=3;
+
                             } else if(filtersForStatus.indexOf($scope.commonFilter.tags[1])>-1){
                                 status=2;
                             } else if( filtersForStatus.indexOf($scope.commonFilter.tags[0])>-1){
                                 status=1;
                             }
-                            //console.log(status);
-
                             var tags=JSON.parse(JSON.stringify(tempArr[i].tags));
                             tags.push(tempGallery[j].tag._id)
-
-
-
                             if ($scope.checkfilterList.indexOf(tempGallery[j].tag._id)<0){
                                 $scope.checkfilterList.push(tempGallery[j].tag._id);
                             }
@@ -357,11 +513,6 @@ angular.module('myApp.controllers', [])
                             'id':tempArr[i]._id,'colorId':tempGallery[j].tag._id,'status':status});
                         }
                     }
-                    /*var time2 = new Date().getTime();
-                    //var time2 = Date.now()
-                    console.log(time1);
-                    console.log(time2);
-                    console.log(time2-time1);*/
                 });
 
             }
@@ -398,10 +549,11 @@ angular.module('myApp.controllers', [])
             }
 
 
-            $scope.setPage = function () {
+            $scope.morePage = function () {
                 $scope.page++;
-                $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.page);
-                //console.log($scope.page);
+                console.log($scope.page);
+                $scope.getStuffList($scope.activeCategory,$scope.page);
+
 
             };
 
@@ -412,16 +564,39 @@ angular.module('myApp.controllers', [])
                 $anchorScroll();
             }
 
+            $scope.$watch('changeStuff',function(){
+                if ($rootScope.changeStuff && $rootScope.$state.current.name=='mainFrame.stuff'){
+
+                    console.log($scope.page);
+                    //$scope.loadData($scope.page);
+                    /*for (var i=1;i<=$scope.page;i++){
+                     promises.push($scope.getStuffList($scope.activeCategory,$scope.activeBrand,i));
+                     }*/
+                    //$q.all(promises);
+
+                }
+                $rootScope.changeStuff=false;
+            })
+
+
+
         }])
-    .controller('stuffDetailCtrl',['$scope','Stuff','$rootScope','$timeout','CartLocal',function($scope,Stuff,$rootScope,$timeout,CartLocal){
+    .controller('stuffDetailCtrl',['$scope','Stuff','$rootScope','$timeout','CartLocal','Comment',function($scope,Stuff,$rootScope,$timeout,CartLocal,Comment){
         $scope.lang=$rootScope.$stateParams.lang;
         $scope.cart=CartLocal.list();
         $scope.itemToCart={'stuff':'','status':1,'color':'','size':'','name':'','colorName':'','sizeName':'','quantity':1,'price':1,'retail':1,
-            'category':$rootScope.$stateParams.category,'categoryName':'','section':$rootScope.$stateParams.section,'img':''};
-
+            'category':$rootScope.$stateParams.category,'categoryName':'','img':''};
+        /*$scope.itemToCart={'stuff':'','status':1,'color':'','size':'','name':'','colorName':'','sizeName':'','quantity':1,'price':1,'retail':1,
+            'category':$rootScope.$stateParams.category,'categoryName':'','section':$rootScope.$stateParams.section,'img':''};*/
         if($rootScope.$stateParams.size){
             $scope.itemToCart.size=$rootScope.$stateParams.size
         }
+
+        function htmlToPlaintext(text) {
+            return String(text).replace(/<[^>]+>/gm, '');
+        }
+
+
 
 
         $scope.ez;
@@ -429,8 +604,9 @@ angular.module('myApp.controllers', [])
         $scope.quantityArr=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
             25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
 
-        $scope.stuff=Stuff.full({id:$rootScope.$stateParams.id},function(res,err){
+        $scope.stuff=Stuff.full({id:$rootScope.$stateParams.id,page:'page'},function(res,err){
             $scope.itemToCart.stuff=res._id;
+            $scope.itemToCart.artikul=res.artikul;
             $scope.itemToCart.name=res.name[$scope.lang];
             $scope.itemToCart.categoryName=res.category.name[$scope.lang];
             $scope.itemToCart.price=(res.priceSale)?res.priceSale:res.price;
@@ -446,9 +622,19 @@ angular.module('myApp.controllers', [])
             }
             if (res.stock){
                 res.stock=JSON.parse(res.stock);
-                console.log(res.stock);
+                //console.log(res.stock);
             }
             getCurrentSize(res.category.filters,res.tags);
+            //console.log();
+            if ($rootScope.lang=='ru'){
+                $rootScope.titles.pageTitle= $scope.itemToCart.categoryName+' '+ $scope.itemToCart.name+
+                    ' на Jadone fashion.Платья. туники. кардиганы. Скидки.';
+                $rootScope.titles.pageKeyWords='купить '+$scope.itemToCart.categoryName+' оптом,в розницу,купить  '+$scope.itemToCart.categoryName+
+                    ' от производителя,стильная одежда, женская одежда оптом, красивая стильная одежда '+$scope.itemToCart.colorName ;
+                //(вставить наименование бренда, к которой относится данная модель),
+                $rootScope.titles.pageDescription= $scope.itemToCart.name+" - "+$scope.itemToCart.colorName+" всех размеров "+
+                    htmlToPlaintext($scope.stuff.desc[$rootScope.lang]).substring(0,100);
+            }
 
         });
 
@@ -585,16 +771,89 @@ angular.module('myApp.controllers', [])
 
             return disabled || noColor;
         }
-
+        $scope.addedToCart=false;
         $scope.addToCart= function(){
             //console.log($scope.itemToCart);
+            $scope.addedToCart=true;
             $scope.itemToCart.quantity=parseInt($scope.currentQuantity);
             CartLocal.addToCart($scope.itemToCart);
+            $timeout(function(){
+                $scope.addedToCart=false;
+            },2000);
+
         }
+
+        $scope.goToList=function(){
+            $rootScope.$state.transitionTo('language.stuff',
+                {'lang':$rootScope.$stateParams.lang,'section':'category','category':$scope.stuff.category._id,scrollTo:$scope.stuff._id+'stuff'});
+        }
+
+        //***********************************************************
+        $scope.page=1;
+        $scope.comments=Comment.list({stuff:$rootScope.$stateParams.id});
+        $scope.comment={};
+        $scope.comment.text='';
+        $scope.comment.author=$rootScope.user._id;
+        $scope.comment.authorName=$rootScope.user.name;
+        $scope.comment.stuff=$rootScope.$stateParams.id;
+        //console.log($scope.comment);
+        $scope.moreComments=function(){
+            $scope.page++;
+            Comment.list({stuff:$rootScope.$stateParams.id,page:$scope.page},function(res){
+                //console.log(res);
+                for (var i=0;i<res.length;i++){
+                    $scope.comments.push(res[i]);
+                }
+            });
+        };
+
+
+
+        $scope.showEdit=false;
+        $scope.updateComment =  function(){
+            $scope.disallowEdit = true;
+            $scope.comment.author=$rootScope.user._id;
+            Comment.add($scope.comment,function(){
+                $scope.disallowEdit = false;
+                $scope.showEdit=false;
+                $scope.afterSave();
+            })
+
+
+
+        }
+
+        $scope.afterSave = function(){
+            $scope.comment.text='';
+            /*$scope.comment.author='';
+            $scope.comment.date='';
+*/
+            var arrIndex=[];
+            var comments=[];
+            for(var i=1;i<=$scope.page;i++){
+                arrIndex.push(i);
+            }
+            async.eachSeries(arrIndex,function( i, cb) {
+                Comment.list({stuff:$rootScope.$stateParams.id,page: i},function(result){
+                    for(var i=0;i<result.length;i++){
+                        comments.push(result[i]);
+                    }
+                    cb();
+                })
+            },function(err,result){
+                $scope.comments=comments;
+            });
+        }
+        $scope.dateConvert = function(date){
+            return moment(date).format('ll');
+        }
+
+        //***********************************************************
    }])
 
-    .controller('cartCtrl',['$scope','$rootScope','$timeout','CartLocal',function($scope,$rootScope,$timeout,CartLocal){
+    .controller('cartCtrl',['$scope','$rootScope','$timeout','CartLocal','$modal',function($scope,$rootScope,$timeout,CartLocal,$modal){
         //$scope.currency=$rootScope.currency;
+        $scope.sendCart=false;
         $scope.comment='';
         $scope.sendDisabled=false;
         $timeout(function(){
@@ -624,14 +883,74 @@ angular.module('myApp.controllers', [])
         }
 
         $scope.sendOrder=function(){
+            $scope.sendCart=true;
+            yaCounter23946445.reachGoal('ORDER');
             $scope.sendDisabled=true;
             $scope.comment.substring(0,200);
-            $scope.cart.send($rootScope.$stateParams.lang,$scope.comment,$scope.kurs,$rootScope.currency,function(err){
+            $scope.cart.send($rootScope.$stateParams.lang,$scope.comment,$scope.kurs,$rootScope.currency,$rootScope.user.profile,function(err){
+                $scope.sendCart=false;
                 $scope.sendDisabled=false;
                 $scope.cart.clearCart();
                 $rootScope.$state.transitionTo('language.customOrder',{'lang':$rootScope.$stateParams.lang});
             });
         }
+
+        $scope.items;
+        $scope.open = function (size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'myModalContent.html',
+                controller: ModalInstanceCtrl,
+                size: size,
+                resolve: {
+                    items: function () {
+                        return $scope.items;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+                console.log( $scope.selected);
+            }, function () {
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        };
+        var ModalInstanceCtrl = function ($scope, $modalInstance,items) {
+
+            /*$scope.items = items;
+            $scope.selected = {
+                item: $scope.items[0]
+            };*/
+
+            $scope.ok = function () {
+
+                $modalInstance.close('dddddd');
+                $rootScope.$state.transitionTo('language.login',{lang:$rootScope.lang});
+            };
+
+            $scope.signup = function () {
+                $modalInstance.dismiss('cancel');
+                $rootScope.$state.transitionTo('language.signup',{lang:$rootScope.lang});
+
+            };
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+                ;
+
+            };
+        };
+
+        $scope.isAuth=function(){
+            if ($rootScope.user._id){
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+
     }])
 
     .controller('loginCtrl',['$scope', '$location','Auth','$rootScope','User', function ($scope, $location, Auth,$rootScope,User) {
@@ -668,13 +987,20 @@ angular.module('myApp.controllers', [])
 
                         //console.log(data);userid.
                         document.cookie = "userid="+data.userid+";path=/";
-                        $rootScope.user=User.get(function(){});
+                        $rootScope.user=User.get(function(user){
+                                if (user){
+                                    //console.log('ddd');
+                                    $rootScope.socket.emit('new user in chat',user._id);
+                                    $rootScope.chats.refreshLists(true);
+                                }
+                        });
+
                         // Logged in, redirect to home
                         if ($rootScope.fromCart){
                             $rootScope.$state.transitionTo('language.cart',{lang:$scope.lang});
                             $rootScope.fromCart=false;
                         } else {
-                            $location.path('/');
+                            $rootScope.$state.transitionTo('language.home',{lang:$scope.lang});
                         }
 
                     })
@@ -688,14 +1014,14 @@ angular.module('myApp.controllers', [])
 
 
     }])
-    .controller('signupCtrl',['$scope', 'Auth',"$location",'$rootScope', function ($scope, Auth,$location,$rootScope) {
+    .controller('signupCtrl',['$scope', 'Auth',"$location",'$rootScope', '$modal','User',function ($scope, Auth,$location,$rootScope,$modal,User) {
         $scope.user = {};
         $scope.errors = {};
 
         $scope.register = function(form) {
-            console.log('asasd');
+            //console.log('asasd');
             $scope.submitted = true;
-
+            yaCounter23946445.reachGoal('REGISTRATION');
             if(form.$valid) {
                 Auth.createUser({
                     name: $scope.user.name,
@@ -705,14 +1031,21 @@ angular.module('myApp.controllers', [])
                 })
                     .then( function() {
                         // Account created, redirect to home
-                        $rootScope.user=User.get(function(){});
+                        $rootScope.user=User.get(function(user){
+                            if (user){
+                                $rootScope.socket.emit('new user in chat',user._id);
+                                $rootScope.chats.refreshLists(true);
+                            }
+                        });
                         //$rootScope.$state.transitionTo('language.home');
-                        if ($rootScope.fromCart){
+                        $scope.open();
+                        /*if ($rootScope.fromCart){
                             $rootScope.$state.transitionTo('language.cart',{lang:$scope.lang});
                             $rootScope.fromCart=false;
                         } else {
                             $location.path('/');
-                        }
+                        }*/
+
                         //$location.path('/');
                     })
                     .catch( function(err) {
@@ -727,6 +1060,52 @@ angular.module('myApp.controllers', [])
                     });
             }
         };
+
+        $scope.open = function (size) {
+
+            var modalInstance = $modal.open({
+                templateUrl: 'myModalContent.html',
+                controller: ModalInstanceCtrl,
+                size: size,
+                resolve: {
+                    items: function () {
+                        return $scope.items;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                $scope.selected = selectedItem;
+                console.log( $scope.selected);
+            }, function () {
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        };
+        var ModalInstanceCtrl = function ($scope, $modalInstance,items) {
+
+            /*$scope.items = items;
+             $scope.selected = {
+             item: $scope.items[0]
+             };*/
+
+            $scope.toHome = function () {
+
+                $modalInstance.close('dddddd');
+                $rootScope.$state.transitionTo('language.home',{lang:$rootScope.lang});
+            };
+
+            $scope.toCart = function () {
+                $modalInstance.dismiss('cancel');
+                $rootScope.$state.transitionTo('language.cart',{lang:$rootScope.lang});
+
+            };
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+                ;
+
+            };
+        };
+       // $scope.open();
     }])
     .controller('settingsCtrl',  ['$scope', 'User', 'Auth',function ($scope, User, Auth) {
         $scope.errors = {};
@@ -748,15 +1127,26 @@ angular.module('myApp.controllers', [])
     }])
 
     .controller('contactsCtrl',['$scope','$rootScope','$location','$http','$timeout','Stat',	function($scope,$rootScope,$location,$http,$timeout,Stat){
+        var regex = "/(<([^>]+)>)/ig";
 
-        $rootScope.titles.pageTitle='';
-        $rootScope.titles.pageKeyWords='';
-        $rootScope.titles.pageDescription='';
 
         var page =$rootScope.$state.current.url;
 
         //console.log(page.substring(1));
-        $scope.stuff=Stat.get({name:page.substring(1),id:'qqq'});
+        $scope.stuff=Stat.get({name:page.substring(1),id:'qqq'},function(res){
+            if ($rootScope.lang=='ru'){
+
+                $rootScope.titles.pageTitle='Женская одежда оптом и в розницу от украинского производителя Jadone fashion - платья, туники, сарафаны. Контакты.';
+                $rootScope.titles.pageKeyWords=
+                    " женская одежда украинского производителя, оптом женский трикотаж, купить, украина, интернет магазин, опт, оптовый, модная женская одежда, женские юбки оптом, " +
+                        "женские платья , сарафаны, женские костюмы, кардиганы, розница , туники " +
+                        " платья французский трикотаж, купить, оптом, беларусь, мода, стиль, россия, казахстан, фабрика, оптом купить"+
+                        'стильная одежда, женская одежда оптом и в розницу, красивая одежда' +
+                        'контакты, обратная связь, координаты';
+                $rootScope.titles.pageDescription=res.desc0[$rootScope.lang].replace(regex, "");
+
+            }
+        });
 
 
         $scope.feedbackError=false;
@@ -781,17 +1171,17 @@ angular.module('myApp.controllers', [])
             if ($rootScope.user.name)
                 $scope.feedback.name=$rootScope.user.name;
         }
-        $rootScope.watch('user',function(){
+        /*$rootScope.watch('user',function(){
             if ($rootScope.user){
                 if ($rootScope.user.email){
-                    console.log($rootScope.user.email);
+                    //console.log($rootScope.user.email);
                     $scope.feedback.email=$rootScope.user.email;
                 }
                 if ($rootScope.user.name)
                     $scope.feedback.name=$rootScope.user.name;
             }
         });
-
+*/
 
         $scope.feedbackMassage = function(){
             return 	$scope.feedbackError|| $scope.feedbackSent;
@@ -883,8 +1273,11 @@ angular.module('myApp.controllers', [])
             //***********************************
             // управление ордерами
             //************************************
+            moment.lang('ru');
+            //console.log(moment.lang.language);
 
 
+            $scope.fromChat = ($rootScope.$stateParams.num)?$rootScope.$stateParams.num:'';
 
             /*$scope.orders=Orders.list({'user':$rootScope.user._id},function(res){
                 console.log(res);
@@ -926,7 +1319,7 @@ angular.module('myApp.controllers', [])
 
             }
             $scope.goToStuff=function(stuff){
-                console.log(stuff);
+               // console.log(stuff);
                 $rootScope.$state.transitionTo('language.stuff.detail',
                     {'lang':$rootScope.$stateParams.lang,'section':stuff.section,'category':stuff.category,
                         'id':stuff.stuff,'color':stuff.color,'size':stuff.size});
@@ -1154,59 +1547,583 @@ angular.module('myApp.controllers', [])
 
     }])
 
-    .controller('chatCtrl', ['$scope','socket','$rootScope','$timeout','Chat',function ($scope,socket,$rootScope,$timeout,Chat) {
-        if (!$rootScope.user._id) return;
+    .controller('chatCtrl', ['$scope','socket','$rootScope','$timeout','Chat','chats','$location',
+        function ($scope,socket,$rootScope,$timeout,Chat,chats,$location) {
 
-        $scope.users=Chat.list({from:$rootScope.user._id});
-        $scope.listUsers=Chat.list();
+            if (!$rootScope.user._id) return;
+            $scope.country='';
+            function myfocus(){
+                $timeout(function(){
+                    angular.element("#myinput").focus();
+                },300)
 
-        $scope.usersOnLine=[];
-        socket.on('username',function(data){
-            //console.log(data);
-            $scope.usersOnLine=data;
+            };
+            $scope.goToOrder = function(num,id,opt){
 
-        })
-        $timeout(function(){
-            socket.emit('whatusers',$rootScope.user._id);
-        },500);
-        socket.on('new:msg',function(data){
-            var chat= data.from;
-            if ($scope.msgs[chat]){
-                $scope.msgs[chat].push({name:$scope.activeChat.name,msg:data.msg,date:data.date});
-            }
-        })
-
-
-        $scope.msgs={};
-        $scope.sendMsgBtn=false;
-
-        $scope.changeChat = function(chat){
-            $scope.msgs[chat._id]=[];
-            $scope.activeChat=chat;
-            $scope.msgs[chat._id]=Chat.list({from:$rootScope.user._id,to:$scope.activeChat._id},function(res){
-
-                $scope.sendMsgBtn=true;
-                $scope.msgs[chat._id].forEach(function(el){
-                    if (el.user==$scope.activeChat._id){
-                        el.name=$scope.activeChat.name;
-                    }else{
-                        el.name=$rootScope.user.name;
+                if ($rootScope.user && $rootScope.user.role &&$rootScope.user.role!='user' && $rootScope.user._id==id){
+                    if (opt){
+                        window.location.pathname="/admin123/orders"
+                    } else {
+                        window.location.pathname="/admin123/ordersRetail?num="
                     }
-                    el.date=el.created;
-                })
-                console.log($scope.msgs);
-                $scope.massages=$scope.msgs[chat._id];
+                } else {
+                    $rootScope.$state.transitionTo('language.customOrder',
+                        {lang:$rootScope.lang,num:num});
+                }
+          }
+            $scope.activeChat=chats.activeChat;
+            $scope.listUsers= chats.listUsers;
+            $scope.chatList=chats.chatList;
+            $scope.msgs=[];
+            $scope.sendMsgBtn=false;
+
+            $scope.selectedUser;
+            $scope.$watch('selectedUser',function(){
+                if ($scope.selectedUser){
+                    var a = _.findWhere($scope.listUsers, {_id: $scope.selectedUser});
+                    $scope.addChat(a);
+
+                    $scope.selectedChat=$scope.selectedUser;
+                    $scope.selectedUser='';
+                }
             });
+            $scope.changeChat = function(chat){
+                $scope.sendMsgBtn=true;
+                $scope.msgs=[];
+                chats.changeChat(chat,function(res){
+                    $scope.msgs=chats.msqs();
+                    //chats.updateListMsgs($scope.activeChat._id,$rootScope.user._id);
+                    myfocus();
+                });
+            }
 
-        }
+            if ($scope.activeChat._id){
+                $scope.changeChat($scope.activeChat)
 
-        $scope.sendMsg=function(msg){
-            socket.emit('new:msg',{from:$rootScope.user._id,to:$scope.activeChat._id,msg:msg},function(data){
-                console.log(data)
-                data.name=$rootScope.user.name;
-                $scope.msgs[$scope.activeChat._id].push(data);
+            }
+
+            $scope.addChat= function (user){
+                chats.addChat(user);
+
+                $scope.changeChat(user);
+
+
+            }
+
+            $scope.moreMsgs=function(){
+                chats.moreMsgs();
+            }
+
+            $scope.sendMsg=function(msg){
+                if (!msg){
+                    myfocus();
+                    return;
+                }
+                var a=msg.split(':)').join("<img src='img/smile/1.png' style='width: 30px' alt=':)'>");
+                var b=a.split(':-)').join("<img src='img/smile/2.png' style='width: 30px' alt=':)'>");
+                var c=b.split(';)').join("<img src='img/smile/3.png' style='width: 30px' alt=':)'>");
+                var d=c.split(':(').join("<img src='img/smile/4.png' style='width: 30px' alt=':)'>");
+                var e=d.split(':-(').join("<img src='img/smile/5.png' style='width: 30px' alt=':)'>");
+                var f=e.split(':o').join("<img src='img/smile/6.png' style='width: 30px' alt=':)'>");
+                var g=f.split(':p').join("<img src='img/smile/7.png' style='width: 30px' alt=':)'>");
+                chats.sendMsg(g,function(){
+                    myfocus();
+                });
                 $scope.msg='';
-            })
-        }
+            }
 
+            $scope.button={};
+            $scope.button.editChat=false;
+            $scope.deleteMsgs={}
+            $scope.deleteAll=false;
+
+            $scope.$watch('deleteAll',function(){
+                if ($scope.deleteAll){
+                    for (var i= 0,len=$scope.msgs.length;i<len;i++){
+                        $scope.msgs[i].delete=true;
+                    }
+
+                } else {
+                    for (var i= 0,len=$scope.msgs.length;i<len;i++){
+                        $scope.msgs[i].delete=false;
+                    }
+                }
+            })
+
+            $scope.deleteMsgs=function(){
+
+                $scope.sendMsgBtn=false;
+                var msgsStr;
+                if (!$scope.deleteAll){
+                    var temp=[];
+                    for (var i= 0,len=$scope.msgs.length;i<len;i++){
+                        if ($scope.msgs[i].delete){
+                            temp[temp.length]=$scope.msgs[i]._id;
+                        }
+                    }
+                    /*for(var key in $scope.deleteMsgs) {
+                        if ($scope.deleteMsgs[key]){
+                            temp.push(key);
+                            $scope.deleteMsgs[key]=false;
+                        }
+                    }*/
+                    msgsStr=JSON.stringify(temp);
+                    console.log(temp);
+                } else {
+                    msgsStr = 'all';
+                }
+
+               Chat.delete({from:$rootScope.user._id,to:$scope.activeChat._id,msgs:msgsStr},function(){
+                   $scope.sendMsgBtn=true;
+                   $scope.button.editChat=false;
+                   $scope.deleteAll=false;
+                   $scope.changeChat($scope.activeChat)
+                   chats.updateListMsgs($scope.activeChat._id,$rootScope.user._id);
+
+               })
+                // clear $scope.deleteMsgs={}  $scope.deleteAll=false $scope.button.editChat=false;
+            }
+            $scope.deleteChat= function(user){
+                if (confirm("Удалить?")){
+                    Chat.delete({from:user._id,to:$rootScope.user._id,msgs:'chat'},function(){
+                        if ($scope.activeChat._id==user._id){
+                            $scope.activeChat._id='';
+                            $scope.activeChat.name='';
+                            $scope.sendMsgBtn=false;
+                            $scope.button.editChat=false;
+                            $scope.msgs=[];
+                        }
+                        $scope.chatList.splice($scope.chatList.indexOf(user),1);
+                    })
+                }
+            }
+
+            $scope.addSmile = function(smile) {
+                var $smilies = {1:':)',2:':-)',3:';)',4:':(',5:':-(',6:':o',7:':p'};
+                $rootScope.$broadcast('add', $smilies[smile]);
+            }
     }])
+
+
+    .controller('searchStuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags','$location','$anchorScroll','mongoPaginator',
+        function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags,$location,$anchorScroll,mongoPaginator) {
+
+            $scope.commonFilter=$rootScope.commonFilter;
+
+
+            $scope.mongoPaginator=mongoPaginator;
+
+            $scope.row= $scope.mongoPaginator.rowsPerPage;
+            $scope.page=$scope.mongoPaginator.page;
+
+            /*$scope.$watch('mongoPaginator.rowsPerPage',function(){
+             if ($scope.page==0){
+             if ($scope.section) {
+             if (!$scope.activeBrand && !$scope.activeCategory){
+             var brandId='section';
+             } else {
+             //console.log();
+             var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+             }
+
+             var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+             if ($scope.activeBrand && !$scope.activeCategory){
+             categoryId=0;
+             }
+             $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+             }
+             } else {
+             $scope.page=0
+             }
+
+             })*/
+
+
+
+            var updatePage = function(){
+                $scope.page=mongoPaginator.page;
+            };
+
+            mongoPaginator.registerObserverCallback(updatePage);
+
+            $scope.$watch('page',function(n,o){
+                if (n!=o){
+
+                    var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                    $scope.getStuffList(categoryId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                }
+            })
+
+
+
+            $scope.stuffList=[];
+            //paginator
+            $scope.page=0;
+            $scope.totalItems=0;
+            $scope.textList=''
+            $scope.headerList='';
+            $scope.displayFilter=[];
+           // инициализация********************************
+           // $scope.rowsPerPage=($rootScope.config.perPage)?$rootScope.config.perPage:53;
+            //$scope.rowsPerPage=54;
+            $scope.lang=$rootScope.$stateParams.lang;
+            $scope.section='category';
+            $scope.categories=[];
+            $scope.filterDisplay=[];
+            $scope.checkfilterList=[];
+
+            $scope.getStuffList = function(categoryId,page){
+                $scope.stuffList=[];
+                if (!page){
+                    $scope.page=0;
+
+                }
+                var  brandId;
+                if (categoryId){
+                    brandId=0;
+                } else {
+                    categoryId=$scope.section;
+                    brandId='section';
+                }
+                //console.log($rootScope.$stateParams);
+                var searchStr=($rootScope.$stateParams.searchStr)?$rootScope.$stateParams.searchStr:'';
+                function noStock(tag,stock){
+                  //  console.log(stock[tag]);
+                    if(stock && stock[tag]) {
+                        var is = true;
+                       for (var key in stock[tag]){
+                          if (!stock[tag][key]){
+                              is = false;
+                          }
+                       }
+                       return is;
+                    } else{
+                       return false;
+                    }
+                }
+                Stuff.list({category:categoryId,brand:brandId,page:$scope.page,searchStr:searchStr},function(tempArr){
+                    //var time1 = new Date().getTime();
+                    /* for (var ii=1; ii<10000000;ii++){
+                     var jj= ii/13*0.546;
+                     }*/
+
+                    /*if ($scope.page==1 && tempArr.length>0){
+                        $scope.totalItems=tempArr[0].index;
+                    }*/
+
+                    if ($scope.page==0 && tempArr.length>0){
+                        $scope.totalItems=$scope.mongoPaginator.itemCount=tempArr.shift().index;
+                    }
+                    $scope.checkfilterList=[];
+                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                        var filtersForStatus=JSON.parse(JSON.stringify(tempArr[i].tags));
+                        var stock;
+                        if (tempArr[i].stock){
+                            stock=JSON.parse(tempArr[i].stock);
+                        }
+
+                        var tempGallery=[];
+                        _(tempArr[i].gallery).sortBy(function(obj) { return +obj.index });
+                        //console.log(tempArr[i].gallery);
+                        for (var j=0;j<tempArr[i].gallery.length;j++){
+                            //console.log(tempArr[i].gallery[j]);
+                            if (tempGallery.length<1){
+                                tempGallery.push(tempArr[i].gallery[j]);
+                                var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
+                                //console.log(l);
+                                if (l>-1){
+                                    tempArr[i].tags.splice(l,1);
+                                }
+                            } else{
+                                var is=false;
+                                for (var k=0;k<tempGallery.length;k++){
+                                    //if (is) break;
+                                    if (tempGallery[k].tag._id==tempArr[i].gallery[j].tag._id){
+                                        is=true;
+                                        if(tempArr[i].gallery[j].index<tempGallery[k].index){
+                                            tempGallery.splice(k,1);
+                                            tempGallery.push(tempArr[i].gallery[j]);
+                                            // is=true;
+                                        }
+                                    }/* else {
+                                     is=true;
+                                     tempGallery.push(tempArr[i].gallery[j]);
+                                     }*/
+                                }
+                                if (!is) {
+                                    tempGallery.push(tempArr[i].gallery[j]);
+                                    var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
+                                    //console.log(l);
+                                    if (l>-1){
+                                        tempArr[i].tags.splice(l,1);
+                                    }
+                                }
+                            }
+                        }
+                        var price = (tempArr[i].priceSale)? tempArr[i].priceSale:tempArr[i].price;
+                        var retail = (tempArr[i].retailSale)? tempArr[i].retailSale:tempArr[i].retail;
+
+                        for (var j=0;j<tempArr[i].tags.length;j++){
+                            if ($scope.checkfilterList.indexOf(tempArr[i].tags[j])<0){
+                                $scope.checkfilterList.push(tempArr[i].tags[j]);
+                            }
+                        }
+                        for (var j=0;j<tempGallery.length;j++){
+                            var status=0;
+                            // 1 - распродажа
+                            // 2- новинка
+                            // 3- нет в наличии
+                            if (filtersForStatus.indexOf(tempGallery[j].tag._id)<0 ||
+                                filtersForStatus.indexOf($scope.commonFilter.tags[2])>-1|| noStock(tempGallery[j].tag._id,stock)){
+                                status=3;
+                            } else if(filtersForStatus.indexOf($scope.commonFilter.tags[1])>-1){
+                                status=2;
+                            } else if( filtersForStatus.indexOf($scope.commonFilter.tags[0])>-1){
+                                status=1;
+                            }
+                            var tags=JSON.parse(JSON.stringify(tempArr[i].tags));
+                            tags.push(tempGallery[j].tag._id)
+                            if ($scope.checkfilterList.indexOf(tempGallery[j].tag._id)<0){
+                                $scope.checkfilterList.push(tempGallery[j].tag._id);
+                            }
+                            //console.log(tempGallery[j]);
+                            $scope.stuffList.push({img:tempGallery[j].thumb,'name':tempArr[i].name[$scope.lang],
+                                'color':tempGallery[j].tag.name[$scope.lang],'price':price,'retail':retail,'tags':tags,'category':tempArr[i].category,
+                                'id':tempArr[i]._id,'colorId':tempGallery[j].tag._id,'status':status});
+                        }
+                    }
+                });
+
+            }
+            $scope.getStuffList('category')
+
+            $scope.goToStuffDetail = function(item){
+                //console.log(item);return;
+                $rootScope.$state.transitionTo('language.stuff.detail',
+                    {lang:$rootScope.lang,id:item.id,color:item.colorId,category:item.category,section:'section'});
+            }
+
+
+            $scope.setPage = function () {
+                $scope.page++;
+                $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.page);
+                //console.log($scope.page);
+
+            };
+
+            //прокрутка вверх екрана
+            $scope.scrollTo = function(id) {
+                //console.log(id);
+                $location.hash(id);
+                $anchorScroll();
+            }
+
+
+        }])
+
+    .controller('saleStuffCtrl', ['$scope','$rootScope','Stuff','$q','$timeout','BrandTags','$location','$anchorScroll','mongoPaginator',
+        function ($scope,$rootScope,Stuff,$q,$timeout,BrandTags,$location,$anchorScroll,mongoPaginator) {
+
+            $scope.commonFilter=$rootScope.commonFilter;
+
+            $scope.mongoPaginator=mongoPaginator;
+
+            $scope.row= $scope.mongoPaginator.rowsPerPage;
+            $scope.page=$scope.mongoPaginator.page;
+
+            /*$scope.$watch('mongoPaginator.rowsPerPage',function(){
+             if ($scope.page==0){
+             if ($scope.section) {
+             if (!$scope.activeBrand && !$scope.activeCategory){
+             var brandId='section';
+             } else {
+             //console.log();
+             var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+             }
+
+             var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+             if ($scope.activeBrand && !$scope.activeCategory){
+             categoryId=0;
+             }
+             $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+             }
+             } else {
+             $scope.page=0
+             }
+
+             })*/
+
+
+
+            var updatePage = function(){
+                $scope.page=mongoPaginator.page;
+            };
+
+            mongoPaginator.registerObserverCallback(updatePage);
+
+            $scope.$watch('page',function(n,o){
+                if (n!=o){
+
+                    var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                    $scope.getStuffList(categoryId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                }
+            })
+
+            $scope.stuffList=[];
+            //paginator
+            $scope.page=0;
+            $scope.totalItems=0;
+            $scope.textList=''
+            $scope.headerList='';
+            $scope.displayFilter=[];
+            // инициализация********************************
+            //$scope.rowsPerPage=($rootScope.config.perPage)?$rootScope.config.perPage:53;
+            $scope.lang=$rootScope.$stateParams.lang;
+            //$scope.section=$rootScope.$stateParams.section;
+            $scope.section='category';
+            $scope.categories=[];
+            $scope.filterDisplay=[];
+            $scope.checkfilterList=[];
+
+            $scope.getStuffList = function(categoryId,page){
+                $scope.stuffList=[];
+                if (!page){
+                    $scope.page=0;
+
+                }
+                var  brandId;
+                if (categoryId){
+                    brandId=0;
+                } else {
+                    categoryId=$scope.section;
+                    brandId='section';
+                }
+               // console.log($rootScope.$stateParams);
+                var sale=($rootScope.$stateParams.sale)?$rootScope.$stateParams.sale:'sale';
+                function noStock(tag,stock){
+                   // console.log(stock[tag]);
+                    if(stock && stock[tag]) {
+                        var is = true;
+                        for (var key in stock[tag]){
+                            if (!stock[tag][key]){
+                                is = false;
+                            }
+                        }
+                        return is;
+                    } else{
+                        return false;
+                    }
+                }
+
+
+                Stuff.list({category:categoryId,brand:brandId,page:$scope.page,sale:sale},function(tempArr){
+                    //var time1 = new Date().getTime();
+                    /* for (var ii=1; ii<10000000;ii++){
+                     var jj= ii/13*0.546;
+                     }*/
+                    /*if ($scope.page==1 && tempArr.length>0){
+                        $scope.totalItems=tempArr[0].index;
+                    }*/
+                    if ($scope.page==0 && tempArr.length>0){
+                        $scope.totalItems=$scope.mongoPaginator.itemCount=tempArr.shift().index;
+                    }
+                    $scope.checkfilterList=[];
+                    for (var i=0 ; i<=tempArr.length - 1; i++) {
+                        var filtersForStatus=JSON.parse(JSON.stringify(tempArr[i].tags));
+                        var stock;
+                        if (tempArr[i].stock){
+                            stock=JSON.parse(tempArr[i].stock);
+                        }
+                        var tempGallery=[];
+                        for (var j=0;j<tempArr[i].gallery.length;j++){
+                            //console.log(tempArr[i].gallery[j]);
+                            if (tempGallery.length<1){
+                                tempGallery.push(tempArr[i].gallery[j]);
+                                var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
+                                //console.log(l);
+                                if (l>-1){
+                                    tempArr[i].tags.splice(l,1);
+                                }
+                            } else{
+                                var is=false;
+                                for (var k=0;k<tempGallery.length;k++){
+                                    //if (is) break;
+                                    if (tempArr[i].gallery[j].tag && tempGallery[k].tag._id==tempArr[i].gallery[j].tag._id){
+                                        is=true;
+                                        if(tempArr[i].gallery[j].index<tempGallery[k].index){
+                                            tempGallery.splice(k,1);
+                                            tempGallery.push(tempArr[i].gallery[j]);
+                                            // is=true;
+                                        }
+                                    }/* else {
+                                     is=true;
+                                     tempGallery.push(tempArr[i].gallery[j]);
+                                     }*/
+                                }
+                                if (!is && tempArr[i].gallery[j].tag) {
+                                    tempGallery.push(tempArr[i].gallery[j]);
+                                    var l = tempArr[i].tags.indexOf(tempArr[i].gallery[j].tag._id);
+                                    //console.log(l);
+                                    if (l>-1){
+                                        tempArr[i].tags.splice(l,1);
+                                    }
+                                }
+                            }
+                        }
+                        var price = (tempArr[i].priceSale)? tempArr[i].priceSale:tempArr[i].price;
+                        var retail = (tempArr[i].retailSale)? tempArr[i].retailSale:tempArr[i].retail;
+
+                        for (var j=0;j<tempArr[i].tags.length;j++){
+                            if ($scope.checkfilterList.indexOf(tempArr[i].tags[j])<0){
+                                $scope.checkfilterList.push(tempArr[i].tags[j]);
+                            }
+                        }
+                        for (var j=0;j<tempGallery.length;j++){
+                            var status=0;
+                            // 1 - распродажа
+                            // 2- новинка
+                            // 3- нет в наличии
+                            if (filtersForStatus.indexOf(tempGallery[j].tag._id)<0 || filtersForStatus.indexOf($scope.commonFilter.tags[2])>-1
+                                || noStock(tempGallery[j].tag._id,stock)){
+                                status=3;
+                            } else if(filtersForStatus.indexOf($scope.commonFilter.tags[1])>-1){
+                                status=2;
+                            } else if( filtersForStatus.indexOf($scope.commonFilter.tags[0])>-1){
+                                status=1;
+                            }
+                            var tags=JSON.parse(JSON.stringify(tempArr[i].tags));
+                            tags.push(tempGallery[j].tag._id)
+                            if ($scope.checkfilterList.indexOf(tempGallery[j].tag._id)<0){
+                                $scope.checkfilterList.push(tempGallery[j].tag._id);
+                            }
+                            //console.log(tempGallery[j]);
+                            $scope.stuffList.push({img:tempGallery[j].thumb,'name':tempArr[i].name[$scope.lang],
+                                'color':tempGallery[j].tag.name[$scope.lang],'price':price,'retail':retail,'tags':tags,
+                                'id':tempArr[i]._id,'colorId':tempGallery[j].tag._id,'status':status,'category':tempArr[i].category});
+                        }
+                    }
+                });
+
+            }
+            $scope.getStuffList('category')
+
+            $scope.goToStuffDetail = function(item){
+                console.log(item);
+                $rootScope.$state.transitionTo('language.stuff.detail',
+                    {lang:$rootScope.lang,id:item.id,color:item.colorId,category:item.category,section:'section'});
+            }
+
+
+            $scope.setPage = function () {
+                $scope.page++;
+                $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.page);
+            };
+
+            //прокрутка вверх екрана
+            $scope.scrollTo = function(id) {
+                //console.log(id);
+                $location.hash(id);
+                $anchorScroll();
+            }
+
+        }])

@@ -42,7 +42,7 @@
                     <p  class="slogan col-lg-8 col-md-7 col-sm-7 col-xs-12">
                         <span>
                             <strong>Jadone Fashion</strong> - это яркая, стильная и ультрамодная женская одежда от современных дизайнеров. Необычное и лёгкое смешение стилей позволит Вам подобрать именно свой образ. Модная дизайнерская одежда марки Jadone Fashion превратит девушку в стильную супер модель. Оригинальное сочетание тканей, ярких цветов и фактур с элементами декора придутся по вкусу любой моднице. Уникальность и неповторимость каждой модели позволит Вам выделится в огромном мегаполисе современных модных тенденций. Одежда марки Jadone Fashion поможет Вам окружить себя ореолом стиля и вкуса.
-Jadone, в которой ты - Fashion !
+<br><strong></strong>Jadone, в которой ты - Fashion!</strong>
                             <br>Оптовые цены действуют при заказе для Украины - от <span class="text-error">5 штук</span>, для России - от <span class="text-error">10 штук.</span>
                         </span>
                     </p>
@@ -59,7 +59,42 @@ Jadone, в которой ты - Fashion !
             <div class="container content-extra">
                 <div class="row">
                     <ul class="thumbnails thumbnails-1" style="padding-left: 0px;">
-                        <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12" data-ng-repeat="item in category">
+                        <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            <div class="thumbnail thumbnail-1">
+                                <a ui-sref="language.stuffSale({'sale':'new'})">
+                                    <h1 class="nazv" style="margin-left: 10px; font-size: 36px; text-align: center">
+                                        новинки
+                                    </h1>
+                                    <img src="../../../img/home/5.jpg" alt="" ></a>
+                                <section style="margin-top: 25px;">
+                                    <a style="text-decoration: none; text-transform: uppercase" ui-sref="language.stuffSale({'sale':'new'})">
+                                        <strong>новинки</strong></a>
+                                    <p style="margin-bottom: 20px;">Новинки сезона лето 2014 для летнего жаркого дня...</p>
+                                    <a class="btn btn-1" ui-sref="language.stuffSale({'sale':'new'})">Смотреть далее</a>
+                                </section>
+                            </div>
+                        </li>
+
+                        <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            <div class="thumbnail thumbnail-1">
+                                <a ui-sref="language.stuffSale({'sale':'superMaxi'})">
+                                    <h1 class="nazv" style="margin-left: 10px; font-size: 36px; text-align: center">
+                                        роскошное макси
+                                    </h1>
+                                    <img src="../../../img/home/7.jpg" alt="" ></a>
+                                <section style="margin-top: 25px;">
+                                    <a style="text-decoration: none; text-transform: uppercase" ui-sref="language.stuffSale({'sale':'new'})">
+                                        <strong>роскошное макси</strong></a>
+                                    <p style="margin-bottom: 20px;">Модели платьев и сарафанов макси сезона лето 2014 ...</p>
+                                    <a class="btn btn-1" ui-sref="language.stuffSale({'sale':'new'})">Смотреть далее</a>
+                                </section>
+                            </div>
+                        </li>
+
+
+
+
+                        <!--<li class="col-lg-3 col-md-3 col-sm-6 col-xs-12" data-ng-repeat="item in category" ng-hide="$index>1">
                             <div class="thumbnail thumbnail-1">
                                 <a ui-sref="language.stuff({category:item._id,section:mainSection})">
                                     <h1 class="nazv text-center" ng-bind="item.name[lang]">
@@ -74,37 +109,23 @@ Jadone, в которой ты - Fashion !
                                             <a class="btn btn-1" ui-sref="language.stuff({category:item._id,section:mainSection})">Смотреть далее</a>
                                     </section>
                             </div>
-                        </li>
+                        </li>-->
                         <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                             <div class="thumbnail thumbnail-1">
-                                <a href="#">
+                                <a ui-sref="language.stuffSale">
                                     <h1 class="nazv" style="margin-left: 10px; font-size: 36px; text-align: center">
                                         sale
                                     </h1>
                                     <img src="../../../img/home/1.jpg" alt=""></a>
                                 <section style="margin-top: 25px;">
-                                    <a style="text-decoration: none; text-transform: uppercase">
+                                    <a style="text-decoration: none; text-transform: uppercase" ui-sref="language.stuffSale">
                                         <strong>sale</strong></a>
-                                        <p style="margin-bottom: 20px;">Представляеи модели 2013 - 2014 годов по сниженным ценам...</p>
-                                        <a class="btn btn-1">Смотреть далее</a>
+                                    <p style="margin-bottom: 20px;">Представляем модели 2013 - 2014 годов по сниженным ценам...</p>
+                                    <a ui-sref="language.stuffSale" class="btn btn-1">Смотреть далее</a>
                                 </section>
                             </div>
                         </li>
-                        <li class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                            <div class="thumbnail thumbnail-1">
-                                <a href="#">
-                                    <h1 class="nazv" style="margin-left: 10px; font-size: 36px; text-align: center">
-                                        новинки
-                                    </h1>
-                                    <img src="../../../img/home/2.jpg" alt=""></a>
-                                <section style="margin-top: 25px;">
-                                    <a style="text-decoration: none; text-transform: uppercase">
-                                        <strong>новинки</strong></a>
-                                    <p style="margin-bottom: 20px;">Новинки сезона лето 2014 для отдыха и ...</p>
-                                    <a class="btn btn-1">Смотреть далее</a>
-                                </section>
-                            </div>
-                        </li>
+
 
                     </ul>
                 </div><!--row-->
@@ -121,7 +142,7 @@ Jadone, в которой ты - Fashion !
                         <div class=" col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="txt-1" ng-bind="news.name[lang]|cut:true:50:''"></div>
                             <span ng-bind="displayDate(news.date)"></span>
-                            <p class="txt" ng-bind-html="trustHtml(news.desc[lang])"><span>...</span><br><br></p>
+                            <p class="txt"><span ng-bind-html="trustHtml(news.desc[lang])"></span><span>...</span><br><br></p>
                             <p><span ng-bind="news.author.name"></span></p>
                             <a ui-sref="language.news.detail({id:news._id})" class="btn btn-1">Смотреть далее</a>
                             <hr>

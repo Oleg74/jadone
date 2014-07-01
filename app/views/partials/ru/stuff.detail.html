@@ -2,13 +2,12 @@
     #gallery_022 img{border:2px solid white;}
     .active img{border:2px solid #333 !important;}
 </style>
-<div class="bg-content"  style=" background-image: url(img/background/bg-content5.jpg)"  >
+<div class="bg-content">
          <!--============================== content =================================-->
       		<div id="content">
-                <div class="ic"></div>
                 <div class="container">
-          			<div class="row">
-        				<article class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
+          			<div class="row row-list">
+        				<article class="col-lg-5 col-md-6 col-sm-12 col-xs-12" style="margin-top: 30px; ">
          					<div class="inner-1">
                                         <img ng-elevate-zoom id='img_001' gallery-zoom="stuff.gallery"
                                                    ng-src="{{activePhoto.thumb}}"
@@ -16,159 +15,250 @@
           					</div><!--inner-1-->
                             <div gallery-for-zoom="stuff.gallery" on-photo-selected="changePhoto(newIndex)"></div>
                 		</article>
-        				<article class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
-          					<div class="pull-left">
-                              <h3>
-                                <span class="name_modal" ng-bind-template="{{stuff.category.name[lang]}} &nbsp"></span>
-                                <strong ng-bind-template="{{stuff.name[lang]}} ({{activePhoto.name}})"></strong>
-                              </h3>
-                            </div>
-          					<div class="clear"></div>
-                            <ul class="list extra extra1 list-blog">
-                                <li>
-                                    <p>В нашем интернет-магазине Вы можете купить оптом платья, туники, костюмы  от ведущего украинского производителя модной женской одежды</p>
-                                	<div class="txt-2" ng-bind-html="$sce.trustAsHtml(stuff.desc[lang])"></div>
+        				<article class="col-lg-7 col-md-6 col-sm-12 col-xs-12" style="margin-top: 30px; ">
 
-                                     <!-- <div class="accordion-group">
-                    					<div class="accordion-heading">
-                                    		<a class="btn btn-inverse btn-large accordion-toggle"  data-toggle="collapse" data-parent="#accordion2" 
-                                            ng-click="collapseOne=!collapseOne">Таблица размеров (см &plusmn;2)</a>
-                        				</div>
-                        				<div ng-show="collapseOne">
-                        	   				<table class="table span12 table-bordered table_size">    
-                                                <tr>
-                                                    <th class="span2">
-                                                    #
-                                                    </th>
-                                                    &lt;!&ndash;<th class="span2">
-                                                    XS
-                                                    </th>&ndash;&gt;
-                                                    <th class="span2">
-                                                    Обхват груди
-                                                    </th>
-                                                    <th class="span2">
-                                                    Обхват талии
-                                                    </th>
-                                                    <th class="span2">
-                                                    Обхват бедер
-                                                    </th>
+                            <h1 class="nazv" style="line-height: 36px; color: #fff; margin-top: 5px;">
+                                <!--<span class="name_modal" ng-bind-template="{{stuff.category.name[lang]}} &nbsp"></span>
+                                <strong ng-bind-template="{{stuff.name[lang]}} ({{activePhoto.name}})"></strong>-->
+                                <span class="name_modal" ng-bind="stuff.category.name[lang]"></span>&nbsp
+                                <strong ng-bind="stuff.name[lang]"></strong>&nbsp<strong ng-bind="activePhoto.name"></strong>
+                            </h1>
 
-                                                </tr>
-                                               &lt;!&ndash; <pre>{{brandGoodDetail.arr_size|json}}</pre>&ndash;&gt;
-                                                <tr ng-repeat="(key,size) in  brandGoodDetail.arr_size">
-                                                    <td >
-                                                   	{{key}}
-                                                    </td>
-                                                   
-                                                    <td class="span2" ng-repeat="val_size in size track by $index">
-                                                    {{val_size}}
-                                                    </td>
-                                                  
-                                                </tr>
-                                                
-                                    		</table>
-                                    	</div>
-                                    </div>-->
-	
-									
-                                </li>
-                                        
-                                <li class="bb">
-                                    <div class=" pull-left price mb" ng-class="new_price" >
-                                        {{stuff.price*curren[curren.current][0]| currency:curren[curren.current][2]}}
-                                    </div>
-                                    <div class=" pull-left price mb " style=" color: #b00058; margin-bottom: 20px;" data-ng-show="brandGoodDetail.field_new_price">
-                                        {{brandGoodDetail.field_new_price*curren[curren.current][0]| currency:curren[curren.current][2]}}
-                                    </div>
+                            <ul class="desk_detail">
+                                <li class="dd">
+                                    <tabset justified="true">
+                                        <tab heading="Описание">
+                                            <div ng-bind-html="trustHtml(stuff.desc[lang])"></div>
+                                            <p>В нашем интернет-магазине Вы можете купить оптом  и в розницу платья, туники, костюмы  от ведущего
+                                                украинского производителя модной женской одежды Jadone Fashion<br>
+                                            Оптовые цены действуют от 5 шт для Украины и 10 шт для других стран.</p>
+                                        </tab>
+                                        <tab heading="Оплата">
+                                            <strong>Перевод на карточку.</strong> Покупатель переводит деньги на карточку продавца по указанному менеджером номеру карты.<br>
+                                            <strong>Банковский перевод.</strong> Покупатель переводит деньги со своего счёта на счёт продавца. Или другой вариант - покупатель оплачивает квитанцию на имя продавца. Комиссия при этом минимальна и зависит только от условий отдельно взятого банка.<br>
+                                            <strong>Почтовый перевод.</strong> Покупатель переводит деньги по почте продавцу.<br>
+                                            <strong>Электронная система платежей.</strong> Покупатель может воспользоваться такой системой платежей, как WebMoney, Яндекс-деньги и т.п., для перевода денег со своего интернет-кошелька на интернет-кошелек продавца. Это самый быстрый способ оплаты товаров.<br>
+                                            <strong>Оплата денежным международным переводом</strong> Золотая корона, Migom, Contact или любой другой, удобной для Вас, системой международных переводов.<br>
+                                            <strong>Дополнительные условия оплаты.</strong> Укажите, пожалуйста, дополнительные пожелания условий оплаты в комментариях к заказу, в форме обратной связи или по телефону Вашему менеджеру.</tab>
+                                        <tab heading="Доставка">
+                                            Молдова, Армения, Азербайджан, Украина, Россия, Грузия, Беларусь, Туркменистан, Узбекистан, Казахстан, Таджикистан и другие страны, включая Евросоюз.<br>
+                                            <strong>Доставка по Украине.</strong> Отправка заказа транспортными компаниями «Автолюкс», «Новая почта», курьерской доставкой и другими удобными для вас перевозчиками.<br>
+                                            <strong>Доставка в Россию.</strong> Отправка заказа из Белгорода одной из транспортных компаний, удобной для Вас: "Желдорэкспедиция", "ПЭК", "Байкал-сервис", "Деловые линии", "Автотрейдинг", "Скиф карго", "Курьер сервис экспресс", "Пони Экспресс", Почта России (только в том случае, если никакой из предложенных выше транспортных компаний) а также курьерской доставкой или самовывозом. При отправке одной из указанных транспортных компаний обязательно наличие паспортных данных получателя - кем и когда выдан паспорт, серия, номер.<br>
+                                            <strong>Доставка в другие указанные регионы.</strong> Отправка почтой Украины, курьером или самовывозом.</tab>
+                                        <tab heading="Размеры">
+                                            <div class="tab-pane" id="size" >
 
-                                    <!--<div class=" pull-left price mb" style="margin-bottom: 30px;">{{brandGoodDetail.field_price*curren[curren.current][0]| currency:curren[curren.current][2]}}</div>-->
-                                    <div class="pull-right"><a href="" class="btn btn-inverse btn-large">оплата и доставка</a></div>
-                                    <div class="clear"></div>
-                                </li>
-                                <li class="bb">
-                                	<div class=" pull-left">
-                                    	<div class=" pull-left color">Цвет</div>
-                                     	<div class=" pull-left right-filters">
-                                            <select class="btn btn-color mb" ng-model="color" ng-change="changeColor(color)">
+                                                <table class="table table-bordered table_ofice" style="opacity: 1; color: #000;">
+                                                    <tr>
+                                                        <th class="col-lg-3">
+                                                            #
+                                                        </th>
+                                                        <th class="col-lg-3">
+                                                            Обхват груди<br> (&plusmn; 2см)
+                                                        </th>
+                                                        <th class="col-lg-3">
+                                                            Обхват талии<br> (&plusmn; 2см)
+                                                        </th>
+                                                        <th class="col-lg-3">
+                                                            Обхват бедер<br> (&plusmn; 2см)
+                                                        </th>
+
+                                                    </tr>
+                                                    <tr> <!--ng-repeat="(key,size) in  brandGoodDetail.arr_size">-->
+                                                        <td >
+                                                            XS 40/42
+                                                        </td>
+
+                                                        <td>
+                                                            82
+                                                        </td>
+                                                        <td>
+                                                            64
+                                                        </td>
+                                                        <td>
+                                                            88
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td >
+                                                            S 42/44
+                                                        </td>
+
+                                                        <td>
+                                                            86
+                                                        </td>
+                                                        <td>
+                                                            68
+                                                        </td>
+                                                        <td>
+                                                            92
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td >
+                                                            M 44/46
+                                                        </td>
+
+                                                        <td>
+                                                            90
+                                                        </td>
+                                                        <td>
+                                                            72
+                                                        </td>
+                                                        <td>
+                                                            96
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td >
+                                                            L 46/48
+                                                        </td>
+
+                                                        <td>
+                                                            94
+                                                        </td>
+                                                        <td>
+                                                            76
+                                                        </td>
+                                                        <td>
+                                                            100
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td >
+                                                            XL 48/50
+                                                        </td>
+
+                                                        <td>
+                                                            98
+                                                        </td>
+                                                        <td>
+                                                            82
+                                                        </td>
+                                                        <td>
+                                                            104
+                                                        </td>
+                                                    </tr>
+
+                                                </table>
+                                            </div>
+                                        </tab>
+                                    </tabset>
+                               </li>
+
+
+
+
+
+                                <li class="dd">
+                                    <div class="col-lg-5 col-md-4 col-sm-5 col-xs-12">
+                                        <div class=" pull-left color">Цвет</div>
+                                        <div class=" pull-left">
+                                            <select class="btn btn-default btn-color mb" ng-model="color" ng-change="changeColor(color)">
                                                 <option ng-repeat="opt in stuff.category.mainFilter.tags|orderBy:'index'"
                                                         value="{{opt._id}}" ng-show="showOptionColor(opt._id)">{{opt.name[lang]}}</option>
                                             </select>
                                         </div>
-                                        <!--<div class=" pull-left right-filters" ng-repeat="size in filters" >
-                                            &lt;!&ndash;<pre>{{size.name['en']}}</pre>&ndash;&gt;
-                                            <div ng-switch on="size.name['en']">
-                                            <select class="btn btn-color mb" ng-model="$parent.currentSize" ng-change="changeSize($parent.currentSize)" ng-switch-when="size">
-                                                <option ng-repeat="opt in size.tags|orderBy:'index'"
-                                                        value="{{opt._id}}" ng-show="showOptionSize(opt,true)">{{opt.name[lang]}}</option>
-                                            </select>
-                                            </div>
-                                        </div>-->
+                                    </div>
 
-                                        <!--<div class=" pull-left right-filters"  >
-                                            <select class="btn btn-color mb" ng-model="itemToCart.size" ng-change="changeSize()">
-                                                <option ng-repeat="opt in filterSize|orderBy:'index'"
-                                                        value="{{opt._id}}">{{opt.name[lang]}}</option>
-                                            </select>
-                                        </div>-->
-                                        <div class=" pull-left right-filters"  >
-                                            <select class="btn btn-color mb" ng-model="itemToCart.size" ng-change="changeSize()"
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
+                                        <div class=" pull-left color">Размер</div>
+                                        <div class=" pull-left">
+                                            <select class="btn btn-default btn-size" ng-model="itemToCart.size" ng-change="changeSize()"
                                                     ng-options="o._id as o.name[lang] for o in filterSize|orderBy:'index'" >
 
                                             </select>
                                         </div>
-                                        <div class=" pull-left right-filters">
-                                            <select class="btn btn-color mb" ng-model="currentQuantity">
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                                        <div class=" pull-left color">К-во</div>
+                                        <div class=" pull-left">
+                                            <select class="btn btn-default btn-size" ng-model="currentQuantity">
                                                 <option ng-repeat="opt in quantityArr" value="{{opt}}" >{{opt}}</option>
                                             </select>
                                         </div>
+                                    </div>
 
+                                    <div class="clearfix"></div>
+
+                                </li>
+                                <div class="clearfix"></div>
+                                <li class="dd">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 price_type">опт</div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" ng-class="{'new_price':stuff.priceSale,'price_type':!stuff.priceSale}">
+                                        <span ng-bind="(stuff.price*config.currency[currency][0]).toFixed(2)"></span>&nbsp<span style="font-size: 20px"  ng-bind="config.currency[currency][1]"></span>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 price_detail" ng-show="stuff.priceSale">
+                                        <span ng-bind="(stuff.priceSale*config.currency[currency][0]).toFixed(2)"></span>&nbsp<span style="font-size: 20px"  ng-bind="config.currency[currency][1]"></span>
+                                    </div>
+                                </li>
+
+
+                                <div class="clearfix"></div>
+                                <li class="dd">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 price_type">розница</div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" ng-class="{'new_price':stuff.retailSale,'price_type':!stuff.retailSale}">
+                                        <span ng-bind="(stuff.retail*config.currency[currency][0]).toFixed(2)"></span>&nbsp<span style="font-size: 20px"  ng-bind="config.currency[currency][1]"></span>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 price_detail" ng-show="stuff.retailSale">
+                                        <span ng-bind="(stuff.retailSale*config.currency[currency][0]).toFixed(2)"></span>&nbsp<span style="font-size: 20px"  ng-bind="config.currency[currency][1]"></span>
+                                    </div>
+                                </li>
+                                <div class="clearfix"></div>
+                            </ul><!--list-->
+
+
+                            <div class="list extra  extra1">
+                                <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 mb" >
+                                    <a class="link-3" ng-click="goToList()">в каталог  </a>
+                                </div>
+                                <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 mb" >
+                                    <a ui-sref="language.cart" class="link-3" >в корзину
+                                    </a>
+                                </div>
+
+                                <div class=" pull-right" ng-hide="disabledToCart()">
+
+                                    <button class="btn btn-danger" style="margin-bottom: 0; padding-bottom: 6px; padding-top: 6px; padding-left: 12px; padding-right: 12px;" ng-class="{'btn-danger':!addedToCart,'btn-success':addedToCart}"
+                                            ng-disabled="addedToCart" ng-click="addToCart()" >
+                                        <span ng-switch="addedToCart">
+                                            <span ng-switch-when="false" class="pull-left">добавить<br> в корзину</span>
+                                            <span ng-switch-when="true" class="pull-left">добавлено<br> в корзину</span>
+                                        </span>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <img src="../../../img/cart+.png">
+                                    </button>
+
+                                </div>
+                                <div class=" pull-right  fade in main_danger1" ng-show="disabledToCart()">
+                                    <p>Данный размер в настоящее время доступен только для просмотра.</p>
+                                </div>
+                                <div class="clearfix"></div>
+                                <hr>
+
+                                    <h3 class="pull-left" style="font-size: 22px;">Комментарии к модели:</h3>
+                                    <h3 style="font-size: 18px; " ng-shoe="user._id">
+                                        <a data-ng-click="showEdit=!showEdit" class="pull-right"><span class="glyphicon glyphicon-pencil" style="margin-right: 5px;"></span>Напишите отзыв</a>
+                                    </h3>
+                                    <div data-ng-show="showEdit" >
+                                        <textarea class="col-lg-12 col-md-12 col-sm-12 col-xs-12 mb" placeholder="Введите текст" ng-model="comment.text" focus-me="showEdit"></textarea>
+
+
+                                        <button class="btn btn-danger pull-right" ng-disabled="disallowEdit" ng-click="updateComment()">Отправить</button>
 
                                     </div>
-                                    <!--<div class="pull-right">
-                                    	<div class="pull-left">Количество</div>
-                                                                       
-                                    	<div class="pull-right right-filters">
-                                    		<input type="text" class="input-small spinner-input"  ng-model="currentQuantity"  value="{{currentQuantity}}">
-                                            <div class="clearfix"></div>
-                                    			<div class="spinner-buttons btn-group btn-group-vertical">            		
-                                                    <button class="btn spinner-up" type="button" ng-click="changeQuantityUp()">
-                                                        <i class="icon-minus"></i>
-                                                    </button>
-                                                    <button class="btn spinner-down" type="button" ng-click="changeQuantityDown()">
-                                                        <i class="icon-plus"></i>
-                                                    </button>
-                                    			</div>
-                                        
-                                   		</div>
-                                   </div>
-                                   <div class="clear"></div>
-                                </li>
-                                <li class="bb">
-                                    <div class=" pull-left left-filters color">Размер   <span>{{currentSize}}</span></div>
-                                    <div class="right-filters">
-                                        <span ng-repeat="size in arr_head_size_gg|filter:brandGoodDetail.nosize[$index]" ng-hide="brandGoodDetail.nosize[$index]" >
-                                    	<button class="btn btn-size mb" ng-click="changeSize(size)">{{size}}</button>
-                                        </span>
-                                	</div>
-                                </li>-->
-                          	</ul><!--list-->
-                            <div class="list extra  extra1">
-                            <div class="pull-left mr" >
-                            	 <a class="btn btn-inverse btn-large btn-bag mb" ng-click="goToList(brandGoodDetail.id)">Каталог  </a>
-                        	</div>
-                            <div class="pull-left " >
-                                    <a ui-sref="language.cart" class="btn btn-inverse btn-large btn-bag mb" >Корзина
-                                    </a>
-                            </div>
+                                <div class="clearfix"></div>
+                                    <ul style="padding-left: 0">
+                                        <li class="mb" data-ng-repeat="review in comments|orderBy:'-date'">
+                                            <span ng-bind="displayDate(review.date)" style="font-style: italic"></span>&nbsp; &nbsp; &nbsp;
+                                            <span ng-bind="review.author.name" style="font-weight: bold"></span>
+                                            <p ng-bind="review.text" style="padding-bottom: 0;"></p>
 
-                        	<div class=" pull-right right-filters" ng-hide="disabledToCart()">
-                                <button class="btn btn-danger btn-large btn-bag mb" ng-disabled="addedToCart" ng-click="addToCart()" >{{nameCartButton}} в корзину &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <img src="img/bag/big_bag_pink5.png" class=" bag_plus">
-                                </button>
-                        	</div>
-                                <div class=" pull-right alert  fade in main_danger1" style="width: 200px; margin-top: 20px;"  ng-show="disabledToCart()">
-                                   <p>Данная модель в настоящее время доступна только для просмотра.</p>
-                                </div>
+                                        </li>
+                                    </ul>
+
+                                    <a data-ng-show="page*3==comments.length" ng-click="moreComments()" class=" pull-right comments_header mb">Показать еще</a>
                             </div>
         				</article>
       				</div><!--row-->

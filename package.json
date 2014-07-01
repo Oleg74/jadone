@@ -6,7 +6,7 @@
     "jade": "~0.31.2",
     "lodash": "~2.4.1",
     "mongoose-unique-validator": "~0.3.0",
-    "connect-mongo": "~0.4.0",
+    "connect-mongo": "~0.4.1",
     "passport": "~0.2.0",
     "passport-local": "~0.1.6",
     "node-gyp": "~0.12.2",

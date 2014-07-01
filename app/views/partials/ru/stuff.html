@@ -29,15 +29,23 @@
 </script>
 <div class="bg-content" ng-hide="$state.includes('language.stuff.detail')">
     <div id="content">
+        <!--<div class="button_fixed" id="toTop">
+            <a ng-click="scrollTo('panel')"
+               class="btn btn-inverse"><i class="icon  icon-arrow-up icon-white"></i></a>
+        </div>-->
         <div class="button_fixed" id="toTop">
-            <a ng-click="scrollTo('panel')"class="btn btn-inverse"><span class="glyphicon glyphicon-arrow-up icon-white"></span></a>
+            <a ng-click="scrollTo('panel')"
+               class="btn btn-inverse"><span class="glyphicon glyphicon-arrow-up icon-white"></span></a>
         </div>
         <!--<div class="ic"></div>-->
+        <div class="paginator">
+            <mongo-paginator></mongo-paginator>
+        </div>
         <div class="container">
 
             <div class="row row-list">
                 <ul class="thumbnails thumbnails-1 list-services">
-                    <li class="col-lg-4 col-md-4 col-sm-4 col-xs-12" ng-show="!show_all_filters">
+                    <li class="col-lg-4 col-md-4 col-sm-6 col-xs-12" ng-show="!show_all_filters">
                         <div class="thumbnail thumbnail-1">
                             <div class="pull-left left-filters">
                                 <p>Категории</p>
@@ -110,7 +118,7 @@
                         </div>
                     </li>
 
-                    <li class="col-lg-4 col-md-4 col-sm-4 col-xs-12 list-models"
+                    <li class="col-lg-4 col-md-4 col-sm-6 col-xs-12 list-models"
                         ng-repeat="item in stuffList|filter:filterLists()| paginate:rowsPerPage">
                         <div class="thumbnail thumbnail-1" id="good{{item.itemToCartFromList.url}}">
                             <a ui-sref="language.stuff.detail({id:item.id,color:item.colorId})" >
@@ -119,7 +127,7 @@
                                 <img class="sale" ng-show="item.status==3" src="img/bag/54.png">
                                 <img  ng-src="{{item.img}}" alt="купить  оптом от производителя">
                             </a>
-                            <section>
+                            <section id="{{item.id}}stuff">
                             <a class="link-1" ui-sref="language.stuff.detail({id:item.id,color:item.colorId})">{{item.name}}&nbsp{{item.color}}</a>
                             <div class="clearfix"></div>
                             <p class="pull-left">
@@ -135,15 +143,17 @@
                             <div class="clearfix"></div>
                             </section>
                         </div>
+                        <!--<div class="clearfix" ng-show="$index>"></div>-->
                     </li>
                 </ul>
             </div>
         </div>
 
         <div class="paginator">
-            <paginator></paginator>
+            <mongo-paginator></mongo-paginator>
         </div>
-
+       <!-- <a data-ng-click="morePage()" class="btn btn-sm btn-success" ng-show="stuffList.length<totalItems">
+            <span class="glyphicon glyphicon-resize-vertical"></span> еще</a>-->
         <div class="container">
 
 
@@ -152,7 +162,7 @@
                     <h1 ng-bind="headerList" class="nazv1 center"></h1>
                     <div class="slogan_brand span8">
                         <p ng-bind-html="trustHtml(textList)"></p>
-                        <p>В нашем интернет-магазине Вы можете купить оптом платья, туники, костюмы  от ведущего украинского производителя модной женской одежды</p>
+                        <p>В нашем интернет-магазине Вы можете купить оптом и в розницу платья, туники, костюмы  от ведущего украинского производителя модной женской одежды</p>
                     </div>
                 </article>
 
@@ -162,6 +172,14 @@
 </div>
 
 <script>
+
+    $(window).scroll(function() {
+        if ($(this).scrollTop()) {
+            $('#toTop:hidden').stop(true, true).fadeIn();
+        } else {
+            $('#toTop').stop(true, true).fadeOut();
+        }
+    });
     /*function oneGoodInListCtrl($scope,$timeout){
         $scope.sendToCart=false;
         $scope.clickButton = function(item){

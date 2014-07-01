@@ -1,4 +1,4 @@
-#
+ #
 # .gitignore
 #
 
@@ -9,6 +9,7 @@
 /app/bower_components/
 /built/
 /app/images/
+/app/img/
 /logs/
 /test/
 /node_modules/

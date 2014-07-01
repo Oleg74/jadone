@@ -12,14 +12,21 @@ var express = require('express'),
     index = require('./lib/controllers/index'),
   path = require('path');
 
+var chatRoom=[];
+
 var app = module.exports = express();
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 
+/*
+
+*/
+
+
 /**
  * Configuration
  */
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 8800);
 // all environments
 /*app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/app/views');
@@ -56,11 +63,19 @@ require('./lib/config/passport')();
 // Express settings
 require('./lib/config/express')(app);
 
+
+
+var Order = require('./lib/controllers/order'),
+    order = new Order(chatRoom);
+
 // Routing
-require('./lib/routes')(app);
+require('./lib/routes')(app,order);
 
 // Socket.io Communication
-io.sockets.on('connection', require('./lib/controllers/socket'));
+io.sockets.countSocket=[];
+Socket=require('./lib/controllers/socket');
+socket= new Socket(chatRoom,io.sockets.countSocket);
+io.sockets.on('connection',socket.connect);
 
 /**
  * Start Server

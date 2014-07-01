@@ -65,23 +65,23 @@
                         <div class="form-group" ng-repeat="filter in filterListEdit" ng-switch on="filter.type">
                             <div  ng-switch-when="1">
                                 <label  for="filter{{filter._id}}" class="col-md-3 col-md-offset-1 control-label"ng-bind="filter.name[config.DL]"></label>
-                                <div class="col-md-8">
+                                <div class="col-md-7">
                                     <select  id="filter{{filter._id}}" class="form-control"
                                              ng-model="filtersValue[filter._id]"
                                              ng-options="opt._id as opt.name[config.DL] for opt in filter.tags|orderBy:'index' ">
-                                        <option value="">выберете значение</option>
+                                        <option value="">выберите значение</option>
                                     </select>
                                 </div>
                             </div>
                             <div  ng-switch-when="2">
                                 <label  class="col-md-3 col-md-offset-1 control-label"ng-bind="filter.name[config.DL]"></label>
-                                <div class="col-md-8" >
+                                <div class="col-md-7" >
 
                                     <div class="form-group">
                                         <select  id="filterM{{filter._id}}" class="form-control" multiple ng-change="changeFitlerVal()"
                                                  ng-model="filtersValue[filter._id]"
                                                  ng-options="opt._id as opt.name[config.DL] for opt in filter.tags|orderBy:'index' ">
-                                            <option value="">выберете значение</option>
+                                            <option value="">выберите значение</option>
                                         </select>
                                     </div>
                                 </div>
@@ -90,7 +90,7 @@
                         <h4>Наличие</h4>
                         <div class="form-group">
 
-                           <table class="table table-bordered">
+                           <table class="table table-bordered" style="width: 95%">
                                <thead>
                                    <td>#</td>
                                    <td ng-repeat="tag in filtersValue[sizeId]">
@@ -133,14 +133,14 @@
                         <div class="form-group"data-ng-repeat="lang in config.langArr" >
                             <label ng-bind="lang" for="{{$index}}desc" class="col-md-1 control-label"></label>
                             <div class="col-md-11">
-                                <textarea placeholder="короткий опис" ng-model="stuff.desc[lang]"id="{{$index}}desc"rows="1" style="height: 100px">
+                                <textarea placeholder="краткое описание" ng-model="stuff.desc[lang]"id="{{$index}}desc"rows="1" style="height: 100px">
                                 </textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label  for="rur" class="col-md-6 control-label">Артикул</label>
                             <div class="col-md-6">
-                                <input name="rur" type="text" class="form-control" id="rur5" placeholder="введите цену опт" ng-model="stuff.artikul" pattern="[0-9A-Za-zА-Яа-я.\s-]{5,100}" required>
+                                <input name="rur" type="text" class="form-control" id="rur5" placeholder="введите артикул" ng-model="stuff.artikul" pattern="[0-9A-Za-zА-Яа-я.\s-]{5,100}" >
                             </div>
                         </div>
                         <div class="form-group">

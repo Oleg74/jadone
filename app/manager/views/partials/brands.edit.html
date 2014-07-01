@@ -107,7 +107,7 @@
                             </div>
                             <ul  class="nav nav-pills nav-stacked">
                                 <li
-                                    class="pull-left col-lg-12 col-md-10 col-xs-10 back actve"
+                                    class="pull-left col-lg-12 col-md-10 col-xs-10  actve"
                                     ng-repeat="tag in brandTags|orderBy:'index'">
                             <span class="col-lg-6 col-md-6 col-xs-6">
                             <a ng-click="editBrandTag(tag)"  href="">
@@ -149,7 +149,7 @@
                         <div class="form-group"data-ng-repeat="lang in config.langArr"  style="padding-left: 10px;">
                             <label ng-bind="lang" for="{{$index}}desc" class="col-md-1 control-label"></label>
                             <div class="col-md-11">
-                                <textarea placeholder="короткий опис" ng-model="brand.desc[lang]"id="{{$index}}desc"rows="1" style="height: 100px">
+                                <textarea placeholder="краткое описание" ng-model="brand.desc[lang]"id="{{$index}}desc"rows="1" style="height: 100px">
                                 </textarea>
                             </div>
                         </div>

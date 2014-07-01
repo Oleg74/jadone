@@ -14,7 +14,7 @@
                         </div>
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <input type="text" placeholder="пошук" ng-model="searchNameFilter" class="search-query" style=" margin-left: 20px"/>
+                                <input type="text" placeholder="поиск" ng-model="searchNameFilter" class="search-query" style=" margin-left: 20px"/>
                             </div>
                         </form>
                     </div>
@@ -41,13 +41,13 @@
                             </div>
                             <div class="form-group">
                                <!-- <label class="control-label ">тип</label>-->
-                                <label class="col-md-3 text-right">Тип</label>
+                                <label class="col-md-3 text-right" style="margin-bottom: 0; padding-top: 4px;">Тип</label>
                                 <div class="col-md-9">
                                     <label > едн.
-                                        <input type="radio" ng-model="filter.type" value=1 ng-disabled="editDisabledF">
+                                        <input type="radio" ng-model="filter.type" value=1 ng-disabled="editDisabledF" style="margin-left: 3px; margin-right: 3px;">
                                     </label>
                                     <label > мнж.
-                                        <input type="radio" ng-model="filter.type" value=2 ng-disabled="editDisabledF">
+                                        <input type="radio" ng-model="filter.type" value=2 ng-disabled="editDisabledF" style="margin-left: 3px; margin-right: 3px;">
                                     </label>
                                 </div>
 
@@ -90,7 +90,7 @@
                         </div>
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <input type="text" placeholder="пошук" ng-model="searchTag" class="search-query" style=" margin-left: 20px"/>
+                                <input type="text" placeholder="поиск" ng-model="searchTag" class="search-query" style=" margin-left: 20px"/>
                             </div>
                         </form>
                         <!--<h4>Теги для -  <span ng-bind="activeFilterName"></span></h4>-->

@@ -28,7 +28,11 @@
     </div>
 </script>
 
-
+<div class="bg-content">
+    <div id="content">
+        <div class="button_fixed" id="toTop">
+            <a ng-click="scrollTo('panel')"class="btn btn-inverse"><span class="glyphicon glyphicon-arrow-up icon-white"></span></a>
+        </div>
         <div class="container" ng-hide="$state.includes('language.news.detail')">
             <!--<div class="button_fixed" id="toTop">
                 <a ng-click="scrollTo('panel')"class="btn btn-inverse"><span class="glyphicon glyphicon-arrow-up icon-white"></span></a>
@@ -36,7 +40,7 @@
 
             <div class="row" >
 
-                <div class="col-lg-8 col-lg-offset-2 ">
+                <!--<div class="col-lg-8 col-lg-offset-2 ">
                     <h1  class="page-header">Новости Autofan<small>&nbsp  в Харькове</small></h1>
 
                     <div class="slogan_brand">
@@ -49,14 +53,43 @@
                         <h3>
                             <a ui-sref="language.news.detail({id:item._id})"><span ng-bind="item.name[lang]"></span></a>
                         </h3>
-                        <h4 ng-bind="displayDate(item.date)"> <!--<span ng-bind="item.artikul"></span>--></h4>
-                        <p ng-bind="item.desc[lang]"></p>
+                        <h4 ng-bind="displayDate(item.date)">--> <!--<span ng-bind="item.artikul"></span>--></h4>
+                        <!--<p ng-bind="item.desc[lang]"></p>
                         <h4 class="pull-left col-lg-6"><span ng-bind="item.author.name"></span></h4>
                         <a class="btn btn-primary pull-right col-lg-3" ui-sref="language.news.detail({id:item._id})">Подробнее <span class="glyphicon glyphicon-chevron-right"></span></a>
                     </div>
                     <div class="clearfix" ng-repeat-end></div>
-                </div>
+                </div>-->
+                <div class="col-lg-12">
 
+                    <div class="slogan_brand">
+                        <p ng-bind-html="trustHtml(textList)"></p>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 portfolio-item mb"
+                            ng-class-even="'col-lg-offset-2'"
+
+                         ng-repeat-start="item in newsList|filter:filterLists()| paginate:rowsPerPage">
+
+                        <a ui-sref="language.news.detail({id:item._id})">
+                            <img class="img-responsive" ng-src="{{item.img}}">
+                        </a>
+                    </div>
+                    <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12 mb">
+                        <h4 ng-bind="displayDate(item.date)" style="font-size: 16px; color: #444; margin-top: 5px; margin-bottom: 0; line-height: 18px;"> <!--<span ng-bind="item.artikul"></span>--></h4>
+                        <h1 class="nazv" style=" margin-top: 0; margin-bottom: 0; margin-left: 0">
+                            <a ui-sref="language.news.detail({id:item._id})"><span ng-bind="item.name[lang]"></span></a>
+                        </h1>
+
+                        <p><span ng-bind-html="trustHtml(item.desc[lang])"></span><span>...</span></p>
+                        <p class="pull-left" style="font-size: 18px;"><span ng-bind="item.author.name"></span></p>
+                        <a class="btn btn-1 pull-right col-lg-3" ui-sref="language.news.detail({id:item._id})">Смотреть далее</a>
+                        <div class="clearfix"></div>
+                        <hr>
+                    </div>
+
+                    <div class="clearfix" ng-repeat-end></div>
+                </div>
 
             </div>
         </div>
@@ -64,5 +97,6 @@
         <div class="paginator">
             <paginator></paginator>
         </div>
-
+        </div>
+</div>
 <div ui-view></div>

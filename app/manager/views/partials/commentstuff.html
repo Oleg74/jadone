@@ -24,13 +24,15 @@
                     <div class="col-md-12">
                         <hr>
                     </div>
+                    <div class="clearfix"></div>
                    <!-- col-lg-6 col-md-6 col-xs-6-->
                     <ul  class="nav nav-pills nav-stacked">
                         <li class="phone-listing"
                             class="pull-left col-lg-12 col-md-10 col-xs-10 back"
-                            ng-repeat="comment in stuff.comments|orderBy:'date'">
-                            <a ng-click="editComment(comment)" class="control-label " href="">
-                                <span>{{comment.author.name}} </span></a>
+                            ng-repeat="comment in comments|orderBy:'-date'">
+                            <a ng-click="editComment(comment)" class="control-label ">
+                                <span>{{comment.author.name}} </span>
+                            </a>
 
                                 <span>{{dateConvert(comment.date)}}</span><br>
                                 <span>{{comment.text | cut:true:25:' ...'}}</span><br>
@@ -45,7 +47,11 @@
                             <div class="clearfix"></div>
                         </li>
                     </ul>
-
+                    <div class="form-group" data-ng-show="page*3==comments.length">
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary btn-success"  ng-click="moreComments()">more</button>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -95,7 +101,7 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
             </form>
         </article>
 

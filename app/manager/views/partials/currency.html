@@ -24,6 +24,24 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label  for="opt" class="col-md-6 control-label">e-mail для опта UA</label>
+                                <div class="col-md-6">
+                                    <input  type="email" class="form-control" id="optUA" placeholder="Email для опта UA" ng-model="config.email.optUA"  required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label  for="opt" class="col-md-6 control-label">e-mail для опта</label>
+                                <div class="col-md-6">
+                                    <input  type="email" class="form-control" id="opt" placeholder="Email для опта" ng-model="config.email.opt"  required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label  for="retail" class="col-md-6 control-label">e-mail для розницы</label>
+                                <div class="col-md-6">
+                                    <input  type="email" class="form-control" id="retail" placeholder="Email для розницы" ng-model="config.email.retail"  required>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <div class="col-md-6 col-md-offset-6">
                                     <button  type="submit" class="btn btn-large btn-info save mt40" ng-disabled="disabledButton">сохранить</button>
                                 </div>
@@ -33,7 +51,7 @@
 
                         <div class="alert alert-success" ng-show="showMessage">
                             <a  class="close" data-dismiss="alert">&times;</a>
-                            <strong>Курсы обновлены!</strong>
+                            <strong>Обновлено!</strong>
                         </div>
 
                         <!--<form name="LovelyForm">

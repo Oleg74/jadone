@@ -17,7 +17,17 @@
                         <ul class="nav navbar-nav">
                             <li class="active"><a data-ng-click="toMainSite()">на сайт</a></li>
                            <!-- <li ng-repeat="item in menuItem"><a ui-sref="mainFrame.goods({id:$index})"><span ng-bind="item.name.ua"></span></a></li>-->
-                            <li class="active"><a  ui-sref="mainFrame.orders">заказы</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span >заказы</span>
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li ><a  ui-sref="mainFrame.orders">опт</a></li>
+                                    <li ><a  ui-sref="mainFrame.ordersRetail">розница</a></li>
+                                    <li ><a  ui-sref="mainFrame.ordersArch">архив</a></li>
+                                </ul>
+                            </li>
+
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span >объекты</span>
                                     <b class="caret"></b>
@@ -38,10 +48,16 @@
                                 <ul class="dropdown-menu">
                                     <li><a  ui-sref="mainFrame.places">регионы</a></li>
                                     <li><a  ui-sref="mainFrame.currency">валюта</a></li>
-                                    <li><a  ui-sref="mainFrame.users">Users</a></li>
-                                    <li><a  ui-sref="mainFrame.stat">стат страници</a></li>
+                                    <li><a  ui-sref="mainFrame.users">users</a></li>
+                                    <!--<li><a  ui-sref="mainFrame.usersOld">usersold</a></li>-->
+                                    <li><a  ui-sref="mainFrame.editForcePswd">ForcePswd</a></li>
+                                    <li><a  ui-sref="mainFrame.editComments">comments</a></li>
+                                    <li><a  ui-sref="mainFrame.chats">chats</a></li>
+                                    <li><a  ui-sref="mainFrame.stat">стат страницы</a></li>
                                 </ul>
+
                             </li>
+                            <li ><a  ui-sref="mainFrame.siteMAP">site MAP</a></li>
                         </ul>
             		</div>
             	</div>
@@ -52,6 +68,9 @@
 
     <section class="content">
         <section class="container">
+            <br>
+            <br>
+            <span ng-bind="quantityUser.time"></span><span> на сайте - </span><span ng-bind="quantityUser.quantity"></span><span> посетителей.</span>
             <div ui-view></div>
         </section>
     </section>

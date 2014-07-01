@@ -29,11 +29,11 @@
                 <div class="col-sm-5 col-md-5">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                                <span class="glyphicon glyphicon-folder-close"></span>
-                                Выбор раздела  -
+                                <span class="glyphicon glyphicon-folder-open"></span>
+                                <span style="margin-right: 5px;">Выбор раздела  -</span>
 
                             <select  ng-model="section"
-                                     ng-options="opt as opt.label for opt in sections|orderBy:'index' ">
+                                     ng-options="opt as opt.label for opt in sections|orderBy:'index' " style="width: 50%">
                             </select>
 
                         </div>
@@ -55,7 +55,7 @@
                         <div class="panel panel-default">
                             <accordion-group  is-open="isopenCategory">
                                 <accordion-heading>
-                                    <span class="glyphicon glyphicon-folder-close"></span>
+                                    <span class="glyphicon glyphicon-folder-open"></span>
                                     Категории<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopenCategory, 'glyphicon-chevron-right': !isopen}"></i>
                                 </accordion-heading>
                                 <ul class="list-group">
@@ -71,7 +71,7 @@
                         <div class="panel panel-default">
                             <accordion-group  is-open="isopenBrand">
                                 <accordion-heading>
-                                    <span class="glyphicon glyphicon-folder-close"></span>
+                                    <span class="glyphicon glyphicon-folder-open"></span>
                                     Бренды<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': isopenBrand, 'glyphicon-chevron-right': !isopen}"></i>
                                 </accordion-heading>
                                 <ul class="list-group">
@@ -162,15 +162,34 @@
                             <form class="form-horizontal">
                                 <div class="form-group">
                                     <div class="form-group">
-                                        <div class="col-md-5 text-left col-md-offset-1">
+                                        <div class="col-md-5 text-left" style="margin-left: 20px;">
                                             <input type="text" placeholder="пошук" ng-model="searchStuff" class="search-query"/>
                                         </div>
                                         <div class="col-md-5  col-md-offset-1">
-                                            <a href=""class="btn btn-success" type="button"  ng-click="editStuff()">новый</a>
+                                            <a href=""class="btn btn-success" type="button"  ng-click="editStuff()">создать новый</a>
                                         </div>
                                     </div>
                                 </div>
                             </form>
+
+                            <div style="font-weight: bold;">
+                                <div  for="rur4" class="col-md-3">Выводить по</div>
+                                <div class="input-group" style="width: 60px;">
+                                    <input name="rur4" type="text" class="form-control" style="width: 70px; margin-right: 0; padding-left:10px;" id="rur4" placeholder="введите индекс" ng-model="row" pattern="[0-9-\.]{1,7}" >
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" style="height: 34px; margin-right: 10px;" ng-click="mongoPaginator.rowsPerPage=row"><span class="glyphicon glyphicon-ok"></span></button>
+                                    </span>
+                                    записи.
+                                </div>
+                            </div>
+
+
+                            <div class="clearfix"></div>
+
+
+                            <mongo-paginator></mongo-paginator>
+
+
                            <!-- <ul ng-init="foods=['apple', 'chips', 'muffin', 'muffin1', 'muffin2', 'muffin3', 'muffin4', 'muffin5', 'muffin6', 'muffin55', 'muffin44']">
                                 <li class='fx-fade-down fx-easing-bounce fx-speed-800' ng-repeat="food in foods">
                                     {{ food }}
@@ -200,8 +219,8 @@
                                 </ul>
 
 
-                            <a data-ng-click="setPage()" class="btn btn-sm btn-success" ng-show="stuffList.length<totalItems">
-                                <span class="glyphicon glyphicon-resize-vertical"></span> еще</a>
+                            <!--<a data-ng-click="setPage()" class="btn btn-sm btn-success" ng-show="stuffList.length<totalItems">
+                                <span class="glyphicon glyphicon-resize-vertical"></span> еще</a>-->
 
 
                             <div ng-show="filteredList.length<=0" class="alert alert-success"><h3>Нет объектов</h3></div>

@@ -53,7 +53,7 @@ function getCookie(name) {
 }
 
 var myApp= angular.module('myApp', [
-        'ngRoute','ui.router','ngResource','ngCookies','ui.bootstrap','caco.ClientPaginate','ngAnimate','btford.socket-io',
+        'ngRoute','ui.router','ngResource','ngCookies','ui.bootstrap','caco.ClientPaginate','ngAnimate','btford.socket-io','ui.select2','i.mongoPaginate',
         //'ui.bootstrap.collapse', 'ui.bootstrap.dropdownToggle',
   'myApp.controllers',
   'myApp.filters',
@@ -63,11 +63,11 @@ var myApp= angular.module('myApp', [
 
 
 
-.run(['$rootScope', '$state', '$stateParams','Config','$cookieStore','$resource','User','$window',"socket",'Category',
-        function ($rootScope,   $state,   $stateParams,Config,$cookieStore,$resource,User,$window,socket,Category){
-            socket.on('send:time', function (data) {
+.run(['$rootScope', '$state', '$stateParams','Config','$cookieStore','$resource','User','$window',"socket",'Category','$http','chats','$location',
+        function ($rootScope,   $state,   $stateParams,Config,$cookieStore,$resource,User,$window,socket,Category,$http,chats,$location){
+            /*socket.on('send:time', function (data) {
                 $rootScope.time = data.time;
-            });
+            });*/
 
        /* var myip;
         function ip_callback(o) {
@@ -81,7 +81,37 @@ var myApp= angular.module('myApp', [
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
             $rootScope.socket = socket;
+            $rootScope.chats=chats;
+            /*$rootScope.$watch('user',function(newVal,oldVal){
+                console.log(newVal);
+                console.log(oldVal);
+                if (newVal!='undefined' && newVal!==oldVal){
+                    console.log(newVal._id);
+                    if (newVal._id){
+                        console.log('sww!!ss');
+                        chats.changeUser(true);
+                    } else {
+                        console.log('logouts');
+                        chats.changeUser(false);
+                    }
+                }
+                *//*$timeout(function(){
+                 //console.log(newVal._id);
+                 if ($rootScope.user && $rootScope.user._id){
+                 console.log('sww!!ss');
+                 chats.changeUser(true);
+                 } else {
+                 console.log('logouts');
+                 chats.changeUser(false);
+                 }
+                 },300);*//*
+            })*/
             $rootScope.user=User.get(function(user){
+                //console.log('enter');
+                if (user && user._id){
+                    socket.emit('new user in chat',user._id);
+                    chats.refreshLists(true);
+                }
 
                 /*$rootScope.socket = socket;
                 console.log(user);
@@ -96,25 +126,61 @@ var myApp= angular.module('myApp', [
                 });*/
                 //console.log($rootScope.user);
             });
-
-
-
             $rootScope.titles={};
-            $rootScope.titles.pageTitle='';
-            $rootScope.titles.pageKeyWords='';
-            $rootScope.titles.pageDescription='';
+
+
             $rootScope.commonFilter={"tags":['xx','xx','xx']};
             $rootScope.config=Config.get(function(res){
-                    $rootScope.commonFilter.tags=res.tags;
+                $rootScope.commonFilter.tags=res.tags;
                 $rootScope.currencyIndex=0;
-                    //console.log($rootScope.commonFilter);
+                $rootScope.currency='UAH';
+
+                $http.get('/api/getip').success(function (data, status, headers, config) {
+                   // console.log(data);
+                    //data.ip = '37.57.5.247';
+                    if (data.ip){
+                        $http.get("http://ip-api.com/json/"+data.ip).success(function (data, status, headers, config) { //http://ip-api.com/docs/api:json
+                            //console.log(data);
+                            if(data.status=='success'){
+                                if (data.countryCode=='RU' ||data.countryCode=='RUS'){
+                                    $rootScope.currency="RUB";
+                                    $rootScope.countryRUB=true;
+                                } else if (data.countryCode=='UA'){
+                                    $rootScope.currency="UAH";
+                                    $rootScope.countryUAH=true;
+                                }
+                                else {
+                                    $rootScope.currency="USD";
+                                    $rootScope.countryUSD=true;
+                                }
+                            }
+                        })
+                    }
+
+                }).error(function (data, status, headers, config) {})
 
             });
+            $rootScope.slides=[];
             $rootScope.categories =Category.list(function(){
+
                 if($rootScope.categories[0]){
                     $rootScope.mainSection=$rootScope.categories[0]._id;
+                    for (var i=0,l=$rootScope.categories.length;i<l;i++){
+                        if ($rootScope.categories[i].section==$rootScope.mainSection){
+                            $rootScope.slides[$rootScope.slides.length]={
+                                    img:$rootScope.categories[i].img,
+                                    name:$rootScope.categories[i].name[$rootScope.lang],
+                                    url:$rootScope.categories[i]._id,
+                                    lang:$rootScope.lang
+                            }
+                        }
+
+                    }
                 }
+                //console.log($rootScope.slides);
+
             });
+            $rootScope.changeStuff=false;
 
 
         //console.log( $rootScope.config);
@@ -128,6 +194,21 @@ var myApp= angular.module('myApp', [
     $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
             event.preventDefault();
     })*/
+
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+                if ($rootScope.lang=='ru'){
+                    $rootScope.titles.pageTitle='Женская одежда оптом и в розницу от украинского производителя Jadone fashion - платья, туники, сарафаны.';
+                    $rootScope.titles.pageKeyWords=
+                        " женская одежда украинского производителя, оптом женский трикотаж, купить, украина, интернет магазин, опт, оптовый, модная женская одежда, женские юбки оптом, " +
+                            "женские платья , сарафаны, женские костюмы, кардиганы, розница , туники " +
+                            " платья французский трикотаж, купить, оптом, беларусь, мода, стиль, россия, казахстан, фабрика, оптом купить"+
+                            'стильная одежда, женская одежда оптом и в розницу, красивая одежда';
+                    $rootScope.titles.pageDescription='Jadone fashion  – сайт для оптовых и розничных покупателей  женской одежлы от  украинского производителя Jadone fashion. ' +
+                        'Здесь Вы можете купить стильные и красивые женские платья , сарафаны, костюмы, кардиганы и туники, выполненные из качественных тканей.';
+
+                }
+            })
+
             $rootScope.$on('$stateChangeSuccess', function (ev, to, toParams, from, fromParams) {
                 if ($window.ga)
                     $window.ga('send', 'pageview', { page: $location.path() });
@@ -137,10 +218,18 @@ var myApp= angular.module('myApp', [
                     $rootScope.fromCart=true;
                 }
 
+                if(to.name=='language.stuff' && from.name=='language.stuff.detail'){
+                    $rootScope.changeStuff=true;
+                }
+                /*if(to.name=='language.chat' && $rootScope.user && $rootScope.user._id){
+                    chats.refreshLists(true);
+                }
+*/
+
             });
 }])
 
-.config(['$stateProvider', '$urlRouterProvider','$locationProvider',function ($stateProvider,$urlRouterProvider,$locationProvider){
+.config(['$stateProvider', '$urlRouterProvider','$locationProvider','chatsProvider',function ($stateProvider,$urlRouterProvider,$locationProvider,chatsProvider){
 
         var lang=getCookie('lan');
         if (!lang || (lang!='en'&& lang!='ru')) {
@@ -149,6 +238,8 @@ var myApp= angular.module('myApp', [
         }
 
 
+        /*chatsProvider.listUsers=[];
+        console.log(chatsProvider.listUsers);*/
 
         $locationProvider.html5Mode(true);
     $locationProvider.hashPrefix('!');
@@ -198,7 +289,7 @@ var myApp= angular.module('myApp', [
         })
 
         .state("language.customOrder", {
-            url: "/customorder",
+            url: "/customorder?num",
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/customorder.html' },
             controller:'customOrderCtrl'
         })
@@ -218,6 +309,21 @@ var myApp= angular.module('myApp', [
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/contacts.html' },
             controller: 'contactsCtrl'
         })
+        .state("language.searchStuff", {
+            url: "/searchStuff?searchStr",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/stuff.search.html' },
+            controller: 'searchStuffCtrl'
+        })
+        .state("language.stuffSale", {
+            url: "/stuffsale?sale",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/stuff.search.html' },
+            controller: 'saleStuffCtrl'
+        })
+        /*.state("language.stuffNew", {
+            url: "/stuffnew?sale",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/stuff.search.html' },
+            controller: 'saleStuffCtrl'
+        })*/
         /*.state("language.goods", {
             url: "/goods?id",
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/goods.html' },
@@ -250,7 +356,7 @@ var myApp= angular.module('myApp', [
         })
 
         .state("language.stuff", {
-            url: "/stuff/:section/:category",
+            url: "/stuff/:section/:category?searchStr?scrollTo",
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/stuff.html' },
             controller: 'stuffCtrl'
         })
@@ -276,6 +382,29 @@ var myApp= angular.module('myApp', [
             templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/chat.html' },
             controller: 'chatCtrl'
         })
+        .state("language.aboutus", {
+            url: "/aboutus",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/about_us_company.html' }
+//controller:'homeCtrl'
+        })
+        .state("language.delivery", {
+            url: "/delivery",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/about_us_delivery.html' }
+//controller:'homeCtrl'
+        })
+        .state("language.payment", {
+            url: "/payment",
+            templateUrl: function(stateParams){ return 'views/partials/'+stateParams.lang+'/about_us_payment.html' }
+//controller:'homeCtrl'
+        })
+
+       /* .state("language.searchStuff", {
+           // url: "/searchstuff?searchStr",
+            url:"/ssss",
+            templateUrl: function(stateParam){ return 'views/partials/'+stateParams.lang+'/stuff.search.html' }
+            //controller: 'searchStuffCtrl'
+        })*/
+
 
 }])
 
@@ -315,7 +444,7 @@ angular.module('caco.ClientPaginate', [])
 
     .service('Paginator', function ($rootScope) {
         this.page = 0;
-        this.rowsPerPage = 54;
+        this.rowsPerPage = 54
         this.itemCount = 0;
 
         this.setPage = function (page) {
@@ -398,6 +527,7 @@ angular.module('btford.socket-io', []).
             return function socketFactory (options) {
                 options = options || {};
                 var socket = options.ioSocket || io.connect();
+
                 var prefix = options.prefix || defaultPrefix;
                 var defaultScope = options.scope || $rootScope;
 
@@ -408,7 +538,7 @@ angular.module('btford.socket-io', []).
                 var wrappedSocket = {
                     on: addListener,
                     addListener: addListener,
-
+                    socket : socket,
                     emit: function (eventName, data, callback) {
                         return socket.emit(eventName, data, asyncAngularify(socket, callback));
                     },
@@ -443,3 +573,126 @@ angular.module('btford.socket-io', []).
             };
         };
     });
+
+angular.module('i.mongoPaginate', [])
+
+    .filter('paginate', function(Paginator) {
+        return function(input, rowsPerPage) {
+            /*console.log(input);
+             console.log(input.length);*/
+            if (!input)
+                return;
+            if (!input.length) {
+                return input;
+            }
+
+            if (rowsPerPage) {
+                Paginator.rowsPerPage = rowsPerPage;
+            }
+
+            Paginator.itemCount = input.length;
+
+            return input.slice(parseInt(Paginator.page * Paginator.rowsPerPage), parseInt((Paginator.page + 1) * Paginator.rowsPerPage + 1) - 1);
+        }
+    })
+
+    .filter('forLoop', function() {
+        return function(input, start, end) {
+            input = new Array(end - start);
+            for (var i = 0; start < end; start++, i++) {
+                input[i] = start;
+            }
+
+            return input;
+        }
+    })
+
+    .service('mongoPaginator', function ($rootScope) {
+        this.page = 0;
+        this.rowsPerPage = ($rootScope.config.perPage)?$rootScope.config.perPage:20
+        this.itemCount = 0;
+        //this.pageCount =13
+
+        this.setPage = function (page) {
+            if (page > this.pageCount()) {
+                return;
+            }
+
+            this.page = page;
+            notifyObservers();
+        };
+
+        this.nextPage = function () {
+            if (this.isLastPage()) {
+                return;
+            }
+
+            this.page++;
+            notifyObservers();
+
+        };
+
+        this.perviousPage = function () {
+            if (this.isFirstPage()) {
+                return;
+            }
+
+            this.page--;
+            notifyObservers();
+        };
+
+        this.firstPage = function () {
+            this.page = 0;
+            notifyObservers();
+        };
+
+        this.lastPage = function () {
+            this.page = this.pageCount() - 1;
+            notifyObservers();
+        };
+
+        this.isFirstPage = function () {
+            return this.page == 0;
+            notifyObservers();
+        };
+
+        this.isLastPage = function () {
+            return this.page == this.pageCount() - 1;
+            notifyObservers();
+        };
+
+        this.pageCount = function () {
+            //console.log(this.itemCount);
+            var count = Math.ceil(parseInt(this.itemCount, 10) / parseInt(this.rowsPerPage, 10)); if (count === 1) { this.page = 0; }
+            //console.log( count);
+            return count;
+        };
+
+//http://stackoverflow.com/questions/12576798/angularjs-how-to-watch-service-variables
+
+        var observerCallbacks = [];
+
+        //register an observer
+        this.registerObserverCallback = function(callback){
+            observerCallbacks.push(callback);
+        };
+
+        //call this when you know 'foo' has been changed
+        var notifyObservers = function(){
+            angular.forEach(observerCallbacks, function(callback){
+                callback();
+            });
+        };
+
+    })
+
+    .directive('mongoPaginator', function factory() {
+        return {
+            restrict:'E',
+            controller: function ($scope, mongoPaginator) {
+                $scope.paginator = mongoPaginator;
+            },
+            templateUrl: 'manager/views/templates/mongoPaginationControl.html'
+        };
+    });
+

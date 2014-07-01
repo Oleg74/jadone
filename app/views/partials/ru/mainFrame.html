@@ -9,7 +9,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                     </button>
-                    <a class="brand" ui-sref="manager">Jadone Fashion</a>
+                    <a class="brand" onclick="window.location.href='/admin123'" >Jadone Fashion</a>
                     <!--<a class="navbar-brand" href="index.html"><img src="img/bg/2.png"></a>-->
 
                         <div class="collapse navbar-collapse navbar-ex1-collapse pull-left" collapse="isCollapsed">
@@ -19,7 +19,7 @@
                                 </li>
                                 <li class="divider-vertical"></li>
                                 <li ng-hide="user.role">
-                                    <a ui-sref="language.login" ng-click="">Авторизация</a>
+                                    <a ui-sref="language.login" ng-click="">Вход</a>
                                 </li>
                                 <li ng-show="user.role">
                                     <a ng-click="logout()">Выйти</a>
@@ -28,9 +28,9 @@
                                 <li class="dropdown" id="changeCurrencyUl">
                                     <a  href="#" class="dropdown-toggle" data-toggle="dropdown"><img class="vw"ng-src="img/icon/{{config.currency[currency][1]}}_inv.png">{{config.currency[currency][1]}} <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
-                                        <li ng-hide="countryRUB"><a ng-click="changeCurrency('UAH')"><img class="vw"src="img/icon/uah.png">UAH</a></li>
+                                        <li ng-hide="countryRUB || countryUSD"><a ng-click="changeCurrency('UAH')"><img class="vw"src="img/icon/uah.png">UAH</a></li>
                                         <li ng-hide="countryUAH"><a ng-click="changeCurrency('RUB')"><img class="vw"src="img/icon/rub.png">RUB</a></li>
-                                        <li ng-hide="countryUAH"><a ng-click="changeCurrency('USD')"><img class="vw"src="img/icon/usd.png">USD</a></li>
+                                        <li ng-hide="countryUAH || countryRUB"><a ng-click="changeCurrency('USD')"><img class="vw"src="img/icon/usd.png">USD</a></li>
                                     </ul>
                                 </li>
                                 <li class="divider-vertical"></li>
@@ -39,28 +39,39 @@
                                         <img class="lw" ng-src="{{lanImg}}"><span ng-bind="langName"></span><b class="caret"></b>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a ng-click="changeLanguage('en')"><img class="lw" src="img/icon/en.png">english</a></li>
+                                        <!--<li><a ng-click="changeLanguage('en')"><img class="lw" src="img/icon/en.png">english</a></li>-->
                                         <li><a ng-click="changeLanguage('ru')"><img class="lw" src="img/icon/ru.png">русский</a></li>
                                     </ul>
                                 </li>
                                 <li class="divider-vertical"></li>
                                 <li>
-                                    <a ui-sref="language.cart" class="bag" >Корзина</a>
-
+                                    <a ui-sref="language.cart" class="bag"  ><img src="../../../img/cart.png"></a>
+                                    <span ng-show="itemsInCaet"class="badge badge-success" style="margin-right: 3px; margin-top: 3px; margin-left: 0;"ng-bind="itemsInCaetlocalCart.cartCount()"></span>
+                                    <!--ng-bind="localCart.cartCount()"-->
+                                </li>
+                                <li class="divider-vertical" ng-show="user.role"></li>
+                                <li ng-show="user.role" style="padding-right: 10px;">
+                                    <a ui-sref="language.chat" class="bag" style="padding-top: 6px; padding-bottom: 6px;padding-right: 0; float: left" ><img src="../../../img/chat2.png"></a>
+                                    <sup ng-hide="msgs"><strong style="color: #fff;">new</strong></sup>
+                                    <span class="badge badge-success" style="margin-right: 3px; margin-top: 3px; margin-left: 0;" ng-show="msgs=displayNewMsg()">{{msgs}}</span>
+                                    <div class="clearfix"></div>
                                 </li>
                                 <li class="divider-vertical"></li>
+
                                 <li>
                                     <a ui-sref="language.help">Справка</a>
 
                                 </li>
                             </ul>
                         </div><!-- /.navbar-collapse -->
-                        <div class="input-group search">
-                            <input type="text" class="form-control">
-                            <span class="input-group-btn">
-                            <button class="btn btn-danger" type="button"><span class="glyphicon glyphicon-search icon-white"></span> </button>
-                            </span>
-                        </div>
+                        <form data-ng-submit="goToSearch(searchStr)">
+                            <div class="input-group search">
+                                <input type="text" class="form-control" ng-model="searchStr">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-danger" type="submit"><span class="glyphicon glyphicon-search icon-white"></span> </button>
+                                </span>
+                            </div>
+                        </form>
             </div><!-- /.container -->
         </div><!--navbar-inner-->
     </nav>
@@ -78,26 +89,22 @@
                     </a>
 
                         <h1 class="brand"><a ui-sref="language.home"><img alt="" src="img/background/brand5.jpg"> </a></h1>
-                        <!--&lt;!&ndash;<a class="btn btn-navbar " collapse="isCollapsed" data-target=".navbar-collapse_" > <span class="icon-bar"></span> </a>&ndash;&gt;
-                        <a class="btn btn-navbar">меню<span class="sf-sub-indicator"></span></a>-->
-
                         <div class="collapse navbar-collapse nav-collapse_ navbar-ex2-collapse" collapse="isCollapsed1" >
-                            <ul class="nav sf-menu">
-                                <li class="sub-menu" ng-class="{ active: $state.includes('language.stuff') }" >
-                                    <a ><span ng-bind="categories[0].name[lang]"></span><b class="sf-sub-indicator"></b></a>
+                            <ul class="nav sf-menu pull-right" id="example1">
+                                <li class="sub-menu" ng-class="{ active: $state.includes('language.stuff')||$state.includes('language.stuff.detail') }" >
+                                    <a ><span ng-bind="categories[0].name[lang]"></span></a>
                                     <ul>
                                         <li ng-repeat="category in categories|filter:{section:categories[0]._id}">
-                                            <a ui-sref="language.stuff({category:category._id,section:categories[0]._id})">{{category.name[lang]}}</a>
+                                            <a ng-click="toCategory({lang:lang,category:category._id,section:'category'})">{{category.name[lang]}}</a>
                                         </li>
                                     </ul>
                                 </li>
-                                <li class="sub-menu" ng-class="{ active: activeMenu('brand')}">
-                                    <a>sale</a>
-                                    <ul>
-                                        <li ng-repeat="gg in menuItems.gg"><a ui-sref="language.tovaryi.brand.list({brandUrl:'gg-'+gg.id})">{{gg.name}}</a></li>
-                                    </ul>
+                                <li  ng-class="{ active: $state.includes('language.stuffSale') }" >
+                                    <a ui-sref="language.stuffSale">sale</a>
                                 </li>
-                                <li class="sub-menu"  ng-show="user.role" ng-class="{ active: activeMenu('kabinet')}"><a >кабинет</a>
+
+                                <li class="sub-menu"  ng-show="user.role" ng-class="{ active: $state.includes('language.profile') ||
+                                $state.includes('language.customOrder')||$state.includes('language.chat')}"><a >кабинет</a>
                                     <ul>
                                         <li ><a  ui-sref="language.profile">личные<br> данные </a></li>
                                         <li ><a  ui-sref="language.customOrder" >управление<br> заказами</a></li>
@@ -105,37 +112,38 @@
                                         <li ><a ng-click="logout()">выйти</a></li>
                                     </ul>
                                 </li>
-                                <li class="sub-menu" ng-class="{ active: activeMenu('info')}"><a >инфо</a>
+                                <li class="sub-menu" ng-class="{ active: $state.includes('language.payment') ||
+                                $state.includes('language.delivery')||$state.includes('language.aboutus')||$state.includes('language.news')}"><a >инфо</a>
                                     <ul>
                                         <li><a ui-sref="language.payment">оплата </a></li>
                                         <li><a ui-sref="language.delivery">доставка</a></li>
-                                        <li><a ui-sref="language.reviews">отзывы</a></li>
+                                       <!-- <li><a ui-sref="language.reviews">отзывы</a></li>-->
                                         <li><a ui-sref="language.aboutus">о нас</a></li>
                                         <li><a ui-sref="language.news">новости</a></li>
                                     </ul>
                                 </li>
-                                <li  ng-class="{ active: activeMenu('contacts')}" ui-sref="language.contacts"><a>контакты</a>
+                                <li   ng-class="{ active: $state.includes('language.contacts')}" ui-sref="language.contacts"><a>контакты</a>
                             </ul>
+
+                            <!--<ul class="nav navbar-nav" id="example1" style="font-size: 14px;">
+
+
+
+                                <li class="dropdown open" >
+                                    <a href="#">Инфо<b class="caret"></b></a>
+                                    <ul class="dropdown-menu dropdown-menu_top sf_drop">
+                                        <li>
+                                            <a ui-sref="language.contacts">Контакты</a>
+                                        </li>
+                                        <li>
+                                            <a ui-sref="language.news">События</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                            </ul>
+-->
                         </div>
-                    <!--<div class="collapse navbar-collapse  navbar-right navbar-ex2-collapse" style="text-transform: uppercase; font-size: 16px;" collapse="isCollapsed1">
-
-                        <ul class="nav navbar-nav sf-menu" id="example" style="font-size: 14px;">
-                            <li class="dropdown" ng-class="{active:activeMenu('section')}" >
-                                <a class="dropdown-toggle" data-toggle="dropdown" style="z-index: 2000;">
-                                    <span ng-bind="categories[0].name[lang]"></span> <b class="caret"></b>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu_top">
-                                    <li ng-repeat="category in categories|filter:{section:categories[0]._id}">
-                                        <a ui-sref="language.stuff({category:category._id,section:categories[0]._id})">{{category.name[lang]}}</a>
-                                    </li>
-                                </ul>
-                            </li>
-
-
-                        </ul>
-                    </div>-->
-
-                    <!--</div>--><!--container-->
                 </div><!--navbar-->
             </div><!--span12-->
         </div><!--row-->
@@ -145,14 +153,16 @@
 
 <!--============================== end header =================================-->
 
+
+
 <div ui-view></div>
 
 
 <!--============================== footer =================================-->
 <footer>
-    <div class="container">
+    <div class="container clearfix">
         <ul class="list-social pull-right">
-            <li><a class="icon-1" href="http://www.facebook.com/profile.php?id=100007991798738"></a></li>
+            <li><a class="icon-1" href="#"></a></li>
             <li><a class="icon-2" href="#"></a></li>
             <li><a class="icon-3" href="#"></a></li>
             <li><a class="icon-6" href="http://vk.com/jadoneopt"></a></li>
@@ -166,10 +176,16 @@
         window.setTimeout($('.sf-menu').superfish(),2000);
 
     });*/
+   /*$(document).ready(function(){
+       // initialise plugins
+        $("ul.sf-menu").superfish({
+            useClick: true
+        });
+   })
 
-    $(function(){
-        $('.sf-menu').superfish()
-    })
+   *//* $(function(){
+       $('.sf-menu').superfish()
+    })*//*
     var userag = navigator.userAgent.toLowerCase();
     var isAndroid = userag.indexOf("android") > -1;
     //ipad and iphone fix
@@ -177,9 +193,117 @@
         $("ul.sf-menu").bind('click',function() {
             $('ul.sf-menu').hideSuperfishUl();
         });
-    }
+    }*/
+
+   (function($){ //create closure so we can safely use $ as alias for jQuery
+
+       $(document).ready(function(){
+           // initialise plugins
+           /* $("ul.sf-menu").superfish({
+            useClick: true
+            });*/
+
+
+           // initialise plugin
+           var example = $('#example1').superfish({
+               //add options here if required
+               useClick: true
+           });
+
+           // buttons to demonstrate Superfish's public methods
+           $('.destroy').on('click', function(){
+               example.superfish('destroy');
+           });
+
+           $('.init').on('click', function(){
+               example.superfish();
+           });
+
+           $('.open').on('click', function(){
+               example.children('li:first').superfish('show');
+           });
+
+           $('.close').on('click', function(){
+               example.children('li:first').superfish('hide');
+           });
+       });
+
+   })(jQuery);
+
+
+
+   /* $(document).ready(function(){
+    $('.sf-menu').superfish()
+    });*/
+
+   /*$(function(){
+    $('.sf-menu').superfish()
+    })*/
+   //alert(navigator.userAgent);
+   var userag = navigator.userAgent.toLowerCase();
+   var isAndroid = userag.indexOf("android") > -1;
+   //ipad and iphone fix
+   if((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i)) || isAndroid) {
+       //alert(navigator.userAgent);
+       $("ul#example").bind('click',function() {
+           $('ul#example').hideSuperfishUl();
+       });
+
+       /*$("ul.sf_drop").bind('click',function() {
+           $('ul.sf_drop').hideSuperfishUl();
+       });*/
+
+   }
 </script>
 
 
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+    ga('create', 'UA-47855254-1', 'jadone.biz');
+    //ga('send', 'pageview');
 
+</script>
+
+<!-- Yandex.Metrika informer -->
+<!-- <a href="http://metrika.yandex.ru/stat/?id=23946445&amp;from=informer"
+    target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/23946445/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
+                                        style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" onclick="try{Ya.Metrika.informer({i:this,id:23946445,lang:'ru'});return false}catch(e){}"/></a>-->
+<!-- /Yandex.Metrika informer -->
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter23946445 = new Ya.Metrika({id:23946445,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true});
+            } catch(e) { }
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/23946445" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+<!--Признак первосортных мозгов — это умение держать в голове две взаимоисключающие мысли одновременно, не теряя при этом способности мыслить
+
+ученых кругах феномен взаимоисключающих параграфов именуется просто — парадокс. Могут вызывать либо равнодушие, либо когнитивный диссонанс.
+Чем больше самоубийц, тем меньше самоубийц.
+Отвечать, когда вас спрашивают, молчать, когда с вами разговаривает старший по званию!
+        Так вот я и не пойму. Сепаратиситы это кто. умные или шизики?-->

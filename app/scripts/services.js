@@ -1,7 +1,15 @@
 'use strict';
 
 /* Services */
-
+function findById(collection,id){
+    for (var i=0;i<collection.length;i++){
+        if (collection[i]._id==id){
+            return collection[i];
+            break;
+        }
+    }
+    return null;
+}
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
@@ -49,6 +57,7 @@ angular.module('myApp.services', []).
     .factory('Chat',['$resource', function($resource){
         return $resource('/api/chat/:from/:to', {}, {
             list: {method:'GET', isArray: true, params:{id:''}},
+            delete: {method:'DELETE',params: {}}
             /*add: {method:'POST',params:{id:''}},
             update: {method:'PUT',params: {id: ''}},
             delete: {method:'DELETE',params: {id: '@_id'}},
@@ -240,24 +249,24 @@ angular.module('myApp.services', []).
     }])
 
     .factory('Comment',['$resource', function($resource){
-        return $resource('/api/commentStuff/:_id', {}, {
-            list: {method:'GET', isArray: true, params:{_id:''}},
-            add: {method:'POST',params:{_id:''}},
-            update: {method:'PUT',params: {_id: ''}},
-            delete: {method:'DELETE',params: {_id: '@_id'}},
-            get:{method:'GET', params: {_id: '@_id'}}
+        return $resource('/api/commentStuff/:stuff/:_id', {}, {
+            list: {method:'GET', isArray: true, params:{stuff:"@stuff",_id:''}},
+            add: {method:'POST',params:{stuff:"",_id:''}},
+            update: {method:'PUT',params: {stuff:"",_id: ''}},
+            delete: {method:'DELETE',params: {stuff:"",_id: '@_id'}},
+            get:{method:'GET', params: {stuff:"stuff",_id: '@_id'}}
         });
     }])
 
     .factory('Stuff',['$resource', function($resource){
-        return $resource('/api/stuff/:category/:brand/:page/:id', {}, {
-            list: {method:'GET', isArray: true, params:{category:'@category',brand:'@brand',page:'@page',id:''}},
-            add: {method:'POST',params:{category:'category',brand:'brand',page:'page',id:''}},
-            update: {method:'PUT',params: {category:'category',brand:'brand',page:'page',id:''}},
-            updateGallery: {method:'PUT',params: {category:'category',brand:'brand',page:'gallery',id:''}},
-            delete: {method:'DELETE',params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
-            get:{method:'GET', params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
-            full:{method:'GET', params: {category:'category',brand:'brand',page:'full',id:'@_id'}},
+        return $resource('/api/stuff/:category/:brand/:id', {}, {
+            list: {method:'GET', isArray: true, params:{category:'@category',brand:'@brand',id:''}},
+            add: {method:'POST',params:{category:'category',brand:'brand',id:''}},
+            update: {method:'PUT',params: {category:'category',brand:'brand',id:''}},
+            updateGallery: {method:'PUT',params: {category:'category',brand:'brand',id:'gallery'}},
+            delete: {method:'DELETE',params: {category:'category',brand:'brand',id:'@_id'}},
+            get:{method:'GET', params: {category:'category',brand:'brand',id:'@_id'}},
+            full:{method:'GET', params: {category:'category',brand:'brand',id:'@_id'}}
         });
     }])
 
@@ -300,14 +309,14 @@ angular.module('myApp.services', []).
     }])
 
     .factory('News',['$resource', function($resource){
-        return $resource('/api/news/:page/:id', {}, {
-            list: {method:'GET', isArray: true, params:{page:'@page',id:''}},
-            add: {method:'POST',params:{page:'page',id:''}},
-            update: {method:'PUT',params: {page:'page',id:''}},
-            updateGallery: {method:'PUT',params: {page:'gallery',id:''}},
-            delete: {method:'DELETE',params: {page:'page',id:'@_id'}},
-            get:{method:'GET', params: {page:'page',id:'@_id'}},
-            full:{method:'GET', params: {page:'full',id:'@_id'}},
+        return $resource('/api/news/:id', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id:''}},
+            updateGallery: {method:'PUT',params: {id:'gallery'}},
+            delete: {method:'DELETE',params: {id:'@_id'}},
+            get:{method:'GET', params: {id:'@_id'}}
+            //full:{method:'GET', params: {id:'@_id'}},
         });
     }])
 
@@ -443,12 +452,14 @@ angular.module('myApp.services', []).
         }
 
 
-        function send(lang,comment,kurs,currency,callback){
+        function send(lang,comment,kurs,currency,address,callback){
            /* self.quantity=cartCount();
             self.sum:*/
-            var order={'cart':cartItems,'comment':comment,'lang':lang,'user':$rootScope.user._id,'quantity':cartCount(),'sum':getTotalSum(),'kurs':kurs,'currency':currency}
+            var country = ($rootScope.user.profile.country.toLowerCase()=='украина')?'UA':"ELSE";
+            var order={'cart':cartItems,'comment':comment,'lang':lang,'user':$rootScope.user._id,
+                'quantity':cartCount(),'sum':getTotalSum(),'kurs':kurs,'currency':currency,'address':address,fio:$rootScope.user.profile.fio,country:country,profile:$rootScope.user.profile}
             $http.post('/api/order',order).then(function (resp) {
-                    console.log(resp.data);
+                    //console.log(resp.data);
                     if (resp.data.done){
                         cartItems = [];
                         save();
@@ -514,7 +525,256 @@ angular.module('myApp.services', []).
         return socketFactory();
     })
 
+    .provider('chats', function () {
 
+       return {
+           world: 'World',
+           listUsers : [],
+           activeChat:{},
+           chatList :[],
+
+            $get: function(socket,Chat,$rootScope,$timeout) {
+
+                var that=this;
+                var msgs =[];
+                //activeChat={};
+                //var chatList =[];
+                    //listUsers=[];
+
+                function clearArray(A){
+                    while(A.length > 0) {
+                        A.pop();
+                    }
+                }
+
+
+
+                function refreshLists(enter,cb){
+                    clearArray(that.chatList);
+                    clearArray(that.listUsers);
+
+                    if (!that.activeChat['_id'] || !enter){
+                        that.activeChat['_id']='';
+                        that.activeChat['name']='';
+                        that.activeChat['more']=false;
+                        that.activeChat['page']=1;
+                    }
+
+
+                    if (enter){
+                        Chat.list({from:$rootScope.user._id},function(res){
+                            //console.log(res);
+                            for (var i= 0,l=res.length;i<l;i++){
+                                that.chatList.push(res[i]);
+                            }
+                            if (cb){
+                                cb();
+                            }
+                        });
+
+                    }
+                }
+
+                function changeUser(enter){
+                    refreshLists(enter)
+                    if (enter){
+                        socket.emit('new user in chat',$rootScope.user._id);
+                    } else {
+                        socket.emit('delete user from chat');
+                    }
+                }
+
+
+
+                socket.on('who are you',function(cb){
+                    //console.log('who are you');
+                    var id = ($rootScope.user._id)?$rootScope.user._id:'user not auth';
+                    //console.log(id);
+                    cb(id);
+                })
+
+               socket.on('new:msg',function(data,cb){
+                   //console.log(data);
+                   var from= data.from;
+                   var to= data.to;
+                   var status=true;
+                   //console.log("$rootScope.$state.includes('language.chat') = "+$rootScope.$state.includes('language.chat'));
+                    if ($rootScope.$state.includes('language.chat')){
+                        if (to==that.activeChat._id || from==that.activeChat._id){
+
+                           if (from==$rootScope.user._id){
+                                var name =$rootScope.user.name;
+                                var clas=true;
+                                var item= to;
+                            } else{
+                                var name =that.activeChat.name;
+                                var clas=false;
+                                var item= from;
+                            }
+                            msgs[msgs.length]={name:name,msg:data.msg,date:data.date,class:clas,delete:false,_id:data._id};
+                            console.log({name:name,msg:data.msg,date:data.date,class:clas,delete:false,_id:data._id});
+                        } else  {
+                            status=false;
+                        }
+                        cb({cb:'cb from chat controller have read',status:status});
+                    } else{
+                        status=false;
+                        cb({cb:"from mainFraim don't read",status:false});
+                    }
+                   //console.log(status);
+                   if (!status && from==$rootScope.user._id  && !_.findWhere(that.chatList, {_id: data.to})){
+                      // console.log('refreshList');
+                       refreshLists(true);
+                   }
+                   if (!status && from!=$rootScope.user._id){ // not read
+                       //console.log('ssssss');
+                       if (_.findWhere(that.chatList, {_id: data.from})){
+                           _.findWhere(that.chatList, {_id: data.from}).newMsg++;
+                       } else { // there is not chat
+                           refreshLists(true,function(){
+                               /*console.log('add in chatList');
+                               _.findWhere(that.chatList, {_id: data.from}).newMsg++;*/
+                           });
+
+                       }
+                   }
+
+                })
+
+
+                function changeChat(chat,cb){
+                    clearArray(msgs);
+
+                    that.activeChat['_id']=chat._id;
+                    that.activeChat['name']=chat.name;
+                    that.activeChat['more']=false;
+                    that.activeChat['page']=1;
+
+
+                    _.findWhere(that.chatList, {_id: chat._id}).newMsg=0; // ????
+
+                    Chat.list({from:$rootScope.user._id,to:that.activeChat._id,page:that.activeChat['page']},function(res){
+                        //console.log(res);
+                        var arr=[];
+                        if (res[0]){
+                            that.activeChat['more']=res[0].more;
+                            _.findWhere(that.chatList, {_id: chat._id}).newMsg=res[0].newMsg;
+                        }
+
+                        //console.log(res[0]);
+                        res.forEach(function(el){
+                            if (el.user==that.activeChat._id){
+                                el.name=that.activeChat.name;
+                                el.class=false;
+                            }else{
+                                el.class=true;
+                                el.name=$rootScope.user.name;
+                            }
+                            el.date=el.created;
+                            el.delete=false;
+                            msgs[msgs.length]=el;
+                            //console.log(msgs);
+                        })
+                        //console.log(msgs);
+
+                        if (cb){
+                            cb(arr)
+                        }
+
+                        //console.log(msgs[chat._id].length);
+                        //massages=$scope.msgs[chat._id];msgs[chat._id]
+                    });
+                }
+
+                function moreMsgs(){
+                    that.activeChat['page']++;
+                    Chat.list({from:$rootScope.user._id,to:that.activeChat._id,page:that.activeChat['page'],last:msgs[0]._id},function(res){
+                        var arr=[];
+                        if (res[0]){
+                            that.activeChat['more']=res[0].more;
+                            _.findWhere(that.chatList, {_id: that.activeChat._id}).newMsg=res[0].newMsg;
+                        }
+                        res.forEach(function(el){
+                            if (el.user==that.activeChat._id){
+                                el.name=that.activeChat.name;
+                                el.class=false;
+                            }else{
+                                el.class=true;
+                                el.name=$rootScope.user.name;
+                            }
+                            el.date=el.created;
+                            arr.push(el);
+                        })
+                        //console.log(arr);
+                        for(var i=arr.length-1;i>=0;i--){
+                            msgs.unshift(arr[i]);
+                        }
+                    });
+
+                }
+
+
+                function sendMsg(msg,cb){
+                    socket.emit('new:msg',{from:$rootScope.user._id,to:that.activeChat._id,msg:msg});
+                    cb();
+                }
+
+                function getMsgs(){
+                    if (that.activeChat._id){
+                        return msgs;
+                    } else {
+                        return  [];
+                    }
+                }
+                /*function getlistUsers(){
+                    return that.listUsers;
+                }
+                function getchatList(){
+                    return chatList;
+                }*/
+                function addChat(user){
+                    //console.log(user);
+                    if(_.findWhere(that.chatList, {_id: user._id})){
+                        //console.log('is chat');
+                        _.findWhere(that.chatList, {_id: user._id}).newMsg=0;
+                    } else {
+                        user.newMsg=0;
+                        that.chatList.push(user);
+                    }
+
+
+                }
+                function updateListMsgs(to,from){
+                    socket.emit('updateListMsgs',{to:to,from:from});
+                }
+
+
+                return {
+                    sendMsg:sendMsg,
+                    changeChat:changeChat,
+                    listUsers:that.listUsers,
+                   // listUsers1:listUsers,
+                    world:this.world,
+                    msqs:getMsgs,
+                    chatList:that.chatList,
+                    addChat:addChat,
+                    activeChat:that.activeChat,
+                    moreMsgs:moreMsgs,
+                    updateListMsgs:updateListMsgs,
+                    changeUser:changeUser,
+                    refreshLists:refreshLists
+                }
+            }
+       }
+
+
+    })
+
+/*socket.on('chatList',function(data){
+ //console.log(data);
+ chatList=data;
+
+ })*/
 
 /*
 .factory('socket', function ($rootScope) {

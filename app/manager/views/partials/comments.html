@@ -17,7 +17,11 @@
 
                     <li class="pull-left col-lg-12 col-md-10 col-xs-10 back" ng-repeat="comment in comments|filter:{name:searchComment}">
                         <div class="form-group">
-                            <label class="control-label col-lg-6 col-md-6 col-xs-6"><a ng-click="editComment(comment)"><span ng-bind="comment.author"></span></a></label>
+                            <label class="control-label col-lg-6 col-md-6 col-xs-6">
+                                <a ng-click="editComment(comment)">
+                                    <span ng-bind="comment.author"></span>
+                                </a>
+                            </label>
                             <div class="col-lg-6 btn-group">
 
                                 <button class="btn btn-info" ng-click="editComment(comment)">

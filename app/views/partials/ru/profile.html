@@ -1,18 +1,18 @@
-
+<div class="bg-content">
     	<div class="container">
         	<div class="row">
 				<div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12">
-                    <form class="form form-horizontal" style="margin-bottom: 20px">
+                    <form class="form form-horizontal">
                     	<div class="control-group">
                         	<label class="control-label main_control-label pull-left">Ваш login</label>
                             <div class="controls" >
-                                <p class="block-slogan " ng-bind="user.name"></p>
+                                <p ng-bind="user.name"></p>
                             </div>
                             <div class="clearfix"></div>
 
                             <label class="control-label main_control-label pull-left">Ваш e-mail</label>
                             <div class="controls">
-                                <p class="block-slogan" ng-bind="user.email"></p>
+                                <p ng-bind="user.email"></p>
                             </div>
                             <div class="clearfix"></div>
                        </div>
@@ -23,7 +23,7 @@
                         <div class="control-group">
                             <label class="col-lg-4 control-label">Смена пароля</label>
                             <div class="col-lg-8" >
-                                <button ng-click="profile.changePswdF()" class="btn  btn-primary form-control log"
+                                <button ng-click="profile.changePswdF()" class="btn  btn-danger form-control log"
                                         ng-disabled="profile.showChangePswd"
                                         >Сменить пароль</button>
                             </div>
@@ -57,7 +57,7 @@
                             <div ng-hide="!profile.showChangePswd" ng-show="profile.showChangePswd">
                                 <label class="col-lg-4 control-label"></label>
                                 <div class="col-lg-8">
-                                    <button class="btn btn-primary form-control log">Сохранить</button>
+                                    <button class="btn btn-success form-control log">Сохранить</button>
                                 </div>
                             </div>
 
@@ -138,7 +138,7 @@
                             <div class="control-group">
                                 <label class="col-lg-4 control-label"></label>
                                 <div class="col-lg-8">
-                                    <button class="btn btn-primary form-control" type="submit" ng-disabled="disableButtonSave">Сохранить</button>
+                                    <button class="btn btn-success form-control" type="submit" ng-disabled="disableButtonSave">Сохранить</button>
                                 </div>
                             </div>
                              <div class="controls main_controls">
@@ -158,3 +158,4 @@
                	</div>
             </div> 
 		</div><!--container-->
+</div>

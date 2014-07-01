@@ -1,18 +1,32 @@
 'use strict';
 
+
 /* Controllers */
 
 angular.module('myApp.controllers', [])
 
 
 
-    .controller('mainFrameCtrl',['$scope', '$location', function ($scope, $location) {
+    .controller('mainFrameCtrl',['$scope', '$location','socket','$rootScope', function ($scope, $location,socket,$rootScope) {
         //$scope.menuItem=Categories.list();
         $scope.toMainSite = function(){
             //console.log('dddd');
             window.location = '/';
             //$location.path('/');
         }
+
+        socket.on('send:numUres',function(data){
+            //console.log(data);
+            $scope.quantityUser=data;
+        })
+
+        socket.on('who are you',function(cb){
+            //console.log('who are you');
+            var id = ($rootScope.user._id)?$rootScope.user._id:'user not auth';
+            //console.log(id);
+            cb(id);
+        })
+
 
 
 
@@ -300,6 +314,7 @@ angular.module('myApp.controllers', [])
 
 
             $scope.updateComment = function(){
+                console.log($stateParams);
                 $scope.comment.id=$stateParams.id;
                 if (!$scope.comment._id){
 
@@ -795,8 +810,64 @@ angular.module('myApp.controllers', [])
         }])
 
 
-.controller('stuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags',
-        function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags) {
+.controller('stuffCtrl', ['$scope','Brands','$rootScope','Category','Filters','Stuff','$q','$timeout','BrandTags','mongoPaginator',
+        function ($scope,Brands,$rootScope,Category,Filters,Stuff,$q,$timeout,BrandTags,mongoPaginator) {
+
+
+            $scope.mongoPaginator=mongoPaginator;
+
+            $scope.row= $scope.mongoPaginator.rowsPerPage;
+            $scope.page=$scope.mongoPaginator.page;
+
+            $scope.$watch('mongoPaginator.rowsPerPage',function(){
+                if ($scope.page==0){
+                    if ($scope.section) {
+                        if (!$scope.activeBrand && !$scope.activeCategory){
+                            var brandId='section';
+                        } else {
+                            //console.log();
+                            var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+                        }
+
+                        var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                        if ($scope.activeBrand && !$scope.activeCategory){
+                            categoryId=0;
+                        }
+                        $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                    }
+                } else {
+                    $scope.page=0
+                }
+
+            })
+
+
+
+            var updatePage = function(){
+                $scope.page=mongoPaginator.page;
+            };
+
+            mongoPaginator.registerObserverCallback(updatePage);
+
+            $scope.$watch('page',function(n,o){
+                if (n!=o){
+                    if (!$scope.activeBrand && !$scope.activeCategory){
+                        var brandId='section';
+                    } else {
+                        //console.log();
+                        var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+                    }
+
+                    var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                    if ($scope.activeBrand && !$scope.activeCategory){
+                        categoryId=0;
+                    }
+                    $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+                }
+            })
+
+
+
             $scope.sections=[];
             $scope.activeCategory='';
             $scope.activeBrand='';
@@ -808,7 +879,7 @@ angular.module('myApp.controllers', [])
 
             $scope.stuffList=[];
             //paginator
-            $scope.page=1;
+            $scope.page=0;
             //$scope.numPages=2;
             $scope.totalItems=0;
             //$scope.maxSize = 5;
@@ -856,7 +927,7 @@ angular.module('myApp.controllers', [])
                 $scope.filtersList=[];
                 $scope.brandList = $scope.getBrandList($scope.section.id);
                 $scope.categoryList = $scope.getCategoryList($scope.section.id);
-                $scope.stuffs=$scope.getStuffList($scope.section.id,$scope.activeBrand)
+                $scope.stuffs=$scope.getStuffList($scope.section.id,$scope.activeBrand,$scope.mongoPaginator.rowsPerPage)
                 $scope.activeBrand='';
 
             };
@@ -947,7 +1018,7 @@ angular.module('myApp.controllers', [])
                         //console.log('dddddd');
                         $scope.activeCategory='0';
                         //$scope.filtersList=[];
-                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand)
+                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.mongoPaginator.rowsPerPage)
                         $scope.activeCategory='';
                     }
                     return;
@@ -962,7 +1033,7 @@ angular.module('myApp.controllers', [])
                 if (category.filters && category.filters.length>0){
                     $scope.getFt(category.filters,$scope.filtersList);
                 }
-                $scope.getStuffList($scope.activeCategory,$scope.activeBrand)
+                $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.mongoPaginator.rowsPerPage)
 
             }
 
@@ -1004,7 +1075,7 @@ angular.module('myApp.controllers', [])
                         $scope.changeSection();
                     } else {
                         $scope.activeBrand='0';
-                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand)
+                        $scope.stuffs=$scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.mongoPaginator.rowsPerPage)
                         $scope.activeBrand='';
                     }
                     return;
@@ -1014,13 +1085,13 @@ angular.module('myApp.controllers', [])
                 if (brand.categories && brand.categories.length>0){
                     getCr(brand.categories,$scope.categoryList);
                 }
-                $scope.getStuffList($scope.activeCategory,$scope.activeBrand);
+                $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.mongoPaginator.rowsPerPage);
             }
 
 
-            $scope.getStuffList = function(categoryId,brandId,page){
+            $scope.getStuffList = function(categoryId,brandId,page,rowsPerPage){
                 if (!page){
-                    $scope.page=1;
+                    $scope.page=0;
                     $scope.stuffList=[];
                 }
                 if (!categoryId) categoryId=0;
@@ -1029,15 +1100,14 @@ angular.module('myApp.controllers', [])
                     categoryId=$scope.section.id;
                     brandId='section';
                 }
-
-                Stuff.list({category:categoryId,brand:brandId,page:$scope.page},function(tempArr){
-                   /* if ($scope.stuffList.length<=0 && tempArr.length>0){
-                        $scope.totalItems=tempArr[0].index;
-                    }*/
-                    if ($scope.page==1 && tempArr.length>0){
-                        $scope.totalItems=tempArr[0].index;
+                var perPage =  (rowsPerPage)?rowsPerPage:null;
+                //console.log(perPage);
+                Stuff.list({category:categoryId,brand:brandId,page:$scope.page,perPage:perPage},function(tempArr){
+                    //console.log(tempArr);
+                    if ($scope.page==0 && tempArr.length>0){
+                        $scope.totalItems=$scope.mongoPaginator.itemCount=tempArr.shift().index;
                     }
-                    //console.log($scope.totalItems);
+                    $scope.stuffList=[];
                     for (var i=0 ; i<=tempArr.length - 1; i++) {
                        // tempArr[i].filters=JSON.parse(tempArr[i].filters);
                         $scope.stuffList.push(tempArr[i]);
@@ -1048,7 +1118,7 @@ angular.module('myApp.controllers', [])
             //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
             $scope.loadData = function(numPage) {
                 //console.log(numPage);
-                if (!numPage) numPage=1;
+                if (!numPage) numPage=0;
                 var deferred = $q.defer();
                 var i=1;
 
@@ -1100,20 +1170,37 @@ angular.module('myApp.controllers', [])
 
             $scope.deleteStuff = function(stuff){
                 if (confirm("Удалить?")){
+
+                    $scope.mongoPaginator.itemCount--;
                     stuff.$delete(function(err){
                         if (err) console.log(err);
-                        $rootScope.changeStuff=true;
+                        $timeout(function(){
+                            console.log('$scope.page='+$scope.page);
+                            console.log('$scope.mongoPaginator.pageCount()='+$scope.mongoPaginator.pageCount())
+                            if ($scope.page>=$scope.mongoPaginator.pageCount()){
+                                console.log('$scope.page='+$scope.page);
+                                 console.log('$scope.mongoPaginator.pageCount='+$scope.mongoPaginator.pageCount())
+                                $scope.page--;
+                            } else {
+                                $rootScope.changeStuff=true;
+                            }
+
+                        },150)
+
+
+
+
                         //$scope.getStuffList($scope.ActiveCategory,$scope.activeBrand);
                     });
                 }
             }
 
-            $scope.setPage = function () {
+            /*$scope.setPage = function () {
                 $scope.page++;
                 $scope.getStuffList($scope.activeCategory,$scope.activeBrand,$scope.page);
                 //console.log($scope.page);
 
-            };
+            };*/
 
 
             $scope.filterLists =  function() {
@@ -1134,47 +1221,28 @@ angular.module('myApp.controllers', [])
                     return true;
                 }
             }
-            /*$scope.filterLists1 =  function() {
-                return function(item) {
-                    //angular.isObject(item.filters)
-                    //console.log(angular.isObject(item.filters));
-                    if (!angular.isObject(item.filters ) && typeof(item.filters)=='string'){
-                        item.filters=JSON.parse(item.filters);
-                    }
-                    //$timeout(function(){
-                    if (!$scope.filtersList || $scope.filtersList.length<=0){
-                        //console.log($scope.filtersList.length);
-                        return true;
-                    }
-                    if (!item.filters || item.filters.length<=0){
-                        return true;
-                    }
-                    for (var i=0 ; i<=$scope.filtersList.length - 1; i++) {
-                        *//*console.log($scope.filtersList[i]);
-                         console.log(item.filters[$scope.filtersList[i]._id]);*//*
-                        if ($scope.filtersList[i].type=='1'){
-                            if ($scope.filtersList[i].value && $scope.filtersList[i].value!=item.filters[$scope.filtersList[i]._id]){
-                                return false;
-                            }
-                        } else {
-                            *//*console.log($scope.filtersList[i].value);//item.filters[$scope.filtersList[i]._id]
-                             console.log($scope.filtersList[i]._id);*//*
-                            if ($scope.filtersList[i].value && item.filters[$scope.filtersList[i]._id][$scope.filtersList[i].value]=='NO'){
-                                return false;
-                            }
-                        }
-                    }
-                    //console.log(item);
-                    return true;
-                    //},100)
-                }
-            }*/
 
             $scope.$watch('changeStuff',function(){
                 if ($rootScope.changeStuff && $rootScope.$state.current.name=='mainFrame.stuff'){
+                    if (!$scope.activeBrand && !$scope.activeCategory){
+                        var brandId='section';
+                    } else {
+                        //console.log();
+                        var brandId=($scope.activeBrand)?$scope.activeBrand:0;
+                    }
+
+                    var categoryId=($scope.activeCategory)?$scope.activeCategory:$scope.section.id;
+                    if ($scope.activeBrand && !$scope.activeCategory){
+                        categoryId=0;
+                    }
+                    $scope.getStuffList(categoryId,brandId,$scope.page,$scope.mongoPaginator.rowsPerPage);
+
                     //console.log('dd');
                     //$scope.getStuffList($scope.activeCategory,$scope.activeBrand);
-                    $scope.loadData($scope.page);
+
+
+                    //$scope.loadData($scope.page);
+
                    /*for (var i=1;i<=$scope.page;i++){
                        promises.push($scope.getStuffList($scope.activeCategory,$scope.activeBrand,i));
                    }*/
@@ -1352,6 +1420,7 @@ angular.module('myApp.controllers', [])
 
 
             $scope.updateStuff= function(stuff){
+                console.log($scope.stuff.artikul);
                 setFiltersTags($scope.filtersValue);
                 var i;
                 for(i=0; i<=$rootScope.config.langArr.length-1;i++){
@@ -1391,9 +1460,23 @@ angular.module('myApp.controllers', [])
 
     .controller('commentStuffCtrl', ['$scope','$rootScope','Stuff',"Comment",
         function ($scope,$rootScope,Stuff,Comment) {
+            console.log($rootScope.$stateParams);
+            $scope.page=0;
+
             $scope.disallowEdit = true;
-            $scope.stuff=Stuff.full($rootScope.$stateParams);
+
+            $scope.stuff=Stuff.full({id:$rootScope.$stateParams.id,page:'page'});
+            $scope.comments=Comment.list({stuff:$rootScope.$stateParams.id});
             $scope.comment={};
+            $scope.moreComments=function(){
+                $scope.page++;
+                Comment.list({stuff:$rootScope.$stateParams.id,page:$scope.page},function(res){
+                    //console.log(res);
+                    for (var i=0;i<res.length;i++){
+                        $scope.comments.push(res[i]);
+                    }
+                });
+            };
 
             $scope.backToList=function(){
                 $rootScope.$state.transitionTo('mainFrame.stuff');
@@ -1413,7 +1496,7 @@ angular.module('myApp.controllers', [])
 
                 } else {
                     $scope.comment = Comment.get(comment,function(){
-                        console.log($scope.comment);
+                        //console.log($scope.comment);
                         $scope.comment.authorName=$scope.comment.author.name;
                     });
                 }
@@ -1425,7 +1508,50 @@ angular.module('myApp.controllers', [])
                 $scope.comment.text='';
                 $scope.comment.author='';
                 $scope.comment.date='';
-                $scope.stuff=Stuff.full($rootScope.$stateParams);
+
+                var arrIndex=[];
+                var comments=[];
+                for(var i=1;i<=$scope.page;i++){
+                    arrIndex.push(i);
+                }
+                async.eachSeries(arrIndex,function( i, cb) {
+                    Comment.list({stuff:$rootScope.$stateParams.id,page: i},function(result){
+                        for(var i=0;i<result.length;i++){
+                            comments.push(result[i]);
+                        }
+                        cb();
+                    })
+                },function(err,result){
+                    $scope.comments=comments;
+                });
+
+                /*var arrFoo=[];
+                //console.log('$scope.page -'+$scope.page);
+                var l;
+                for(l=1;l<=$scope.page;l++){
+                    //console.log('i - '+$scope.page);
+                    var k=l.toString();
+                    console.log(k);
+                    var a = function(cb){
+                        Comment.list({stuff:$rootScope.$stateParams.id,page: k},function(res){
+                            //console.log(res)
+                            cb(null,res);
+                        })
+                    }
+                    arrFoo.push(a);
+                }
+                async.series(arrFoo,function(err,result){
+                    //console.log(result);
+                    var comments=[];
+                    for(var i=0;i<result.length;i++){
+                        for(var j=0;j<result[i].length;j++){
+                            comments.push(result[i][j]);
+                        }
+                    }
+                    $scope.comments=comments;
+                })*/
+
+                //$scope.stuff=Stuff.full($rootScope.$stateParams);
             }
 
             $scope.updateComment =  function(){
@@ -1457,7 +1583,7 @@ angular.module('myApp.controllers', [])
             }
 
             $scope.dateConvert = function(date){
-                return moment(date).format('lll');
+                return moment(date).format('ll');
             }
 
 
@@ -1471,9 +1597,17 @@ angular.module('myApp.controllers', [])
             $scope.photoIndex=1;
             $scope.mainFilterTag='';
             $scope.gallery = [];//= $scope.stuffForGallery.gallery;
-            $scope.stuff= Stuff.full({id:$rootScope.$stateParams.id},function(){
+            $scope.stuff= Stuff.full({id:$rootScope.$stateParams.id,page:'page'},function(){
                 //console.log($scope.stuff);
                 $scope.gallery=$scope.stuff.gallery;
+                $scope.colors =[];
+
+                for (var i= 0,len=$scope.stuff.category.mainFilter.tags.length;i<len;i++){
+                    if ($scope.IsColor($scope.stuff.category.mainFilter.tags[i]._id)){
+                        $scope.colors[$scope.colors.length]=$scope.stuff.category.mainFilter.tags[i];
+                    }
+                }
+
 
             });
 
@@ -1495,9 +1629,9 @@ angular.module('myApp.controllers', [])
             $scope.myFile={};
             $scope.noLoad=true;
             $scope.noChange=false;
-            $scope.myFileSrc='/' + '?' + new Date().getTime();;
+            $scope.myFileSrc='/' + '?' + new Date().getTime();
             $scope.uploadFile = function(){
-                if ($scope.gallery.length>=12) return;
+                if ($scope.gallery.length>=18) return;
                 var file = $scope.myFile;
                 $scope.noLoad=true;
                 $scope.noChange=true;
@@ -1534,6 +1668,18 @@ angular.module('myApp.controllers', [])
                 $rootScope.$state.transitionTo('mainFrame.stuff');
                 $rootScope.changeStuff=true;
             }
+
+            $scope.IsColor = function(id){
+                for (var i= 0,l=$scope.stuff.tags.length;i<l;i++){
+                    if ($scope.stuff.tags[i]._id==id){
+                        return true;
+                        break;
+                    }
+                }
+                return false;
+            }
+
+
 
 
 
@@ -2140,7 +2286,14 @@ angular.module('myApp.controllers', [])
             //.success(function(data) {console.log(data)})
             $scope.disabledButton=true;
             $scope.showMessage=false;
-            $scope.config =  Config.get(function(){console.log($scope.config);$scope.disabledButton=false;});
+            Config.get(function(res){
+                $scope.config=res;
+                console.log($scope.config);
+                if (!$scope.config.email){
+                    $scope.config.email={opt:'',retail:''}
+                }
+                $scope.disabledButton=false;
+            });
             $scope.updateCurrency= function(){
                 $scope.config.currency['RUB'][0]=parseFloat($scope.config.currency['RUB'][0]);
                 $scope.config.currency['USD'][0]=parseFloat($scope.config.currency['USD'][0]);
@@ -2149,28 +2302,44 @@ angular.module('myApp.controllers', [])
                 Config.save($scope.config,function() {
                    $scope.showMessage=true;
                     $timeout(function(){$scope.showMessage=false;$scope.disabledButton=false;},3000);
+                    Config.get({cache:'erase'},function(res){
+                        $scope.config=res;
+                    })
                 });
             }
-            //console.log($scope.currency);
+            console.log($scope.currency);
 
         }])
 
 
-.controller('ordersCtrl', ['$scope','$rootScope','Orders',
-    function ($scope,$rootScope,Orders) {
+.controller('ordersCtrl', ['$scope','$rootScope','Orders','$stateParams','$timeout',
+    function ($scope,$rootScope,Orders,$stateParams,$timeout) {
+
+        $scope.fromChat = ($rootScope.$stateParams.num)?$rootScope.$stateParams.num:'';
+        console.log($stateParams);
+
+        moment.lang("ru");
+        $scope.quantityArr=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
+            25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
+
         //var start = Date.now();
         //console.log(start)
         $scope.filterStatus='';
-        $scope.orders=Orders.list();
-
+        //$scope.orders=Orders.list();
+        $scope.retail=($rootScope.$state.current.data && $rootScope.$state.current.data.retail)?'retail':'';
 
 
         $scope.afterSave = function(){
-            $scope.orders=Orders.list();
+            $scope.orders=Orders.list({retail: $scope.retail});
         };
 
         $scope.updateOrder =  function(order){
-
+            /*var sum=0;
+            var quan=0;
+            for (var i=0;i<order.cart.length;i++){
+                guan +=order.cart[i].quantity;
+                sum += order.cart[i].quantity*
+            }*/
             order.$update(function(err){
                 if (err) console.log(err);
                 $scope.afterSave();
@@ -2178,19 +2347,28 @@ angular.module('myApp.controllers', [])
                 $anchorScroll();*/
             });
         }
-        /*$scope.cartCount =  function(cartItems){
-            var i=0;
-            cartItems.forEach(function(item){
-                //console.log(item.quantity);
-                if(item.quantity)
-                    i +=Number(item.quantity);
-            })
-            return i;
+        $scope.orderCount =  function(order){
+            //console.log(order);
+            var q=0;
+            for (var i =0;i<order.cart.length;i++){
+                if(order.cart[i].quantity)
+                    q +=Number(order.cart[i].quantity);
+                //console.log('q in loop-'+q);
+            }
+            //console.log('q-'+q);
+            return q;
 
         }
-        $scope.getTotalSum =  function(order){
 
-        }*/
+        $scope.getTotalSum =  function(order){
+            var s=0;
+            for (var i =0;i<order.cart.length;i++){
+                s+=(order.quantity>5)?order.cart[i].quantity*order.cart[i].price:order.cart[i].quantity*order.cart[i].retail;
+            }
+            //console.log('s-'+s);
+            return s;
+
+        }
 
 
 
@@ -2222,7 +2400,142 @@ angular.module('myApp.controllers', [])
         }
 
 
+        $scope.deleteItem = function(order,i){
+            order.cart.splice(i,1)
+        }
+
+       /* $scope.updateOrder = function(order){
+            order.$update();
+        }*/
+
+        $scope.afterSave();
+
+        $scope.printOrder = function(order){
+            var popupWin=window.open();
+            popupWin.window.focus();
+            var s='';
+            s +='<div class="container"><div class="row"><div class="col-lg-8">'+
+                '<h3>Ордер № '+order.num+'</h3> от '+moment(order.date).format('lll')+'</br>';
+            s +='';
+
+            s += '<table class="table table-bordered">'+
+                '<thead><tr><th>#</th><th>Наименование</th><th>Артикул</th><th>Размер</th><th>Цена</th><th>Количество</th><th>'+
+                'Стоимость</th></tr></thead>';
+            for (var i=0,len=order.cart.length;i<len;i++){
+                 var good = order.cart[i];
+                var index = i+1;
+                var price=(order.quantity>=5)?good.price:good.retail;
+                s +='<tr><td>'+index+'</td><td>'+good.name+' '+good.colorName+'</td><td>'+(good.artikul || '' )+'</td><td class="text-center">'+
+                    good.sizeName+'</td><td>'+(order.kurs*price).toFixed(2)+' '+order.currency+
+                    '</td><td class="text-center">'+good.quantity+'</td>'+
+                    '<td>'+ (order.kurs*price*good.quantity).toFixed(2)+' '+order.currency+
+                    '</td> </tr>';
+
+            }
+            s +='<tr><th></th><th>Итого</th><th></th><th></th><th></th>'+
+                '<th class="text-center">'+order.quantity+'</th><th>'+order.kurs*order.sum+' '+order.currency+'</th></tr>';
+            s += '<tr><td colspan="7"><h4>Данные для доставки:</h4></td></tr>' +
+                '<tr><td colspan="2">email : </td><td colspan="5">'  + order.user.email+'</td></tr>'+
+                '<tr><td colspan="2">login :</td><td colspan="5"> '+order.user.name+'</td></tr>'+
+            '<tr><td colspan="2">ФИО : </td><td colspan="5">'  + order.profile['fio']+'</td></tr>'+
+                '<tr><td colspan="2">телефон : </td><td colspan="5">'  + order.profile['phone']+'</td></tr>'+
+            '<tr><td colspan="2">индекс :</td><td colspan="5"> '+order.profile['zip']+'</td></tr>'+
+            '<tr><td colspan="2">cтрана :</td><td colspan="5"> '+order.profile['country']+'</td></tr>'+
+            '<tr><td colspan="2">регион :</td><td colspan="5"> '+order.profile['region']+'</td></tr>'+
+                '<tr><td colspan="2">город :</td><td colspan="5"> '+order.profile['city']+'</td></tr>'+
+                '<tr><td colspan="2">адрес :</td><td colspan="5"> '+order.profile['address']+'</td></tr></table></div></div></div>';
+
+
+
+
+
+            var printContents = s;
+            popupWin.document.write('<!DOCTYPE html><html><head>' +
+                '<link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css" />' +
+                '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div>' +
+                //'<script>setTimeout(function(){ window.parent.focus(); window.close() }, 100)</script>' +
+                '</html>');
+            /*if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                var popupWin = window.open();
+                popupWin.window.focus();
+                popupWin.document.write('<!DOCTYPE html><html><head>' +
+                    '<link rel="stylesheet" type="text/css" href="style.css" />' +
+                    '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div></html>');
+                popupWin.onbeforeunload = function (event) {
+                    return 'Please use the cancel button on the left side of the print preview to close this window.\n';
+                };
+            }else {
+                var popupWin = window.open('', '_blank', 'width=600,height=600,scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+                popupWin.document.write('<!DOCTYPE html><html><head>' +
+                    '<link rel="stylesheet" type="text/css" href="style.css" />' +
+                    '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div>' +
+                    '<script>setTimeout(function(){ window.parent.focus(); window.close() }, 100)</script></html>');
+            }*/
+
+
+            $timeout(function () {
+                popupWin.print();
+            });
+            //Chrome's versions > 34 is some bug who stop all javascript when is show a prints preview
+            //http://stackoverflow.com/questions/23071291/javascript-window-print-in-chrome-closing-new-window-or-tab-instead-of-cancel
+            /*if(navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                var popupWin = window.open();
+                popupWin.window.focus();
+                popupWin.document.write('<!DOCTYPE html><html><head>' +
+                    '<link rel="stylesheet" type="text/css" href="style.css" />' +
+                    '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div></html>');
+                popupWin.onbeforeunload = function (event) {
+                    return 'Please use the cancel button on the left side of the print preview to close this window.\n';
+                };
+            }else {
+                var popupWin = window.open('', '_blank', 'width=600,height=600,scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+                popupWin.document.write('<!DOCTYPE html><html><head>' +
+                    '<link rel="stylesheet" type="text/css" href="style.css" />' +
+                    '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div>' +
+                    '<script>setTimeout(function(){ window.parent.focus(); window.close() }, 100)</script></html>');
+            }
+            popupWin.document.close();
+            popupWin.document.close();*/
+        }
+
+
     }])
+
+    .controller('ordersArchCtrl', ['$scope','$rootScope','OrdersArch',
+        function ($scope,$rootScope,Orders) {
+            //var start = Date.now();
+            //console.log(start)
+
+            $scope.orders=Orders.list();
+
+
+
+            $scope.afterSave = function(){
+                $scope.orders=Orders.list();
+            };
+
+         $scope.deleteOrder = function(order){
+                if (confirm("Удалить?")){
+                    order.$delete(function(err){
+                        if (err) console.log(err);
+                        $scope.afterSave();
+                    });
+                }
+            }
+
+            $scope.dateConvert = function(date){
+                if (date) {
+                    return moment(date).format('lll');
+                } else {
+                    return '';
+                }
+
+            }
+
+
+        }])
+
+
 
 
     .controller('usersCtrl', ['$scope','$rootScope','User',
@@ -2238,13 +2551,70 @@ angular.module('myApp.controllers', [])
                     $scope.afterSave();
                 });
             }
-            $scope.deleteUser = function(order){
+            $scope.deleteUser = function(user){
                 if (confirm("Удалить?")){
                     user.$delete(function(err){
                         if (err) console.log(err);
                         $scope.afterSave();
                     });
                 }
+            }
+        }])
+
+    .controller('usersOldCtrl', ['$scope','$rootScope','$http',
+        function ($scope,$rootScope,$http) {
+            $scope.users=[];
+            //console.log('dddd');
+            $http.get('/api/userslistold').then(function(res){
+
+                //console.log(res);
+                for(var i=0;i<res.data.length;i++){
+                    var temp={
+                        name:res.data[i].login,
+                        date:res.data[i].date_reg,
+                        email:res.data[i].username,
+                        role:'user',
+                    };
+                    if (res.data[i].profile && res.data[i].profile.substring(0,2)=='{"'){
+                        //console.log(res.data[i].profile)
+                        var pr=JSON.parse(res.data[i].profile);
+                        //console.log(pr)
+                        if (pr.fio){
+                            temp['profile']={
+                                fio:pr.fio,
+                                phone:pr.phone,
+                                zip:pr.zip,
+                                country:pr.country,
+                                region:pr.region,
+                                city:pr.city,
+                                address:pr.address
+                            }
+                        }
+                    }
+
+                    $scope.users.push(temp);
+                }
+               // console.log($scope.users)
+            });
+            $scope.afterSave = function(){
+                $scope.users=User.list();
+            };
+            $scope.updateUser =  function(user){
+                user.$update(function(err){
+                    if (err) console.log(err);
+                    $scope.afterSave();
+                });
+            }
+            $scope.deleteUser = function(i){
+                if (confirm("Удалить?")){
+                    $scope.users.splice(i,1);
+                }
+            }
+
+            $scope.transform= function(){
+                $http.post('/api/userslistold',$scope.users).then(function(res){
+
+                });
             }
         }])
 
@@ -2285,6 +2655,7 @@ angular.module('myApp.controllers', [])
             //Angularjs promise chain when working with a paginated collection
             //http://stackoverflow.com/questions/20171928/angularjs-promise-chain-when-working-with-a-paginated-collection
             $scope.loadData = function(numPage) {
+                //console.log(numPage));
                 //console.log(numPage);
                 if (!numPage) numPage=1;
                 var deferred = $q.defer();
@@ -2473,3 +2844,204 @@ angular.module('myApp.controllers', [])
 
         }])
 
+    .controller('siteMapCtrl', ['$scope','$rootScope','$http',
+        function ($scope,$rootScope,$http) {
+            $http.get('/api/siteMAP').then(function(res){
+                $scope.done=true;
+                console.log(res);
+            });
+        }])
+
+    .controller('chatsCtrl', ['$scope','$rootScope','$http','Chat',
+        function ($scope,$rootScope,$http,Chat) {
+
+            $scope.moment=moment;
+
+            $scope.listUsers = Chat.list();
+            $scope.listChsts=[];
+
+            $scope.selectedUser;
+            $scope.$watch('selectedUser',function(){
+                if ($scope.selectedUser){
+                    $scope.activeChat='';
+                    //var a = _.findWhere($scope.listUsers, {_id: $scope.selectedUser});
+
+                    Chat.list({from:$scope.selectedUser},function(res){
+                        while($scope.listChsts.length > 0) {
+                            $scope.listChsts.pop();
+                        }
+                        for (var j= 0,len= res.length;j<len;j++){
+
+                            $scope.listChsts[$scope.listChsts.length] =res[j];
+                        }
+                        //console.log(res);
+                    });
+                    console.log($scope.listChsts);
+                    for (var i= 0,l= $scope.listUsers.length;i<l;i++){
+                        if ($scope.listUsers[i]._id==$scope.selectedUser){
+                            $scope.selectedChat=$scope.listUsers[i];
+                            break;
+                        }
+                    }
+
+                    $scope.selectedUser='';
+                }
+            });
+            $scope.changeChat = function(chat){
+                $scope.activeChat=chat;
+                $scope.sendMsgBtn=true;
+                $scope.msgs=[];
+
+                Chat.list({from:$scope.selectedChat._id,to:$scope.activeChat._id},function(res){
+
+                    res.forEach(function(el){
+                        if (el.user==$scope.activeChat._id){
+                            el.name=$scope.activeChat.name;
+                            el.class=false;
+                        }else{
+                            el.class=true;
+                            el.name=$scope.selectedChat.name;
+                        }
+                        el.date=el.created;
+                        el.delete=false;
+                        $scope.msgs[$scope.msgs.length]=el;
+                    })
+                });
+                /*chats.changeChat(chat,function(res){
+                    $scope.msgs=chats.msqs();
+                    //chats.updateListMsgs($scope.activeChat._id,$rootScope.user._id);
+                    //myfocus();
+                });*/
+            }
+
+
+            /* $http.get('/api/chatsEdit').then(function(res){
+                 $scope.done=true;
+                 console.log(res);
+             });*/
+
+        }])
+
+
+
+
+
+    .controller('editForcePswdCtrl', ['$scope','$rootScope','$http',
+        function ($scope,$rootScope,$http) {
+
+           $scope.change = function(){
+               $http.post(' /api/users/editForce',{email:$scope.email,password:$scope.password}).then(function(res){
+                   $scope.done=true;
+                   alert('обновлено!');
+               });
+
+           }
+
+
+        }])
+
+
+    .controller('editCommentsCtrl', ['$scope','$rootScope','$http','Comment','mongoPaginator','$timeout',
+        function ($scope,$rootScope,$http,Comment,mongoPaginator,$timeout) {
+
+            $scope.mongoPaginator=mongoPaginator;
+
+            $scope.moment= moment;
+            $scope.comments=Comment.list({stuff:'all',perPage:$scope.mongoPaginator.rowsPerPage},function(res){
+                if(res && res[0] && res[0].stuff && res[0].stuff.index){
+                    $scope.items = $scope.mongoPaginator.itemCount=res[0].stuff.index;
+                    //console.log( $scope.items);
+                }
+            });
+            $scope.row= $scope.mongoPaginator.rowsPerPage;
+            $scope.page=mongoPaginator.page;
+
+            $scope.$watch('mongoPaginator.rowsPerPage',function(){
+                $scope.comments=Comment.list({stuff:'all',perPage:$scope.mongoPaginator.rowsPerPage},function(res){
+                    if(res && res[0] && res[0].stuff && res[0].stuff.index){
+                        $scope.items = $scope.mongoPaginator.itemCount=res[0].stuff.index;
+                        console.log( $scope.items);
+                    }
+                });
+            })
+
+
+            var updatePage = function(){
+                $scope.page=mongoPaginator.page;
+            };
+
+            mongoPaginator.registerObserverCallback(updatePage);
+
+            function afterSave (){
+                $scope.comments=Comment.list({stuff:'all',page:$scope.page,perPage:$scope.mongoPaginator.rowsPerPage},function(res){
+
+                    if($scope.page==0 && res && res[0] && res[0].stuff && res[0].stuff.index){
+                        $scope.items = $scope.mongoPaginator.itemCount=res[0].stuff.index;
+                        //console.log( $scope.items);
+                    }
+                });
+            }
+
+            $scope.$watch('page',function(n,o){
+                console.log(n);
+                console.log(o);
+                if (n!=o){
+                    afterSave();
+                }
+            })
+
+            $scope.updateComment =  function(comment){
+                /*console.log(comment);
+                return;*/
+                comment.$update(function(err){
+                    afterSave ();
+                });
+            }
+
+            $scope.deleteComment = function(comment){
+                if (confirm("Удалить?")){
+                    $scope.mongoPaginator.itemCount--;
+                    comment.$delete(function(err){
+                        if (err) console.log(err);
+
+                        $timeout(function(){
+                            console.log('$scope.page='+$scope.page);
+                            console.log('$scope.mongoPaginator.pageCount()='+$scope.mongoPaginator.pageCount())
+                            if ($scope.page>$scope.mongoPaginator.pageCount()){
+                                /*console.log('$scope.page='+$scope.page);
+                                console.log('$scope.mongoPaginator.pageCount='+$scope.mongoPaginator.pageCount)*/
+                                $scope.page--;
+                            } else {
+                                afterSave();
+                            }
+
+                        },50)
+
+
+
+                        //$scope.getStuffList($scope.ActiveCategory,$scope.activeBrand);
+                    });
+                    /*$scope.comment = Comment.get(comment,function(){
+                        $scope.comment.$delete(function(err){
+                            if (err) console.log(err);
+                            $scope.afterSave();
+                            //$scope.getStuffList($scope.ActiveCategory,$scope.activeBrand);
+                        });
+                    });*/
+
+                }
+            }
+
+
+            $scope.moreComments=function(){
+                $scope.page++;
+                Comment.list({stuff:$rootScope.$stateParams.id,page:$scope.page},function(res){
+                    //console.log(res);
+                    for (var i=0;i<res.length;i++){
+                        $scope.comments.push(res[i]);
+                    }
+                });
+            };
+
+
+        }])

@@ -13,7 +13,10 @@ angular.module('myApp.services', []).
         }, { //parameters default
             update: {
                 method: 'PUT',
-                params: {}
+                params: {
+                    id:'profile',
+                    email:''
+                }
             },
             get: {
                 method: 'GET',
@@ -81,36 +84,36 @@ angular.module('myApp.services', []).
     }])
 
     .factory('Comment',['$resource', function($resource){
-        return $resource('/api/commentStuff/:_id', {}, {
-            list: {method:'GET', isArray: true, params:{_id:''}},
-            add: {method:'POST',params:{_id:''}},
-            update: {method:'PUT',params: {_id: ''}},
-            delete: {method:'DELETE',params: {_id: '@_id'}},
-            get:{method:'GET', params: {_id: '@_id'}}
+        return $resource('/api/commentStuff/:stuff/:_id', {}, {
+            list: {method:'GET', isArray: true, params:{stuff:"@stuff",_id:''}},
+            add: {method:'POST',params:{stuff:"",_id:''}},
+            update: {method:'PUT',params: {stuff:"",_id: ''}},
+            delete: {method:'DELETE',params: {stuff:"@stuff",_id: '@_id'}},
+            get:{method:'GET', params: {stuff:"@stuff",_id: '@_id'}}
         });
     }])
 
     .factory('Stuff',['$resource', function($resource){
-        return $resource('/api/stuff/:category/:brand/:page/:id', {}, {
-            list: {method:'GET', isArray: true, params:{category:'@category',brand:'@brand',page:'@page',id:''}},
-            add: {method:'POST',params:{category:'category',brand:'brand',page:'page',id:''}},
-            update: {method:'PUT',params: {category:'category',brand:'brand',page:'page',id:''}},
-            updateGallery: {method:'PUT',params: {category:'category',brand:'brand',page:'gallery',id:''}},
-            delete: {method:'DELETE',params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
-            get:{method:'GET', params: {category:'category',brand:'brand',page:'page',id:'@_id'}},
-            full:{method:'GET', params: {category:'category',brand:'brand',page:'full',id:'@_id'}}
+        return $resource('/api/stuff/:category/:brand/:id', {}, {
+            list: {method:'GET', isArray: true, params:{category:'@category',brand:'@brand',id:''}},
+            add: {method:'POST',params:{category:'category',brand:'brand',id:''}},
+            update: {method:'PUT',params: {category:'category',brand:'brand',id:''}},
+            updateGallery: {method:'PUT',params: {category:'category',brand:'brand',id:'gallery'}},
+            delete: {method:'DELETE',params: {category:'category',brand:'brand',id:'@_id'}},
+            get:{method:'GET', params: {category:'category',brand:'brand',id:'@_id'}},
+            full:{method:'GET', params: {category:'category',brand:'brand',id:'@_id'}}
         });
     }])
 
     .factory('News',['$resource', function($resource){
-        return $resource('/api/news/:page/:id', {}, {
-            list: {method:'GET', isArray: true, params:{page:'@page',id:''}},
-            add: {method:'POST',params:{page:'page',id:''}},
-            update: {method:'PUT',params: {page:'page',id:''}},
-            updateGallery: {method:'PUT',params: {page:'gallery',id:''}},
-            delete: {method:'DELETE',params: {page:'page',id:'@_id'}},
-            get:{method:'GET', params: {page:'page',id:'@_id'}},
-            full:{method:'GET', params: {page:'full',id:'@_id'}}
+        return $resource('/api/news/:id', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id:''}},
+            updateGallery: {method:'PUT',params: {id:'gallery'}},
+            delete: {method:'DELETE',params: {id:'@_id'}},
+            get:{method:'GET', params: {id:'@_id'}}
+            //full:{method:'GET', params: {id:'@_id'}},
         });
     }])
 
@@ -213,6 +216,28 @@ angular.module('myApp.services', []).
         });
     }])
 
+    .factory('OrdersArch',['$resource', function($resource){
+        return $resource('/api/orderarch/:id', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            add: {method:'POST',params:{id:''}},
+            update: {method:'PUT',params: {id: ''}},
+            delete: {method:'DELETE',params: {id: '@_id'}},
+            get:{method:'GET', params: {id: '@_id'}}
+        });
+    }])
+
+
+    .factory('Chat',['$resource', function($resource){
+        return $resource('/api/chat/:from/:to', {}, {
+            list: {method:'GET', isArray: true, params:{id:''}},
+            delete: {method:'DELETE',params: {}}
+            /*add: {method:'POST',params:{id:''}},
+             update: {method:'PUT',params: {id: ''}},
+             delete: {method:'DELETE',params: {id: '@_id'}},
+             get:{method:'GET', params: {id: '@id'}}*/
+        });
+    }])
+
 /*.factory('Currency',['$http' , function($http){
     var currency = {arr:null};
     function get(){
@@ -267,7 +292,11 @@ angular.module('myApp.services', []).
             });
         return promise;
     }
-}]);
+}])
+    .factory('socket', function (socketFactory) {
+        return socketFactory();
+    })
+
 /*
 .service('$fileUpload', ['$http', function ($http) {
     this.uploadFileToUrl = function(file, uploadUrl,id,params){
